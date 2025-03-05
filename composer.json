@@ -1,0 +1,30 @@
+{
+    "name": "simp/content-manager",
+    "description": "This is quick kit for creating and managing contents",
+    "type": "project",
+    "require": {
+        "symfony/http-foundation": "^7.2",
+        "symfony/yaml": "^7.2",
+        "symfony/var-dumper": "^7.2",
+        "simp/streamwrapper": "^1.0",
+        "phpfastcache/phpfastcache": "^9.2",
+        "simp/forms": "^1.0",
+        "simp/router": "^1.0",
+        "twig/twig": "^3.0",
+      "ext-pdo": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Simp\\Core\\": "core/",
+            "Simp\\Public\\Module\\": "public/module/",
+            "Simp\\Public\\Theme\\": "public/theme/"
+        }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "CHANCENY",
+            "email": "nyasuluchance6@gmail.com"
+        }
+    ]
+}

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    <meta name="description" content="{{ page_description }}">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="keywords" content="{{ page_keywords }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            padding-top: 90px; /* To prevent content from hiding behind the fixed navbar */
+        }
+
+        /* Top Black Admin Bar */
+        .admin-bar {
+            background-color: #222;
+            color: white;
+            padding: 5px 15px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1040;
+        }
+
+        .admin-bar a {
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+        }
+
+        .admin-bar a:hover {
+            text-decoration: underline;
+        }
+
+        .admin-bar input {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+        }
+        .main-content {
+            margin: auto;
+        }
+
+        /* Main Menu Bar */
+        .main-menu {
+            background-color: #f2fcfc;
+            position: fixed;
+            top: 35px;
+            width: 100%;
+            z-index: 1030;
+            display: flex;
+            justify-content: center;
+            padding: 5px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .main-menu a {
+            background-color: #edf7f7;
+            color: #000;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .main-menu a:hover {
+            background-color: #d8efef;
+        }
+
+        .main-menu i {
+            margin-right: 5px;
+        }
+        .db-form-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .btn-primary {
+            background-color: #6e365f;
+            border: none;
+        }
+        .field-wrapper {
+            margin: 10px;
+        }
+        .field-message {
+            color: darkred;
+        }
+        .field-description {
+            font-size: smaller;
+            font-style: italic;
+            color: blueviolet;
+        }
+        legend {
+            font-size: large;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Black Admin Bar -->
+<div class="admin-bar">
+    <div>
+        <a href="#"><i class="fa fa-bars"></i> Manage</a>
+        <a href="#"><i class="fa fa-star"></i> Shortcuts</a>
+        <a href="#"><i class="fa fa-user"></i> Admin</a>
+    </div>
+    <input type="text" placeholder="Admin Toolbar quick search">
+    <div>
+        <a href="#"><i class="fa fa-bell"></i> Announcements</a>
+        <a href="#"><i class="fa fa-pencil"></i> Edit</a>
+    </div>
+</div>
+
+<!-- Main Navigation Menu -->
+<div class="main-menu">
+    <a href="#"><i class="fa fa-file"></i> Content</a>
+    <a href="#"><i class="fa fa-sitemap"></i> Structure</a>
+    <a href="#"><i class="fa fa-paint-brush"></i> Appearance</a>
+    <a href="#"><i class="fa fa-wrench"></i> Extend</a>
+    <a href="#"><i class="fa fa-cogs"></i> Configuration</a>
+    <a href="#"><i class="fa fa-users"></i> People</a>
+    <a href="#"><i class="fa fa-chart-bar"></i> Reports</a>
+    <a href="#"><i class="fa fa-question-circle"></i> Help</a>
+</div>
+
+<div class="container mt-lg-5">
+    {% block body %}{% endblock %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

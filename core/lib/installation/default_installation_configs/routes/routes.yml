@@ -1,0 +1,42 @@
+database.form.route:
+  title: "Database Configuration Form"
+  path: '/admin/configure/database'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre:
+      - AdminMiddleware
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\DatabaseController
+    method: database_form
+home.page.route:
+  title: "Home"
+  path: ''
+  method:
+    - GET
+  middleware:
+    pre:
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\HomeController
+    method: home_controller
+
+user.account.form.page.route:
+  title: "Home"
+  path: '/user/register'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre:
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\UserAccountFormController
+    method: user_account_form_controller
