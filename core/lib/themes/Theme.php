@@ -8,6 +8,8 @@ use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\lib\memory\cache\Caching;
+use Simp\Core\modules\user\current_user\CurrentUser;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Yaml\Yaml;
 use Twig\Environment;
 use Twig\TwigFunction;
@@ -36,6 +38,10 @@ class Theme extends SystemDirectory
             'page_title' => 'Simple Content Management System',
             'page_description' => 'Simple Content Management System',
             'page_keywords' => 'Content, Management, System',
+            'request' => [
+                'user' => CurrentUser::currentUser(),
+                'http' => Request::createFromGlobals()
+            ]
         ];
         $twig_views = [];
         $theme_keys = Caching::init()->get("system.theme.keys") ?? [];

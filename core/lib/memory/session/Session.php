@@ -17,9 +17,12 @@ class Session implements MemoryInterface
 
     protected Driver|array $session_object;
 
+    protected string $session_id;
+
     public function __construct()
     {
         $this->session_object = $GLOBALS["session_store"];
+        $this->session_id = session_id();
     }
 
     private function persistAndReload(): bool
@@ -41,6 +44,7 @@ class Session implements MemoryInterface
      */
     public function set(string $key, $value): bool
     {
+        $key = $key.".". $this->session_id;
        if ($this->session_object instanceof Driver) {
            $instance = $this->session_object->getItem($key);
            $instance->set($value)->expiresAfter(3600);
@@ -58,6 +62,7 @@ class Session implements MemoryInterface
      */
     public function get(string $key)
     {
+        $key = $key.".". $this->session_id;
         if ($this->session_object instanceof Driver) {
             $instance = $this->session_object->getItem($key);
             if ($instance->isHit()) {
@@ -76,6 +81,7 @@ class Session implements MemoryInterface
      */
     public function has(string $key): bool
     {
+        $key = $key.".". $this->session_id;
         if ($this->session_object instanceof Driver) {
             $instance = $this->session_object->getItem($key);
             return $instance->isHit();
@@ -91,6 +97,7 @@ class Session implements MemoryInterface
      */
     public function delete(string $key): bool
     {
+        $key = $key.".". $this->session_id;
        if ($this->session_object instanceof Driver) {
            return $this->session_object->deleteItem($key);
        }
@@ -130,6 +137,7 @@ class Session implements MemoryInterface
             return $this->session_object->deleteItems($keys);
         }
         foreach ($keys as $key) {
+            $key = $key.".". $this->session_id;
             $this->delete($key);
         }
         return $this->persistAndReload();

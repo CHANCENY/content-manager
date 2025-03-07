@@ -18,29 +18,7 @@ class SPDOStatement extends \PDOStatement
     }
     public function execute(?array $params = null): bool
     {
-        if (!empty($params)) {
-            $this->params = array_merge($this->params, $params);
-        }
-        $start_time = microtime(true);
-        $cache_tag = $this->cacheManager->cacheTagCreate($this->queryString, $this->params);
-        $result = false;
-        if (str_starts_with(strtolower($this->queryString), 'select')) {
-
-            // Answer question of do we have cached data for this given query string.
-            try{
-                $this->skip_for_cache = $this->cacheManager->isTagCached($cache_tag);
-            }catch (Throwable $exception){
-            }
-        }
-
-        if ($this->skip_for_cache === false) {
-            $result = parent::execute($params);
-        }
-
-        $end_time = microtime(true);
-        $execution_time = $end_time - $start_time;
-        $log = "Execution Time: {$execution_time} seconds: Query: {$this->queryString}".PHP_EOL;
-        Database::logger($log);
+        $result = parent::execute($params);
         return $result;
     }
 
@@ -85,79 +63,24 @@ class SPDOStatement extends \PDOStatement
 
     public function fetchAll(int $mode = PDO::FETCH_DEFAULT, ...$args): array
     {
-        $cache_tag = $this->cacheManager->cacheTagCreate($this->queryString, $this->params);
-        if ($this->skip_for_cache === true) {
-           return $this->getFromCache($cache_tag, []);
-        }else {
-             $results = parent::fetchAll($mode);
-             $this->saveNewCache($cache_tag, $results);
-            return $results;
-        }
+        return parent::fetchAll($mode);
     }
 
     public function fetch(int $mode = PDO::FETCH_DEFAULT, int $cursorOrientation = PDO::FETCH_ORI_NEXT, int $cursorOffset = 0): mixed
     {
-        $cache_tag = $this->cacheManager->cacheTagCreate($this->queryString, $this->params);
-        try{
-            if ($this->cacheManager->isTagCached($cache_tag)) {
-                return $this->getFromCache($cache_tag, [])[$cursorOrientation] ?? null;
-            }
-        }catch (Throwable $exception){}
-
-        $results = parent::fetch($mode, $cursorOrientation, $cursorOffset);
-        $this->saveNewCache($cache_tag, $results);
-        return $results;
+        return parent::fetch($mode, $cursorOrientation, $cursorOffset);
     }
 
     public function fetchColumn(int $column = 0): mixed
     {
-        $cache_tag = $this->cacheManager->cacheTagCreate($this->queryString, $this->params);
-        try{
-            if ($this->cacheManager->isTagCached($cache_tag)) {
-                $data = $this->getFromCache($cache_tag, []);
-                return array_map(function ($item) use ($column) {
-                    if (is_object($item)) {
-                        $item = (array) $item;
-                        return array_values($item)[$column] ?? null;
-                    }
-                },$data);
-            }
-        }catch (Throwable $exception){}
 
-        $result = parent::fetchColumn($column);
-        $this->saveNewCache($cache_tag, $result);
-        return $result;
+        return parent::fetchColumn($column);
     }
 
     public function fetchObject(?string $class = "stdClass", array $constructorArgs = []): object|false
     {
-        $cache_tag = $this->cacheManager->cacheTagCreate($this->queryString, $this->params);
-        if ($this->skip_for_cache === true) {
-            $data = $this->getFromCache($cache_tag, []);
-            if (is_object($data) && $class === 'stdClass') {
-                return $data;
-            }
-            if (is_array($data) && array_key_exists(0, $data)) {
-                $data = $data[0];
-            }
+        return parent::fetchObject($class, $constructorArgs);
 
-            $data = (array) $data;
-            if ($class === 'stdClass') {
-                return (object) $data;
-            }
-
-            if (!empty($constructorArgs)) {
-                $combine = [];
-                foreach ($constructorArgs as $k=>$arg) {
-                    $combine[$arg] = $data[$arg] ?? null;
-                }
-                return new $class(...$combine);
-            }
-            return new $class(...$data);
-        }
-        $result = parent::fetchObject($class, $constructorArgs);
-        $this->saveNewCache($cache_tag, $result);
-        return $result;
     }
 
 }

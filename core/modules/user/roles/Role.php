@@ -2,6 +2,8 @@
 
 namespace Simp\Core\modules\user\roles;
 
+use Simp\Core\modules\database\Database;
+
 class Role
 {
     public function __construct(
@@ -37,5 +39,17 @@ class Role
         return $this->role_label;
     }
 
+    public function delete(): bool
+    {
+        $query = "DELETE FROM `user_roles` WHERE `rid` = :rid AND `uid` = :uid";
+        $query = Database::database()->con()->prepare($query);
+        $query->bindParam(':rid', $this->rid);
+        $query->bindParam(':uid', $this->uid);
+        return $query->execute();
+    }
 
+    public function __toString(): string
+    {
+        return $this->role_name;
+    }
 }

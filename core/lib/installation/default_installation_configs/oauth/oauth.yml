@@ -1,0 +1,28 @@
+normal:
+  types:
+    - password
+    - password-less
+  default: password
+
+google:
+  types:
+    - google
+  default: google
+  credential:
+    client_id: 679445788233-vflhr0onfejqiqes3sn09n6o9e6qph0j.apps.googleusercontent.com
+    client_secret: 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
+    redirect: /user/oauth/google/access
+    scope:
+      - email
+      - profile
+
+github:
+  types:
+    - github
+  default: github
+  credential:
+    client_id: Iv23liwheS9IWJ3Mcxd4
+    client_secret: d3e417bf0c28975ab0369f41af8b9e5725d113d0
+    redirect: /user/oauth/github/access
+
+active: normal

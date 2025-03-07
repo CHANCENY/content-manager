@@ -26,8 +26,70 @@ home.page.route:
     class: Simp\Core\lib\controllers\HomeController
     method: home_controller
 
+user.account.login.form.route:
+  title: "Login"
+  path: '/user/login'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre:
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: user_login_form_controller
+
+user.account.google.redirect.route:
+  title: "Google Redirect"
+  path: '/user/oauth/google/access'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre:
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: user_login_google_redirect_controller
+
+user.account.github.redirect.route:
+  title: "Github Redirect"
+  path: '/user/oauth/github/access'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre:
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: user_login_github_redirect_controller
+
+
+user.account.logout.route:
+  title: "Logout"
+  path: '/user/logout'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre:
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: user_logout_controller
+
+
 user.account.form.page.route:
-  title: "Home"
+  title: "Register"
   path: '/user/register'
   method:
     - GET
@@ -40,3 +102,91 @@ user.account.form.page.route:
   controller:
     class: Simp\Core\lib\controllers\UserAccountFormController
     method: user_account_form_controller
+
+system.messager.toastify:
+  title: "Messages"
+  path: '/system/messages'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre:
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: toastify_controller
+
+system.people:
+  title: "People"
+  path: '/admin/people'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre:
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: people_controller
+
+system.account.delete:
+  title: "Account Deletion"
+  path: '/user/[uid:int]/delete'
+  method:
+    - GET
+  middleware:
+    pre:
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: account_delete_controller
+
+system.account.edit:
+  title: "Account Edit"
+  path: '/user/[uid:int]/edit'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre:
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: account_edit_controller
+
+system.account.view:
+  title: "Account"
+  path: '/user/[uid:int]'
+  method:
+    - GET
+  middleware:
+    pre:
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: account_controller
+
+system.account.profile.edit:
+  title: "Profile Account Edit"
+  path: '/user/[uid:int]/profile/edit'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre:
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: account_profile_edit_controller

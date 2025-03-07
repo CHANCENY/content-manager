@@ -8,13 +8,24 @@ use Symfony\Component\Yaml\Yaml;
 class TimeZone extends SystemDirectory
 {
     protected array $timezones = [];
-    public function __construct()
+
+    protected Zone $zone;
+    public function __construct(?string $timezone = null)
     {
         parent::__construct();
         $timezone_file = $this->setting_dir .DIRECTORY_SEPARATOR . 'defaults' . DIRECTORY_SEPARATOR . 'timezones'
         . DIRECTORY_SEPARATOR . 'timezone.yml';
         if (file_exists($timezone_file)) {
             $this->timezones = Yaml::parse(file_get_contents($timezone_file));
+        }
+
+        if (!empty($timezone)) {
+           $found = array_filter($this->timezones, function ($item) use ($timezone) {
+               return $item['tzCode'] === $timezone;
+           });
+           if (!empty($found) && $zone = reset($found)) {
+               $this->zone =new Zone(...$zone);
+           }
         }
     }
 
@@ -42,5 +53,10 @@ class TimeZone extends SystemDirectory
             $timezone[$timezone_info['tzCode']] = $timezone_info['label'] ?? $timezone_info['name'];
         }
         return $timezone;
+    }
+
+    public function getZone(): ?Zone
+    {
+        return $this->zone ?? null;
     }
 }

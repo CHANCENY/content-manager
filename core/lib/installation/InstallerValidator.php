@@ -198,7 +198,6 @@ class InstallerValidator extends SystemDirectory {
         }
         elseif ($this->installer_schema->session_installed_steps->default) {
             $installed = 'default';
-            @session_start();
         }
         $GLOBALS["session_store"] = $session_store;
         $this->installer_schema->session_installed = $installed;

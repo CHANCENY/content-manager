@@ -36,7 +36,6 @@ class Database
             $this->pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             $this->pdo->setAttribute(PDO::ATTR_PERSISTENT, true);
             $this->pdo->setAttribute(PDO::ATTR_STATEMENT_CLASS, [SPDOStatement::class, []]);
-            $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
             if ($this->log === true) {
                 $content = "CONNECTION [OK] ".$this->pdo->getAttribute(PDO::ATTR_SERVER_INFO).PHP_EOL;
                 $this->pdo->log($content);

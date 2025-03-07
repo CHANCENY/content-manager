@@ -11,7 +11,9 @@
         "simp/forms": "^1.0",
         "simp/router": "^1.0",
         "twig/twig": "^3.0",
-      "ext-pdo": "*"
+      "ext-pdo": "*",
+        "google/apiclient": "^2.18",
+        "league/oauth2-github": "^3.1"
     },
     "autoload": {
         "psr-4": {

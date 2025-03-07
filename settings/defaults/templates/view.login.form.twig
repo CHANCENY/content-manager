@@ -1,0 +1,65 @@
+{% extends 'default.view.admin_base' %}
+
+{% block body %}
+
+    <div class="login-container">
+        <div class="login-header">Login to Your Account</div>
+        <form method="POST" enctype="multipart/form-data">
+
+            {% if auth.isNormalAuthActive %}
+
+                <!-- Email Field -->
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                        <input name="name" type="text" class="form-control" placeholder="Username or Email">
+                    </div>
+                    {% if name.getError() %}
+                        <span class="field-message message-name">{{ name.getError() }}</span>
+                    {% endif %}
+                </div>
+
+                {% if not auth.isNormalDefaultPasswordLessType %}
+                    <!-- Password Field -->
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input name="password" type="password" class="form-control" placeholder="Password">
+                        </div>
+                        {% if password.getError() %}
+                            <span class="field-message message-password">{{ password.getError() }}</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <!-- Login Button -->
+                <button type="submit" class="btn btn-login">Login</button>
+
+            {% endif %}
+
+            <!-- Forgot Password Link -->
+            <a href="/user/forgot-password" class="forgot-password">Forgot your password?</a>
+
+            <div class="mt-lg-5">
+                {% if auth.isGoogleAuthActive %}
+                    <!-- Google Login Button -->
+                    <a href="{{ google_link }}" type="button" class="btn btn-social btn-google">
+                        <i class="fab fa-google"></i>
+                        Sign in with Google
+                    </a>
+                {% endif %}
+
+                {% if auth.isGithubAuthActive %}
+                    <!-- GitHub Login Button -->
+                    <a href="{{ github_link }}" type="button" class="btn btn-social btn-github">
+                        <i class="fab fa-github"></i>
+                        Sign in with GitHub
+                    </a>
+                {% endif %}
+            </div>
+
+
+        </form>
+    </div>
+
+{% endblock %}

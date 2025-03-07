@@ -8,9 +8,7 @@ use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheIOException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
-use Phpfastcache\Exceptions\PhpfastcacheUnsupportedMethodException;
 use Psr\Cache\InvalidArgumentException;
-use Simp\Core\lib\cli\CliManager;
 use Simp\Core\lib\memory\MemoryInterface;
 
 class Caching implements MemoryInterface
