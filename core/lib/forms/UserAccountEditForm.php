@@ -2,8 +2,14 @@
 
 namespace Simp\Core\lib\forms;
 
+use Phpfastcache\Exceptions\PhpfastcacheCoreException;
+use Phpfastcache\Exceptions\PhpfastcacheDriverException;
+use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
+use Phpfastcache\Exceptions\PhpfastcacheLogicException;
+use Simp\Core\modules\config\ConfigManager;
 use Simp\Core\modules\messager\Messager;
 use Simp\Core\modules\timezone\TimeZone;
+use Simp\Core\modules\user\current_user\CurrentUser;
 use Simp\Core\modules\user\entity\User;
 use Simp\Core\modules\user\roles\Role;
 use Simp\Default\DetailWrapperField;
@@ -18,6 +24,12 @@ class UserAccountEditForm extends UserAccountForm
         parent::__construct();
     }
 
+    /**
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
     public function buildForm(array &$form): array
     {
         $form = parent::buildForm($form);
@@ -49,43 +61,46 @@ class UserAccountEditForm extends UserAccountForm
             'description' => 'This account is current '. ($user->getStatus() === true ? 'active' : 'blocked'),
         ];
 
-        $roles = $user->getRoles();
-        $form['roles'] = [
-            'type' => 'details',
-            'name' => 'users_roles',
-            'id' => 'users_roles',
-            'class' => ['form-control'],
-            'label' => 'Manage account roles from here. you can select to keep or remove the existing role from account.',
-            'inner_field' => array(),
-            'handler' => DetailWrapperField::class,
-            'options' => [
-                'open' => 'open'
-            ]
-        ];
-        foreach ($roles as $key=>$role) {
-            if ($role instanceof Role) {
-                $role_field = [
-                    'type' => 'select',
-                    'name' => 'role_'.$key,
-                    'id' => 'role_'.$key,
-                    'class' => ['form-control'],
-                    'label' => "Account has this role (". $role->getName() . ")",
-                    'option_values' => [
-                        'keep' => 'Keep',
-                        'remove' => 'Remove',
-                    ],
-                    'handler' => SelectField::class,
-                    'default_value' => "keep",
-                ];
-                $form['roles']['inner_field']['role_'.$key] = $role_field;
+        if (CurrentUser::currentUser()?->isIsAdmin()) {
+            $roles = $user->getRoles();
+            $form['roles'] = [
+                'type' => 'details',
+                'name' => 'users_roles',
+                'id' => 'users_roles',
+                'class' => ['form-control'],
+                'label' => 'Manage account roles from here. you can select to keep or remove the existing role from account.',
+                'inner_field' => array(),
+                'handler' => DetailWrapperField::class,
+                'options' => [
+                    'open' => 'open'
+                ]
+            ];
+            foreach ($roles as $key=>$role) {
+                if ($role instanceof Role) {
+                    $role_field = [
+                        'type' => 'select',
+                        'name' => 'role_'.$key,
+                        'id' => 'role_'.$key,
+                        'class' => ['form-control'],
+                        'label' => "Account has this role (". $role->getName() . ")",
+                        'option_values' => [
+                            'keep' => 'Keep',
+                            'remove' => 'Remove',
+                        ],
+                        'handler' => SelectField::class,
+                        'default_value' => "keep",
+                    ];
+                    $form['roles']['inner_field']['role_'.$key] = $role_field;
+                }
             }
+            $form['roles']['inner_field']['roles'] = $role_field_original;
+            $form['status'] = $status_field;
         }
-        $form['roles']['inner_field']['roles'] = $role_field_original;
 
         $submit = $form['submit'];
         unset($form['submit']);
         unset($form['cond_password']);
-        $form['status'] = $status_field;
+
         $form['submit'] = $submit;
         return $form;
     }
@@ -103,32 +118,39 @@ class UserAccountEditForm extends UserAccountForm
         $updated_data = [
             'mail' => $form['mail']->getValue(),
             'name' => $form['name']->getValue(),
-            'status' => $form['status']->getValue(),
         ];
-        $roles = $form['roles']->getValue();
-        $count = count($roles);
-        $user_roles = $user->getRoles();
-        for ($i = 0; $i < $count; $i++) {
-            if (isset($roles['role_'.$i]) && $roles['role_'.$i] === 'remove') {
-                $this_role = $user_roles[$i];
-                if ($this_role instanceof Role) {
-                    $this_role->delete();
-                }
-            }
+
+        if (CurrentUser::currentUser()?->isIsAdmin()) {
+            $updated_data['status'] = $form['status']->getValue();
         }
+
         // Avoid duplication
-        $user_roles = $user->getRoles();
-        $new_roles = $roles['roles'] ?? "authenticated";
-        $duplicate_flag = false;
-        foreach ($user_roles as $user_role) {
-            if ($user_role instanceof Role) {
-                if ($new_roles === $user_role->getRoleName()) {
-                    $duplicate_flag = true;
+        if (!empty($form['roles'])) {
+            $roles = $form['roles']->getValue();
+            $count = count($roles);
+            $user_roles = $user->getRoles();
+            for ($i = 0; $i < $count; $i++) {
+                if (isset($roles['role_'.$i]) && $roles['role_'.$i] === 'remove') {
+                    $this_role = $user_roles[$i];
+                    if ($this_role instanceof Role) {
+                        $this_role->delete();
+                    }
                 }
             }
-        }
-        if (!$duplicate_flag) {
-           User::addUserRole($new_roles, $user->getUid());
+
+            $user_roles = $user->getRoles();
+            $new_roles = $roles['roles'] ?? "authenticated";
+            $duplicate_flag = false;
+            foreach ($user_roles as $user_role) {
+                if ($user_role instanceof Role) {
+                    if ($new_roles === $user_role->getRoleName()) {
+                        $duplicate_flag = true;
+                    }
+                }
+            }
+            if (!$duplicate_flag) {
+                User::addUserRole($new_roles, $user->getUid());
+            }
         }
 
         $timezone = $profile->getTimeZone();

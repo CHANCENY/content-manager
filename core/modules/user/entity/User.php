@@ -3,7 +3,9 @@
 namespace Simp\Core\modules\user\entity;
 
 use PDO;
+use Simp\Core\modules\config\ConfigManager;
 use Simp\Core\modules\database\Database;
+use Simp\Core\modules\user\current_user\CurrentUser;
 use Simp\Core\modules\user\profiles\Profile;
 use Simp\Core\modules\user\roles\Role;
 use Simp\Core\modules\user\trait\StaticHelperTrait;
@@ -78,8 +80,13 @@ class User
             if (self::loadByMail($data['mail']) !== null || self::loadByName($data['name']) !== null) {
                 return false;
             }
-
-            $data['status'] = 1;
+            $config = ConfigManager::config()->getConfigFile("account.setting");
+            if ($config?->get('verification_email') === 'no') {
+                $data['status'] = 1;
+            }
+            else {
+                $data['status'] = $config?->get('allow_account_creation') === 'visitor-pending' ? 0 : 1;
+            }
             $statement = $connection->prepare($query);
             $statement->bindParam(':name', $data['name'], PDO::PARAM_STR);
             $statement->bindParam(':mail', $data['mail'], PDO::PARAM_STR);
@@ -127,6 +134,8 @@ class User
             $statement->bindParam(':uid', $uid, PDO::PARAM_INT);
             $statement->bindParam(':time_zone', $data['time_zone'], PDO::PARAM_STR);
             $statement->execute();
+
+            // TODO: send mail if is allowed.
             return self::load($uid);
         }
         return null;

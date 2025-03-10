@@ -1,0 +1,9 @@
+site:
+    site_name: 'Idunova Ebooks'
+    site_slogan: 'providing ebook reading platform.'
+    site_email: chance.svinfotech@gmail.com
+front_page:
+    front_page_url: /home
+error_pages:
+    not_found_page: ''
+    access_denied_page: ''

@@ -8,6 +8,7 @@ use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\lib\memory\session\Session;
+use Simp\Core\modules\config\ConfigManager;
 use Simp\Core\modules\database\Database;
 use stdClass;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,6 +37,9 @@ trait StaticHelperTrait
         $filters['total_rows'] = $query->fetchColumn();
         if ($limit > 0 && $filters['total_rows'] > $limit) {
             $filters['offset'] = $filters['total_rows'] / $limit;
+        }
+        else {
+            $filters['offset'] = 0;
         }
         return $filters;
     }
@@ -146,4 +150,47 @@ trait StaticHelperTrait
         $query->bindParam(':role_label', $role_name);
         return $query->execute();
     }
+
+    public static function checkPasswordStrength($password): string
+    {
+        $score = 0;
+
+        // Check length
+        if (strlen($password) >= 8) {
+            $score++;
+        }
+        if (strlen($password) >= 12) {
+            $score++;
+        }
+
+        // Check for uppercase letters
+        if (preg_match('/[A-Z]/', $password)) {
+            $score++;
+        }
+
+        // Check for lowercase letters
+        if (preg_match('/[a-z]/', $password)) {
+            $score++;
+        }
+
+        // Check for numbers
+        if (preg_match('/\d/', $password)) {
+            $score++;
+        }
+
+        // Check for special characters
+        if (preg_match('/[\W]/', $password)) {
+            $score++;
+        }
+
+        // Categorize password strength
+        if ($score <= 2) {
+            return "Low";
+        } elseif ($score <= 4) {
+            return "Medium";
+        } else {
+            return "Strong";
+        }
+    }
+
 }

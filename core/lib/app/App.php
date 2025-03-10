@@ -108,8 +108,9 @@ class App
                     $name = $route->controller_method;
                     $controller = $route->controller. "@" . $name;
 
-                    // TODO: add more options values.
-                    $options = [];
+                    $options = [
+                        ...$route->middleware
+                    ];
                     if (count($methods) > 0) {
                         foreach ($methods as $method) {
                             $method_single = strtolower($method);
@@ -129,7 +130,9 @@ class App
                     $controller = $route['controller']['class']. "@" . $name;
                     
                     // TODO: add more options values.
-                    $options = [];
+                    $options = [
+                        ...$route->middleware
+                    ];
                     if (count($methods) > 0) {
                         foreach ($methods as $method) {
                             $method_single = strtolower($method);

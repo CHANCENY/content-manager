@@ -10,6 +10,8 @@ use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheIOException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
+use Simp\Core\lib\forms\AccountSettingForm;
+use Simp\Core\lib\forms\BasicSettingForm;
 use Simp\Core\lib\forms\LoginForm;
 use Simp\Core\lib\forms\ProfileEditForm;
 use Simp\Core\lib\forms\UserAccountEditForm;
@@ -17,6 +19,7 @@ use Simp\Core\lib\memory\session\Session;
 use Simp\Core\lib\themes\View;
 use Simp\Core\modules\auth\AuthenticationSystem;
 use Simp\Core\modules\auth\normal_auth\AuthUser;
+use Simp\Core\modules\config\ConfigManager;
 use Simp\Core\modules\messager\Messager;
 use Simp\Core\modules\user\current_user\CurrentUser;
 use Simp\Core\modules\user\entity\User;
@@ -82,6 +85,25 @@ class SystemController
         $is_confirmed = $request->get('confirm', null);
         if ($is_confirmed === "yes") {
             Session::init()->set('system.deletion.confirmation', 'yes');
+            $config = ConfigManager::config()->getConfigFile('account.setting');
+            $user = User::load($request->get('uid'));
+
+            if ($config?->get('cancellation') === 'blocked') {
+
+                $user->setStatus(0);
+                if ($user->update()) {
+                    return new RedirectResponse('/admin/people');
+                }
+
+            }
+            elseif ($config?->get('cancellation') === 'unpublished') {
+                $user->setStatus(0);
+                //TODO: update the nodes.
+                if ($user->update()) {
+                    return new RedirectResponse('/admin/people');
+                }
+            }
+
             if (User::dataDeletion('users', 'uid', $request->get('uid'))) {
                 return new RedirectResponse('/admin/people');
             }
@@ -252,5 +274,40 @@ class SystemController
             }
         }
         return new RedirectResponse('/');
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    public function configuration_controller(...$args): RedirectResponse|Response
+    {
+        return new Response(View::view('default.view.configuration', ['_form']), 200);
+    }
+
+    public function configuration_basic_site_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $form_base = new FormBuilder(new BasicSettingForm());
+        $form_base->getFormBase()->setFormMethod('POST');
+        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
+        return new Response(View::view('default.view.configuration.basic.site', ['_form'=>$form_base]), 200);
+    }
+
+    public function configuration_account_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $form_base = new FormBuilder(new AccountSettingForm());
+        $form_base->getFormBase()->setFormMethod('POST');
+        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
+        return new Response(View::view('default.view.configuration.accounts', ['_form'=>$form_base]), 200);
+    }
+
+    public function configuration_smtp_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+
+        return new Response(View::view('default.view.configuration.smtp', ['_form'=>$form_base]), 200);
     }
 }

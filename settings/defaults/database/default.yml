@@ -27,3 +27,14 @@ table:
     `time_zone` VARCHAR(255) NULL,
     CONSTRAINT `fk_user_profile_uid` FOREIGN KEY (`uid`) REFERENCES `users` (`uid`) ON DELETE CASCADE
     )
+  - CREATE TABLE IF NOT EXISTS `file_managed` (
+    `fid` INT PRIMARY KEY AUTO_INCREMENT,
+    `name` VARCHAR(255) NULL,
+    `uri` VARCHAR(500) NULL,
+    `size` INT NULL,
+    `uid` INT NOT NULL,
+    `mime_type` VARCHAR(255) NULL,
+    `extension` VARCHAR(10) NULL,
+    `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT `fk_file_managed_uid` FOREIGN KEY (`uid`) REFERENCES `users` (`uid`) ON DELETE CASCADE
+    )

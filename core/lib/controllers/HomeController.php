@@ -19,7 +19,6 @@ class HomeController
      */
     public function home_controller(...$args): Response
     {
-        // dump(CurrentUser::currentUser());
         return new Response(View::view('default.view.home'),200);
     }
 }

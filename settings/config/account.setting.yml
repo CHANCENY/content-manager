@@ -1,0 +1,16 @@
+anonymous:
+    anonymous_name: Anonymous
+register:
+    allow_account_creation: visitor-pending
+    verification_email: 'yes'
+    password_strength: medium
+    cancellation: deleted
+notifications: chance.svinfotech@gmail.com
+emails:
+    account_creation: ''
+    account_creation_message: 'welcome your account is created'
+    account_activation: ''
+    account_activation_message: 'Hello user your account is activation'
+    password_recovery: ''
+    password_recovery_message: 'Hello user you requested a password recovery'
+submit: 'Save Configuration'

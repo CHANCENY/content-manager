@@ -8,6 +8,7 @@ use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\lib\memory\cache\Caching;
+use Simp\Core\modules\config\ConfigManager;
 use Simp\Core\modules\user\current_user\CurrentUser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Yaml\Yaml;
@@ -33,15 +34,17 @@ class Theme extends SystemDirectory
         $this->twig_function_definition_file = $this->setting_dir .DIRECTORY_SEPARATOR . 'twig'.DIRECTORY_SEPARATOR.'functions.php';
 
         $this->twig_functions =file_exists($this->twig_function_definition_file) ? require_once $this->twig_function_definition_file : [];
+        $site = ConfigManager::config()->getConfigFile('basic.site.setting');
         //TODO: add more options for twig eg current_user info, route info.
         $this->options = [
-            'page_title' => 'Simple Content Management System',
-            'page_description' => 'Simple Content Management System',
+            'page_title' => $site->get('site_name'),
+            'page_description' => $site->get('site_slogan'),
             'page_keywords' => 'Content, Management, System',
             'request' => [
                 'user' => CurrentUser::currentUser(),
                 'http' => Request::createFromGlobals()
-            ]
+            ],
+            'site' => $site,
         ];
         $twig_views = [];
         $theme_keys = Caching::init()->get("system.theme.keys") ?? [];

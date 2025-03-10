@@ -8,8 +8,10 @@ use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheIOException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\lib\memory\cache\Caching;
+use Simp\Core\modules\config\ConfigManager;
 use Simp\Core\modules\messager\Messager;
 use Simp\Core\modules\timezone\TimeZone;
+use Simp\Core\modules\user\current_user\CurrentUser;
 use Simp\Core\modules\user\entity\User;
 use Simp\Fields\FieldBase;
 use Simp\FormBuilder\FormBase;
@@ -21,6 +23,9 @@ class UserAccountForm extends FormBase
 
     protected array $entity_form = [];
     private bool $validated = true;
+    private int $status = 0;
+    private array $roles = [];
+
 
     /**
      * @throws PhpfastcacheCoreException
@@ -39,6 +44,14 @@ class UserAccountForm extends FormBase
         $list = $timezone->getSimplifiedTimezone();
         sort($list);
         $this->entity_form['fields']['user_prefer_timezone']['option_values'] = $list;
+
+        $config = ConfigManager::config()->getConfigFile('account.setting');
+        if ($config?->get('allow_account_creation') !== 'administrator') {
+            if (!CurrentUser::currentUser()?->isIsAdmin()) {
+                unset($this->entity_form['fields']['roles']);
+                $this->roles = ['authenticated'];
+            }
+        }
     }
 
     public function getFormId(): string
@@ -61,9 +74,24 @@ class UserAccountForm extends FormBase
             }
         }
 
+        $config = ConfigManager::config()->getConfigFile('account.setting');
+
         if ($form['cond_password']->get('password') !== $form['cond_password']->get('password_confirm')) {
             $this->validated = false;
             $form['cond_password']->setError("Passwords do not match");
+        }
+
+        if ($config?->get('password_strength') === "high" || $config?->get('password_strength') === "medium") {
+
+            $type = $config?->get('password_strength');
+            if ($type === "high" && User::checkPasswordStrength($form['cond_password']->get('password')) !== 'high') {
+                $form['cond_password']->setError("Password is not strong enough");
+                $this->validated = false;
+            }
+
+            elseif ($type === "medium" && User::checkPasswordStrength($form['cond_password']->get('password')) === 'low') {
+                $form['cond_password']->setError("Password is not strong enough");
+            }
         }
     }
 
@@ -81,7 +109,12 @@ class UserAccountForm extends FormBase
           $user_data['mail'] = $form['mail']->getValue();
           $user_data['time_zone'] = $form['user_prefer_timezone']->getValue();
           $user_data['password'] = $form['cond_password']->get('password');
-          $user_data['roles'][] = $form['roles']->getValue();
+
+          if (empty($form['roles'])) {
+              $user_data['roles'] = $this->roles;
+          }else {
+              $user_data['roles'][] = $form['roles']?->getValue();
+          }
 
           $timezone = new TimeZone();
           $list = array_keys($timezone->getSimplifiedTimezone());
@@ -98,7 +131,7 @@ class UserAccountForm extends FormBase
           else {
               Messager::toast()->addMessage("Account created successfully");
               $redirect = new RedirectResponse('/');
-             // $redirect->send();
+              $redirect->send();
           }
        }
     }

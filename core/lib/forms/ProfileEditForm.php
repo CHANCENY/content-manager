@@ -7,7 +7,10 @@ use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheIOException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
+use Simp\Core\modules\files\entity\File;
+use Simp\Core\modules\files\uploads\FormUpload;
 use Simp\Core\modules\messager\Messager;
+use Simp\Core\modules\user\current_user\CurrentUser;
 use Simp\Core\modules\user\entity\User;
 use Simp\Default\FileField;
 use Simp\Default\TextAreaField;
@@ -91,6 +94,34 @@ class ProfileEditForm extends FormBase
         $user = User::load($request->get('uid'));
         $profile = $user->getProfile();
         //TODO: upload image here if exist.
+        $image = $form['profile_image']->getValue();
+        if (!empty($image) && !empty($image['name'])) {
+
+            if (!is_dir("public://profiles")) {
+                mkdir("public://profiles");
+            }
+            $image = FormUpload::uploadFormImage($image, "public://profiles/profile_{$image['name']}");
+            $image = $image->getFileObject();
+            if ($image){
+                $file = File::create([
+                    'name' => $image['name'],
+                    'size' => $image['size'],
+                    'uri' => $image['file_path'],
+                    'extension' => $image['extension'],
+                    'mime_type' => $image['mime_type'],
+                    'uid' => $request->get('uid')
+                ]);
+                $fid = $profile->getProfileImage();
+                if ($fid){
+                    $file_old = File::load($fid);
+                    $file_old->delete();
+                }
+                if ($file instanceof File) {
+                    $profile->setProfileImage($file->getFid());
+                }
+            }
+
+        }
         if (!empty($form['first_name']->getValue())) {
             $profile->setFirstName( $form['first_name']->getValue() );
         }

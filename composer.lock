@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "67ec3baa1dd768446dad8fcd92a6f9ef",
+    "content-hash": "a21cd2836a23e92f78b43b67f3f7fc27",
     "packages": [
         {
             "name": "firebase/php-jwt",
@@ -1631,6 +1631,49 @@
                 "source": "https://github.com/CHANCENY/stream-wrapper/tree/v1.0.3"
             },
             "time": "2025-02-13T10:26:44+00:00"
+        },
+        {
+            "name": "simp/uploader",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/CHANCENY/file-uploads.git",
+                "reference": "c36b1e440e8a58059edd1a4c6ce30d908bd13a6a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/CHANCENY/file-uploads/zipball/c36b1e440e8a58059edd1a4c6ce30d908bd13a6a",
+                "reference": "c36b1e440e8a58059edd1a4c6ce30d908bd13a6a",
+                "shasum": ""
+            },
+            "require": {
+                "simp/streamwrapper": "^1.0"
+            },
+            "require-dev": {
+                "symfony/var-dumper": "^7.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Simp\\Uploader\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "CHANCENY",
+                    "email": "nyasuluchance6@gmail.com"
+                }
+            ],
+            "description": "This is for uploading file in system",
+            "support": {
+                "issues": "https://github.com/CHANCENY/file-uploads/issues",
+                "source": "https://github.com/CHANCENY/file-uploads/tree/v1.0.0"
+            },
+            "time": "2025-03-08T18:41:39+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",

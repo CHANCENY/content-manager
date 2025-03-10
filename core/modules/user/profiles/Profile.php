@@ -3,6 +3,7 @@
 namespace Simp\Core\modules\user\profiles;
 
 use Simp\Core\modules\database\Database;
+use Simp\Core\modules\files\helpers\FileFunction;
 use Simp\Core\modules\timezone\TimeZone;
 
 class Profile
@@ -38,7 +39,7 @@ class Profile
 
     public function getImage(): ?string
     {
-        return null;
+        return FileFunction::resolve_fid($this->profile_image);
     }
 
     public function getUid(): ?int

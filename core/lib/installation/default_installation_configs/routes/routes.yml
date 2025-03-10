@@ -26,6 +26,7 @@ home.page.route:
     class: Simp\Core\lib\controllers\HomeController
     method: home_controller
 
+# Account routes.
 user.account.login.form.route:
   title: "Login"
   path: '/user/login'
@@ -40,7 +41,6 @@ user.account.login.form.route:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: user_login_form_controller
-
 user.account.google.redirect.route:
   title: "Google Redirect"
   path: '/user/oauth/google/access'
@@ -55,7 +55,6 @@ user.account.google.redirect.route:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: user_login_google_redirect_controller
-
 user.account.github.redirect.route:
   title: "Github Redirect"
   path: '/user/oauth/github/access'
@@ -70,8 +69,6 @@ user.account.github.redirect.route:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: user_login_github_redirect_controller
-
-
 user.account.logout.route:
   title: "Logout"
   path: '/user/logout'
@@ -86,8 +83,6 @@ user.account.logout.route:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: user_logout_controller
-
-
 user.account.form.page.route:
   title: "Register"
   path: '/user/register'
@@ -125,28 +120,27 @@ system.people:
     - GET
     - POST
   middleware:
-    pre:
-
-    post:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+    post_middlewares:
 
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: people_controller
-
 system.account.delete:
   title: "Account Deletion"
   path: '/user/[uid:int]/delete'
   method:
     - GET
   middleware:
-    pre:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AuthenticatedMiddleware
 
     post:
 
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: account_delete_controller
-
 system.account.edit:
   title: "Account Edit"
   path: '/user/[uid:int]/edit'
@@ -154,28 +148,28 @@ system.account.edit:
     - GET
     - POST
   middleware:
-    pre:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AuthenticatedMiddleware
 
     post:
 
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: account_edit_controller
-
 system.account.view:
   title: "Account"
   path: '/user/[uid:int]'
   method:
     - GET
   middleware:
-    pre:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AuthenticatedMiddleware
 
     post:
 
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: account_controller
-
 system.account.profile.edit:
   title: "Profile Account Edit"
   path: '/user/[uid:int]/profile/edit'
@@ -183,10 +177,73 @@ system.account.profile.edit:
     - GET
     - POST
   middleware:
-    pre:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AuthenticatedMiddleware
 
     post:
 
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: account_profile_edit_controller
+
+# configuration routes.
+system.configuration:
+  title: "Configuration"
+  path: '/admin/config'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: configuration_controller
+system.configuration.basic:
+  title: "Configuration"
+  path: '/admin/config/system/site-information'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: configuration_basic_site_controller
+system.configuration.account:
+  title: "Account settings"
+  path: '/admin/config/people/accounts'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: configuration_account_controller
+system.configuration.smtp:
+  title: "Site Mail Server"
+  path: '/admin/config/smtp'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: configuration_smtp_controller
