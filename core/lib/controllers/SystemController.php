@@ -14,6 +14,7 @@ use Simp\Core\lib\forms\AccountSettingForm;
 use Simp\Core\lib\forms\BasicSettingForm;
 use Simp\Core\lib\forms\LoginForm;
 use Simp\Core\lib\forms\ProfileEditForm;
+use Simp\Core\lib\forms\SiteSmtpForm;
 use Simp\Core\lib\forms\UserAccountEditForm;
 use Simp\Core\lib\memory\session\Session;
 use Simp\Core\lib\themes\View;
@@ -307,7 +308,9 @@ class SystemController
     public function configuration_smtp_controller(...$args): RedirectResponse|Response
     {
         extract($args);
-
+        $form_base = new FormBuilder(new SiteSmtpForm());
+        $form_base->getFormBase()->setFormMethod('POST');
+        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
         return new Response(View::view('default.view.configuration.smtp', ['_form'=>$form_base]), 200);
     }
 }
