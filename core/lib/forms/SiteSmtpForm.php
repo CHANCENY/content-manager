@@ -2,7 +2,9 @@
 
 namespace Simp\Core\lib\forms;
 
+use Google\Service\ContainerAnalysis\Envelope;
 use Simp\Core\modules\config\ConfigManager;
+use Simp\Core\modules\mail\MailManager;
 use Simp\Default\SelectField;
 use Simp\Fields\FieldBase;
 use Simp\FormBuilder\FormBase;
@@ -97,6 +99,13 @@ class SiteSmtpForm extends FormBase
            },$form);
           ConfigManager::config()->addConfigFile("site.smtp.setting", $new_smtp);
           $redirect = new RedirectResponse('/admin/config/smtp');
+
+          // Do test
+           $site = ConfigManager::config()->getConfigFile("basic.site.setting");
+           $envelope2 = \Simp\Mail\Mail\Envelope::create("Testing Email", "<h1>Hello this is a test email</h1><p>ok let see the paragraph</p>");
+           $envelope2->addToAddresses([$site?->get('site_email', $new_smtp['smtp_username'])]);
+           MailManager::mailManager()->addEnvelope($envelope2)->send();
+
           $redirect->send();
        }
     }

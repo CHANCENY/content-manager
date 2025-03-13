@@ -4,7 +4,7 @@
 
     {% set profile = user.getProfile() %}
     {% set roles = user.getRoles() %}
-    <div class="profile-container">
+    <div class="db-form-container">
         <!-- Profile Header -->
         <div class="profile-header">
             <img src="{{ profile.getImage|default('https://placehold.co/400') }}" alt="Profile Image" class="profile-img">

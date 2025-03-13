@@ -1,0 +1,26 @@
+{% extends 'default.view.admin_base' %}
+
+{% block body %}
+
+    <div class="db-form-container">
+        {% if contents %}
+            <table>
+                <thead>
+                <tr>
+                    <th>Content Type</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for content in contents %}
+                    <tr>
+                        <td>
+                            <a href="/node/add/{{ content.machine_name }}">{{ content.name }}</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+
+{% endblock %}

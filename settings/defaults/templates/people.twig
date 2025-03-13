@@ -1,7 +1,7 @@
 {% extends 'default.view.admin_base' %}
 
 {% block body %}
-    <div class="container">
+    <div class="db-form-container">
         <h2 class="text-center mb-4">People</h2>
         {% include 'default.view.filter.form' ignore missing  %}
         <!-- Users Table -->
@@ -51,7 +51,7 @@
                 {% else %}
                   <tfoot>
                   <tr>
-                      <td colspan="5"><p class="text-white-0 text-center p-5">Sorry no users created yet.</p></td>
+                      <td colspan="6"><p class="text-white-0 text-center p-5">Sorry no users created yet.</p></td>
                   </tr>
                   </tfoot>
                 {% endif %}

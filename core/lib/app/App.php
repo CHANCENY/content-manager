@@ -3,6 +3,7 @@
 namespace Simp\Core\lib\app;
 
 use Phpfastcache\Drivers\Files\Driver;
+use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverCheckException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverNotFoundException;
@@ -13,8 +14,11 @@ use Phpfastcache\Exceptions\PhpfastcacheInvalidTypeException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\lib\installation\InstallerValidator;
 use Simp\Core\lib\routes\Route;
+use Simp\Core\modules\config\ConfigManager;
+use Simp\Core\modules\logger\ErrorLogger;
 use Symfony\Component\HttpFoundation\Request;
 use Simp\Router\Route as Router;
+use Throwable;
 
 class App
 {
@@ -70,7 +74,19 @@ class App
 
         $set_up_wizard->finishInstall();
 
-        $this->mapRouteListeners();
+        $config = ConfigManager::config()->getConfigFile("development.setting");
+        if ($config?->get('enabled') === 'yes') {
+            try{
+                $this->mapRouteListeners();
+            }catch (Throwable $exception){
+                ErrorLogger::logger()->logError($exception->__toString());
+                echo "Unexpected error encountered";
+            }
+        }
+        else {
+            $this->mapRouteListeners();
+        }
+
 
         // Log some executions
         $start_time = $GLOBALS['request_start_time'];
@@ -82,6 +98,9 @@ class App
         $log_file = $GLOBALS['system_store']->setting_dir . '/logs/app.log';
         $log_content = "start:{$start_time} elapsed:{$time_elapsed} end:{$end_time} memory:{$memory_elapsed} cpu:{$cpu_usage}\n";
         file_put_contents($log_file, $log_content, FILE_APPEND);
+        if (isset($GLOBALS['temp_error_log'])) {
+            unset($GLOBALS['temp_error_log']);
+        }
     }
 
     public static function runApp(): App
@@ -89,6 +108,12 @@ class App
         return new App();
     }
 
+    /**
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
     protected function mapRouteListeners(): void
     {
         /**@var Driver $cache **/

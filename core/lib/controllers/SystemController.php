@@ -12,6 +12,11 @@ use Phpfastcache\Exceptions\PhpfastcacheIOException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\lib\forms\AccountSettingForm;
 use Simp\Core\lib\forms\BasicSettingForm;
+use Simp\Core\lib\forms\ContentTypeEditForm;
+use Simp\Core\lib\forms\ContentTypeFieldEditForm;
+use Simp\Core\lib\forms\ContentTypeFieldForm;
+use Simp\Core\lib\forms\ContentTypeForm;
+use Simp\Core\lib\forms\DevelopmentForm;
 use Simp\Core\lib\forms\LoginForm;
 use Simp\Core\lib\forms\ProfileEditForm;
 use Simp\Core\lib\forms\SiteSmtpForm;
@@ -22,6 +27,10 @@ use Simp\Core\modules\auth\AuthenticationSystem;
 use Simp\Core\modules\auth\normal_auth\AuthUser;
 use Simp\Core\modules\config\ConfigManager;
 use Simp\Core\modules\messager\Messager;
+use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
+use Simp\Core\modules\structures\content_types\entity\Node;
+use Simp\Core\modules\structures\content_types\form\ContentTypeDefinitionForm;
+use Simp\Core\modules\structures\content_types\storage\ContentDefinitionStorage;
 use Simp\Core\modules\user\current_user\CurrentUser;
 use Simp\Core\modules\user\entity\User;
 use Simp\FormBuilder\FormBuilder;
@@ -287,6 +296,11 @@ class SystemController
         return new Response(View::view('default.view.configuration', ['_form']), 200);
     }
 
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
     public function configuration_basic_site_controller(...$args): RedirectResponse|Response
     {
         extract($args);
@@ -312,5 +326,163 @@ class SystemController
         $form_base->getFormBase()->setFormMethod('POST');
         $form_base->getFormBase()->setFormEnctype('multipart/form-data');
         return new Response(View::view('default.view.configuration.smtp', ['_form'=>$form_base]), 200);
+    }
+
+    public function configuration_logger_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $form_base = new FormBuilder(new DevelopmentForm());
+        $form_base->getFormBase()->setFormMethod('POST');
+        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
+        return new Response(View::view('default.view.configuration.logger', ['_form'=>$form_base]), 200);
+    }
+
+    /**
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws LoaderError
+     */
+    public function structure_controller(...$args): RedirectResponse|Response
+    {
+        return new Response(View::view('default.view.structure'), 200);
+    }
+
+    public function structure_content_type_controller(...$args): RedirectResponse|Response
+    {
+        $manager = ContentDefinitionManager::contentDefinitionManager()->getContentTypes();
+        ContentDefinitionStorage::contentDefinitionStorage('xander_pratt')->storageDefinitionsPersistent();
+        return new Response(View::view('default.view.content-types-listing',['items'=>$manager]), 200);
+    }
+
+    public function structure_content_type_form_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $form_base = new FormBuilder(new ContentTypeForm());
+        $form_base->getFormBase()->setFormMethod('POST');
+        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
+        return new Response(View::view('default.view.structure_content_type',['_form'=> $form_base]), 200);
+    }
+
+    /**
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws LoaderError
+     */
+    public function content_type_edit_form_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $name = $request->get('machine_name');
+        $content = ContentDefinitionManager::contentDefinitionManager()->getContentType($name);
+        $form_base = new FormBuilder(new ContentTypeEditForm());
+        $form_base->getFormBase()->setFormMethod('POST');
+        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
+        return new Response(View::view('default.view.structure_content_type_edit',['_form'=> $form_base, 'content'=>$content]), 200);
+    }
+
+    /**
+     * @throws PhpfastcacheIOException
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
+    public function content_type_delete_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $name = $request->get('machine_name');
+        $content = ContentDefinitionManager::contentDefinitionManager()->getContentType($name);
+        if ($content && ContentDefinitionManager::contentDefinitionManager()->removeContentType($name)) {
+            Messager::toast()->addMessage("Content type \"$name\" successfully removed.");
+        }
+        return new RedirectResponse('/admin/structure/types');
+    }
+
+    public function content_type_manage_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $name = $request->get('machine_name');
+        $content = ContentDefinitionManager::contentDefinitionManager()->getContentType($name);
+        return new Response(View::view('default.view.structure_content_type_manage',['content'=>$content]), 200);
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    public function content_type_manage_add_field_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $form_base = new FormBuilder(new ContentTypeFieldForm());
+        $form_base->getFormBase()->setFormMethod('POST');
+        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
+        return new Response(View::view('default.view.structure_content_type_manage_add_field',['_form'=>$form_base]), 200);
+    }
+
+    public function content_type_manage_edit_field_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        extract($args);
+        $form_base = new FormBuilder(new ContentTypeFieldEditForm());
+        $form_base->getFormBase()->setFormMethod('POST');
+        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
+        return new Response(View::view('default.view.structure_content_type_manage_add_field',['_form'=>$form_base]), 200);
+    }
+
+    /**
+     * @throws PhpfastcacheIOException
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
+    public function content_type_manage_delete_field_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $name = $request->get('machine_name');
+        $field_name = $request->get('field_name');
+        if (ContentDefinitionManager::contentDefinitionManager()->removeField($name,$field_name)) {
+            Messager::toast()->addMessage("Content type field \"$field_name\" successfully removed.");
+        }
+        return new RedirectResponse('/admin/structure/content-type/'.$name.'/manage');
+    }
+
+    public function content_node_add_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $form_base = new FormBuilder(new ContentTypeDefinitionForm());
+        $form_base->getFormBase()->setFormMethod('POST');
+        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
+        $content = $request->get('content_name');
+        if (empty($content)) {
+            Messager::toast()->addWarning("Content type not found.");
+            return new RedirectResponse('/');
+        }
+        $content = ContentDefinitionManager::contentDefinitionManager()->getContentType($content);
+        return new Response(View::view('default.view.content_node_add',['_form'=>$form_base, 'content' => $content]), 200);
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    public function content_content_admin_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        /**@var Request $request**/
+        /**@var Request $request**/
+        $limit = $request->get('limit', 10);
+        $limit = empty($limit) ? 10 : $limit;
+        $filters = Node::filters('node_data', $limit);
+        $nodes = Node::parseFilter(Node::class, 'node_data', $filters, $request, Node::class);
+        return new Response(View::view('default.view.content_content_admin',['nodes' => $nodes, 'filters' => $filters]), 200);
+    }
+
+    public function content_content_node_add_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $content_list = ContentDefinitionManager::contentDefinitionManager()->getContentTypes();
+        return new Response(View::view('default.view.content_content_admin_node_add',['contents' => $content_list]), 200);
     }
 }

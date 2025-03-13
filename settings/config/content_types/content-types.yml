@@ -1,0 +1,116 @@
+xander_pratt:
+    name: 'Xander Pratt'
+    description: 'Earum dolores rerum '
+    machine_name: xander_pratt
+    created: '2025-03-12 07:47 AM'
+    fields:
+        xander_pratt_first_name:
+            type: text
+            label: 'First Name'
+            required: true
+            class:
+                - form
+                - form-control
+            default_value: 'Quidem perspiciatis'
+            id: Exercitation
+            options:
+                'Earum veniam volupt': 'Earum veniam volupt'
+            handler: Simp\Default\BasicField
+            name: xander_pratt_first_name
+        xander_pratt_last_name:
+            type: text
+            label: 'Last Name'
+            required: true
+            class:
+                - ''
+                - form-control
+            default_value: 'Quod consectetur au'
+            id: 'Molestias voluptas e'
+            options:
+                'Omnis quia deserunt ': 'Omnis quia deserunt '
+            handler: Simp\Default\BasicField
+            name: xander_pratt_last_name
+        xander_pratt_your_email:
+            type: email
+            label: 'Your Email'
+            required: true
+            class:
+                - form-control
+            default_value: 'Qui sit sint ipsa e'
+            id: 'Aliqua Qui et aliqu'
+            options:
+                'Id neque cupiditate ': 'Id neque cupiditate '
+            handler: Simp\Default\BasicField
+            name: xander_pratt_your_email
+        xander_pratt_birthday:
+            type: date
+            label: Birthday
+            required: true
+            class:
+                - form-control
+            default_value: 'Est qui laborum Ac'
+            id: 'Voluptatem repudiand'
+            options:
+                'Voluptatum doloribus': 'Voluptatum doloribus'
+            handler: Simp\Default\BasicField
+            name: xander_pratt_birthday
+        xander_pratt_your_birthday:
+            type: date
+            label: 'Your Birthday'
+            required: true
+            class:
+                - form-control
+            default_value: 'Est qui laborum Ac'
+            id: 'Voluptatem repudiand'
+            options:
+                'Voluptatum doloribus': 'Voluptatum doloribus'
+            handler: Simp\Default\BasicField
+            name: xander_pratt_your_birthday
+    storage:
+        - node__xander_pratt_first_name
+        - node__xander_pratt_last_name
+        - node__xander_pratt_your_email
+        - node__xander_pratt_birthday
+        - node__xander_pratt_your_birthday
+phelan_blake:
+    name: 'Phelan Blake'
+    description: 'Id nostrud doloribus'
+    machine_name: phelan_blake
+    created: '2025-03-13 09:31 AM'
+    fields:
+        phelan_blake_job_title:
+            type: text
+            label: 'Job title'
+            required: true
+            class:
+                - form-control
+            default_value: ''
+            id: Consequatur-non-duis
+            handler: Simp\Default\BasicField
+            name: phelan_blake_job_title
+        phelan_blake_job_description:
+            type: textarea
+            label: 'Job description'
+            required: false
+            class:
+                - form-control
+            default_value: ''
+            id: job_description
+            handler: Simp\Default\TextAreaField
+            name: phelan_blake_job_description
+        phelan_blake_job_water_paper:
+            type: file
+            label: 'Job Water Paper'
+            required: true
+            class:
+                - form-control
+            default_value: ''
+            id: water_paper
+            options:
+                multiple: multiple
+            handler: Simp\Default\FileField
+            name: phelan_blake_job_water_paper
+    storage:
+        - node__phelan_blake_job_title
+        - node__phelan_blake_job_description
+        - node__phelan_blake_job_water_paper

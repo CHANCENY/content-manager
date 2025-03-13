@@ -1,0 +1,33 @@
+{% extends 'default.view.admin_base' %}
+
+{% block body %}
+
+    <div class="db-form-container">
+        <h2>Manage Fields for Content Type: {{ content.name }}</h2>
+        <a href="/admin/structure/content-type/{{ content.machine_name }}/field/new" class="button">+ Create a new field</a>
+        <table>
+            <thead>
+            <tr>
+                <th>Label</th>
+                <th>Machine Name</th>
+                <th>Field Type</th>
+                <th>Operations</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for field in content.fields %}
+            <tr>
+                <td>{{ field.label }}</td>
+                <td>{{ field.name }}</td>
+                <td>{{ field.type }}</td>
+                <td>
+                    <a href="/admin/structure/content-type/{{ content.machine_name }}/field/{{ field.name }}/edit" class="edit-button">Edit</a>
+                    <a href="/admin/structure/content-type/{{ content.machine_name }}/field/{{ field.name }}/delete" class="btn delete-btn">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

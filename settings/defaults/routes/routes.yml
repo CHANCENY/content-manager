@@ -247,3 +247,209 @@ system.configuration.smtp:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: configuration_smtp_controller
+
+system.configuration.logger:
+  title: "Site Mail Server"
+  path: '/admin/config/development/settings'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: configuration_logger_controller
+
+system.structure:
+  title: "Structure"
+  path: '/admin/structure'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: structure_controller
+
+system.structure.content-type:
+  title: "Content Type"
+  path: '/admin/structure/types'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: structure_content_type_controller
+
+system.structure.content-type.form:
+  title: "Content Type"
+  path: '/admin/structure/types/new'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: structure_content_type_form_controller
+
+system.structure.content-type.edit:
+  title: "Content Type Edit"
+  path: '/admin/structure/content-type/[machine_name:string]/edit'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_type_edit_form_controller
+
+system.structure.content-type.delete:
+  title: "Content Type"
+  path: '/admin/structure/content-type/[machine_name:string]/delete'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_type_delete_controller
+
+system.structure.content-type.manage:
+  title: "Content Type Manage"
+  path: '/admin/structure/content-type/[machine_name:string]/manage'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_type_manage_controller
+
+system.structure.content-type.manage.field.new:
+  title: "Content Type Field"
+  path: '/admin/structure/content-type/[machine_name:string]/field/new'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_type_manage_add_field_controller
+
+system.structure.content-type.manage.field.edit:
+  title: "Content Type Field"
+  path: '/admin/structure/content-type/[machine_name:string]/field/[field_name:string]/edit'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_type_manage_edit_field_controller
+
+system.structure.content-type.manage.field.delete:
+  title: "Content Type Field"
+  path: '/admin/structure/content-type/[machine_name:string]/field/[field_name:string]/delete'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_type_manage_delete_field_controller
+
+system.structure.content:
+  title: "Content"
+  path: '/admin/content'
+  method:
+    - GET
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_content_admin_controller
+
+system.structure.content.add:
+  title: "Content"
+  path: '/node/add'
+  method:
+    - GET
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_content_node_add_controller
+
+system.structure.content.form:
+  title: "Content Type Field"
+  path: '/node/add/[content_name:string]'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_node_add_controller
