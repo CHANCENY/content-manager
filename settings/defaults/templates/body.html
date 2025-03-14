@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.6.1/toastify.min.css" integrity="sha512-UiKdzM5DL+I+2YFxK+7TDedVyVm7HMp/bN85NeWMJNYortoll+Nd6PU9ZDrZiaOsdarOyk9egQm6LOJZi36L2g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
-            padding-top: 90px;
+            padding-top: 90px; /* To prevent content from hiding behind the fixed navbar */
         }
         /* Top Black Admin Bar */
         .admin-bar {
@@ -48,26 +48,7 @@
             border-radius: 3px;
         }
         .main-content {
-            margin-right: 3rem !important;
-            margin-left: 3rem !important;
-            margin-top: 8rem !important;
-            margin-bottom: 8rem !important;
-            clear: both;
-        }
-        .container h2 {
-            margin-bottom: 2rem;
-        }
-        .db-form-container h2 {
-            margin-bottom: 2rem;
-        }
-
-        .admin-bar input[type=text] {
-            background: #333;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 3px;
-            width: auto;
+            margin: auto;
         }
 
         /* Main Menu Bar */
@@ -101,21 +82,12 @@
         .main-menu i {
             margin-right: 5px;
         }
-        /* General styles */
-        body {
-            font-family: 'Inter', 'Open Sans', Arial, sans-serif;
-            background-color: #f8f9fa; /* Light gray background */
-            color: #333;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-        }
-
-        /* Layout & spacing */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        .db-form-container {
+            background: white;
             padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
         }
 
         .form-group {
@@ -411,136 +383,6 @@
             outline: none;
         }
 
-
-
-        /* Headings */
-        h1, h2, h3, h4, h5, h6 {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        /* Links */
-        a {
-            color: #0056b3; /* Drupal’s blue shade */
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-
-        /* Buttons */
-        button, .button, input[type="submit"] {
-            background-color: #0074bd;
-            color: #fff;
-            border: none;
-            padding: 10px 15px;
-            font-size: 14px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        button:hover, .button:hover, input[type="submit"]:hover {
-            background-color: #005fa3;
-        }
-
-        /* Forms */
-        input[type="text"], input[type="email"], input[type="password"], textarea, select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        input:focus, textarea:focus, select:focus {
-            border-color: #0074bd;
-            outline: none;
-        }
-
-        /* Tables */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-            background: #fff;
-        }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ddd;
-        }
-        th {
-            background: #f1f1f1;
-            font-weight: 600;
-        }
-
-        /* Cards & Blocks */
-        .card {
-            background: white;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            background: #fff;
-            padding: 15px;
-            border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Navigation */
-        .navbar {
-            background: #0074bd;
-            padding: 10px 15px;
-            color: white;
-            font-size: 16px;
-        }
-        .navbar a {
-            color: white;
-            font-weight: bold;
-        }
-        .navbar a:hover {
-            color: #f8f9fa;
-        }
-
-        /* Alerts */
-        .alert {
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-        }
-        .alert-success { background: #d4edda; color: #155724; }
-        .alert-warning { background: #fff3cd; color: #856404; }
-        .alert-danger  { background: #f8d7da; color: #721c24; }
-
-        /* Success toast */
-        .toastify-success {
-            background: #28a745; /* Green */
-            border-left: 5px solid #218838;
-        }
-
-        /* Error toast */
-        .toastify-error {
-            background: #dc3545; /* Red */
-            border-left: 5px solid #c82333;
-        }
-
-        /* Warning toast */
-        .toastify-warning {
-            background: #ffc107; /* Yellow */
-            color: #333;
-            border-left: 5px solid #e0a800;
-        }
-
-        /* Info toast */
-        .toastify-info {
-            background: #17a2b8; /* Blue */
-            border-left: 5px solid #117a8b;
-        }
-
-
     </style>
 </head>
 <body>
@@ -571,8 +413,8 @@
 {% if request.user is not null and request.user.isIsAdmin %}
     <!-- Main Navigation Menu -->
     <div class="main-menu">
-        <a href="/admin/content"><i class="fa fa-file"></i> Content</a>
-        <a href="/admin/structure"><i class="fa fa-sitemap"></i> Structure</a>
+        <a href="#"><i class="fa fa-file"></i> Content</a>
+        <a href="#"><i class="fa fa-sitemap"></i> Structure</a>
         <a href="#"><i class="fa fa-paint-brush"></i> Appearance</a>
         <a href="#"><i class="fa fa-wrench"></i> Extend</a>
         <a href="/admin/config"><i class="fa fa-cogs"></i> Configuration</a>
@@ -608,7 +450,7 @@
 
 {% endif %}
 
-<div class="main-content mt-lg-5">
+<div class="container mt-lg-5">
     {% block body %}{% endblock %}
 </div>
 
