@@ -1,9 +1,9 @@
 site:
-    site_name: 'Idunova Ebooks'
-    site_slogan: 'providing ebook reading platform.'
-    site_email: chance.svinfotech@gmail.com
+    site_name: 'Chance CMS'
+    site_slogan: 'this is chance cms'
+    site_email: test@articlepulsehub.com
 front_page:
-    front_page_url: /home
+    front_page_url: ''
 error_pages:
     not_found_page: ''
     access_denied_page: ''

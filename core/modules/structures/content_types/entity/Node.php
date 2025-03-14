@@ -28,13 +28,22 @@ class Node
     )
     {
         $this->entity_types = ContentDefinitionManager::contentDefinitionManager()->getContentType($this->bundle);
-        foreach ($this->entity_types['fields'] as $key=>$field) {
-            $storage = ContentDefinitionStorage::contentDefinitionStorage($this->bundle)->getStorageSelectStatement($key);
-            $query = Database::database()->con()->prepare($storage);
-            $query->bindParam(':nid', $this->nid);
-            $query->execute();
-            $this->values[$key] = $query->fetchAll();
+        $storage = ContentDefinitionStorage::contentDefinitionStorage($this->bundle)->getStorageJoinStatement($this->nid);
+        $query = Database::database()->con()->prepare($storage);
+        $query->bindValue(':nid', $this->nid);
+        $query->execute();
+        $data = $query->fetchAll();
+        $rows = [];
+
+        foreach($data as $key=>$value) {
+             if(is_array($value)) {
+                foreach($value as $k=>$v) {
+                    $rows[$k]['value'][] = $v;
+                    $rows[$k]['value'] = array_unique($rows[$k]['value']);
+                }
+             }
         }
+        $this->values = $rows;
     }
 
     public function getTitle(): ?string

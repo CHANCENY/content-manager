@@ -184,11 +184,12 @@ class ContentTypeDefinitionForm extends FormBase
                             }
                         }
                         elseif (isset($files['name']) && is_string($files['name'])) {
-                            $processed_files[] = [$files];
+                            $processed_files[] = $files;
                         }
 
                         $file_fids = [];
                         foreach ($processed_files as $file) {
+                            
                             $form = new FormUpload();
                             // TODO: get settings for content type
                             $form->addAllowedExtension('image/*');
@@ -228,7 +229,6 @@ class ContentTypeDefinitionForm extends FormBase
 
                 // now insert in other tables.
                 $node = Node::create($node_data);
-                dd($node);
                 Messager::toast()->addMessage("Content of type {$this->content_type['name']} created");
                 $redirect = new RedirectResponse('/admin/content');
                 $redirect->setStatusCode(302);

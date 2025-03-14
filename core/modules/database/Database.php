@@ -3,9 +3,10 @@
 namespace Simp\Core\modules\database;
 
 use PDO;
-use Simp\Core\lib\installation\InstallerValidator;
-use Simp\Core\lib\installation\SystemDirectory;
+use Medoo\Medoo;
 use Symfony\Component\Yaml\Yaml;
+use Simp\Core\lib\installation\SystemDirectory;
+use Simp\Core\lib\installation\InstallerValidator;
 
 class Database
 {
@@ -29,7 +30,7 @@ class Database
         );
 
         try {
-            date_default_timezone_set('UTC');
+            
             $this->pdo = new SPDO($this->dsn, $this->username, $this->password);
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
@@ -76,5 +77,21 @@ class Database
                 }
             }
         }
+    }
+
+    public static function queryBuilder(): ?Medoo {
+        $system = new SystemDirectory();
+        $database_setting = $system->setting_dir . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'database.yml';
+        if (file_exists($database_setting)) {
+            $settings = Yaml::parse(file_get_contents($database_setting));
+            return new Medoo([
+                'type' => 'mysql',
+                'host' => $settings['hostname'],
+                'database' => $settings['dbname'],
+                'username' => $settings['username'],
+                'password' => $settings['password']
+            ]);
+        }
+        return null;
     }
 }

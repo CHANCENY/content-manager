@@ -350,7 +350,6 @@ class SystemController
     public function structure_content_type_controller(...$args): RedirectResponse|Response
     {
         $manager = ContentDefinitionManager::contentDefinitionManager()->getContentTypes();
-        ContentDefinitionStorage::contentDefinitionStorage('xander_pratt')->storageDefinitionsPersistent();
         return new Response(View::view('default.view.content-types-listing',['items'=>$manager]), 200);
     }
 

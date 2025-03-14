@@ -37,8 +37,8 @@ class Theme extends SystemDirectory
         $site = ConfigManager::config()->getConfigFile('basic.site.setting');
         //TODO: add more options for twig eg current_user info, route info.
         $this->options = [
-            'page_title' => $site->get('site_name'),
-            'page_description' => $site->get('site_slogan'),
+            'page_title' => $site?->get('site_name'),
+            'page_description' => $site?->get('site_slogan'),
             'page_keywords' => 'Content, Management, System',
             'request' => [
                 'user' => CurrentUser::currentUser(),

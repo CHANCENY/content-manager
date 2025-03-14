@@ -1,5 +1,11 @@
 run:
-    globals: [database, caching, stream_wrapper, session_store, system_store, request_start_time]
+    globals:
+        - database
+        - caching
+        - stream_wrapper
+        - session_store
+        - system_store
+        - request_start_time
 filesystem_installed: pending
 session_installed: pending
 caching_installed: pending
@@ -7,17 +13,55 @@ database_installed: pending
 project_installed: pending
 theme_installed: pending
 project_install_steps:
-    route: { pre_fetch: true }
-    services: { pre_fetch: true }
-    forms: { pre_fetch: true }
-    content-type: { pre_fetch: true }
+    route:
+        pre_fetch: true
+    services:
+        pre_fetch: true
+    forms:
+        pre_fetch: true
+    content-type:
+        pre_fetch: true
 database_installed_steps:
     check_configuration: true
-    action: { form: true, die: false }
+    action:
+        form: true
+        die: false
 filesystem_installed_steps:
-    directories: ['var://routing', 'var://form-build', 'var://content-types', 'var://services', 'var://sessions', 'var://cache', 'var://twig/cache', 'setting://database', 'setting://logs', 'module://custom', 'module://forms', 'module://content-types', 'theme://', 'global://', 'public://', 'private://']
-    streams: [{ var: Simp\Core\lib\file\file_system\stream_wrapper\VarStreamWrapper }, { setting: Simp\Core\lib\file\file_system\stream_wrapper\SettingStreamWrapper }, { public: Simp\Core\lib\file\file_system\stream_wrapper\PublicStreamWrapper }, { global: Simp\Core\lib\file\file_system\stream_wrapper\GlobalStreamWrapper }, { private: Simp\Core\lib\file\file_system\stream_wrapper\PrivateStreamWrapper }, { module: Simp\Core\lib\file\file_system\stream_wrapper\ModuleStreamWrapper }, { theme: Simp\Core\lib\file\file_system\stream_wrapper\ThemeStreamWrapper }]
-    files: ['var://routing/route-patterns.yml', 'var://services/services-list.yml']
+    directories:
+        - 'var://routing'
+        - 'var://form-build'
+        - 'var://content-types'
+        - 'var://services'
+        - 'var://sessions'
+        - 'var://cache'
+        - 'var://twig/cache'
+        - 'setting://database'
+        - 'setting://logs'
+        - 'module://custom'
+        - 'module://forms'
+        - 'module://content-types'
+        - 'theme://'
+        - 'global://'
+        - 'public://'
+        - 'private://'
+    streams:
+        -
+            var: Simp\Core\lib\file\file_system\stream_wrapper\VarStreamWrapper
+        -
+            setting: Simp\Core\lib\file\file_system\stream_wrapper\SettingStreamWrapper
+        -
+            public: Simp\Core\lib\file\file_system\stream_wrapper\PublicStreamWrapper
+        -
+            global: Simp\Core\lib\file\file_system\stream_wrapper\GlobalStreamWrapper
+        -
+            private: Simp\Core\lib\file\file_system\stream_wrapper\PrivateStreamWrapper
+        -
+            module: Simp\Core\lib\file\file_system\stream_wrapper\ModuleStreamWrapper
+        -
+            theme: Simp\Core\lib\file\file_system\stream_wrapper\ThemeStreamWrapper
+    files:
+        - 'var://routing/route-patterns.yml'
+        - 'var://services/services-list.yml'
 session_installed_steps:
     file_based: true
     default: false
@@ -30,6 +74,7 @@ finished:
     setting_cached: false
     default_loaded: false
 closed: false
+
 twig_setting:
     debug: true
     cache: false

@@ -36,7 +36,7 @@ class AccountSettingForm extends FormBase
                     'class' => ['form-control'],
                     'description' => 'The name used to indicate anonymous users.',
                     'name' => 'anonymous_name',
-                    'default_value' => $config->get('anonymous_name','Anonymous Users'),
+                    'default_value' => $config?->get('anonymous_name','Anonymous Users'),
                 ]
             ],
             'options' => [
@@ -64,7 +64,7 @@ class AccountSettingForm extends FormBase
                     ],
                     'handler' => SelectField::class,
                     'name' => 'allow_account_creation',
-                    'default_value' => $config->get('allow_account_creation','administrator'),
+                    'default_value' => $config?->get('allow_account_creation','administrator'),
                 ],
                 'verification_email' => [
                     'type' => 'select',
@@ -78,7 +78,7 @@ class AccountSettingForm extends FormBase
                     ],
                     'handler' => SelectField::class,
                     'name' => 'verification_email',
-                    'default_value' => $config->get('verification_email','no'),
+                    'default_value' => $config?->get('verification_email','no'),
                 ],
                 'password_strength' => [
                     'type' => 'select',
@@ -93,7 +93,7 @@ class AccountSettingForm extends FormBase
                     ],
                     'handler' => SelectField::class,
                     'name' => 'password_strength',
-                    'default_value' => $config->get('password_strength','low'),
+                    'default_value' => $config?->get('password_strength','low'),
                 ],
                 'cancellation' => [
                     'type' => 'select',
@@ -106,7 +106,7 @@ class AccountSettingForm extends FormBase
                         'unpublished' => 'Disable the account and unpublish its content.',
                         'deleted' => 'Delete the account and delete its content.',
                     ],
-                    'default_value' => $config->get('cancellation','blocked'),
+                    'default_value' => $config?->get('cancellation','blocked'),
                     'handler' => SelectField::class,
                 ]
             ],
@@ -122,8 +122,8 @@ class AccountSettingForm extends FormBase
             'id' => 'notifications',
             'class' => ['form-control'],
             'description' => "The email address to be used as the 'from' address for all account notifications listed below. If 'Visitors, but administrator approval is required' is selected above, a notification email will also be sent to this address for any new registrations. 
-            Leave empty to use the default system email address <i>({$config->get('site_email')})</i>.",
-            'default_value' => $config->get('notifications',$config->get('site_email')),
+            Leave empty to use the default system email address <i>({$config?->get('site_email')})</i>.",
+            'default_value' => $config->get('notifications',$config?->get('site_email')),
         ];
 
         $config = ConfigManager::config()->getConfigFile('account.setting');
@@ -144,7 +144,7 @@ class AccountSettingForm extends FormBase
                     'class' => ['form-check-input'],
                     'name' => 'account_creation',
                      'option' => [
-                         'checked' => !empty($config->get('account_creation_message', null)) ? 'checked' : '',
+                         'checked' => !empty($config?->get('account_creation_message', null)) ? 'checked' : '',
                      ]
                 ],
                 'account_creation_message' => [
@@ -158,7 +158,7 @@ class AccountSettingForm extends FormBase
                         'cols' => 10,
                     ],
                     'handler' => TextAreaField::class,
-                    'default_value' => $config->get('account_creation_message','welcome your account is created'),
+                    'default_value' => $config?->get('account_creation_message','welcome your account is created'),
                 ],
                 'account_activation' => [
                     'type' => 'checkbox',
@@ -167,7 +167,7 @@ class AccountSettingForm extends FormBase
                     'class' => ['form-check-input'],
                     'name' => 'account_activation',
                     'option' => [
-                        'checked' => !empty($config->get('account_activation_message', null)) ? 'checked' : '',
+                        'checked' => !empty($config?->get('account_activation_message', null)) ? 'checked' : '',
                     ]
                 ],
                 'account_activation_message' => [
@@ -181,7 +181,7 @@ class AccountSettingForm extends FormBase
                         'cols' => 10,
                     ],
                     'handler' => TextAreaField::class,
-                    'default_value' => $config->get('account_activation_message','Hello user your account is activation'),
+                    'default_value' => $config?->get('account_activation_message','Hello user your account is activation'),
                 ],
                 'password_recovery' => [
                     'type' => 'checkbox',
@@ -190,7 +190,7 @@ class AccountSettingForm extends FormBase
                     'class' => ['form-check-input'],
                     'name' => 'password_recovery',
                     'option' => [
-                        'checked' => !empty($config->get('password_recovery_message', null)) ? 'checked' : '',
+                        'checked' => !empty($config?->get('password_recovery_message', null)) ? 'checked' : '',
                     ]
                 ],
                 'password_recovery_message' => [
@@ -204,7 +204,7 @@ class AccountSettingForm extends FormBase
                         'cols' => 10,
                     ],
                     'handler' => TextAreaField::class,
-                    'default_value' => $config->get('password_recovery_message','Hello user you requested a password recovery'),
+                    'default_value' => $config?->get('password_recovery_message','Hello user you requested a password recovery'),
                 ]
             ],
             'conditions' => [

@@ -73,16 +73,32 @@ class ContentDefinitionStorage
         return false;
     }
 
-    public function getStorageSelectStatement(string $field_name): ?string
+    public function getStorageJoinStatement(): ?string
     {
-        $index = array_search("node__{$field_name}", $this->content_type['storage']);
-        if ($index !== false) {
-            $name = substr($this->content_type['storage'][$index],4, strlen($this->content_type['storage'][$index]));
+        $tables = $this->content_type['storage'] ?? [];
+        $joins = [];
+        $columns = [
+            //'N.uid', 
+            //'N.title', 'N.status', 'N.bundle',
+            //'N.created', 'N.updated', 'N.lang'
+        ];
+
+        foreach ($tables as $key => $table) {
+            $name = substr($table, 5);  // Trim the prefix
             $name = trim($name, '_');
-            return "SELECT `{$name}__value` AS {$name} FROM `node__{$field_name}` WHERE `nid` = :nid";
+            $alias = "P$key";
+
+            // Select the value field as-is, without concatenation
+            $columns[] = "{$alias}.{$name}__value AS {$name}";
+            $joins[] = "LEFT JOIN `$table` $alias ON N.nid = $alias.nid";
         }
-        return null;
+
+        $cols = implode(', ', $columns);
+        $joinsString = implode(' ', $joins);
+
+        return "SELECT {$cols} FROM `node_data` N {$joinsString} WHERE N.nid = :nid";
     }
+
 
     public function getStorageInsertStatement(string $field_name): ?string
     {

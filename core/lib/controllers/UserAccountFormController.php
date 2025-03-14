@@ -38,10 +38,10 @@ class UserAccountFormController
         $config = ConfigManager::config()->getConfigFile('account.setting');
         $current = CurrentUser::currentUser();
         $redirect = new RedirectResponse('/');
-        if ($config->get('allow_account_creation') === 'administrator' && empty($current?->isIsAdmin())) {
+        if ($config?->get('allow_account_creation') === 'administrator' && empty($current?->isIsAdmin())) {
             $redirect->send();
         }
-        elseif ($config->get('allow_account_creation') === 'visitor' && !empty($current?->isIsAdmin())) {
+        elseif ($config?->get('allow_account_creation') === 'visitor' && !empty($current?->isIsAdmin())) {
             Messager::toast()->addWarning("Access denied for this user");
             $redirect->send();
         }
