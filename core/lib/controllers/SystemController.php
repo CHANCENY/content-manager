@@ -2,45 +2,45 @@
 
 namespace Simp\Core\lib\controllers;
 
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
+use Twig\Error\RuntimeError;
 use Google\Service\Exception;
-use GuzzleHttp\Exception\GuzzleException;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use Phpfastcache\Exceptions\PhpfastcacheCoreException;
-use Phpfastcache\Exceptions\PhpfastcacheDriverException;
-use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
-use Phpfastcache\Exceptions\PhpfastcacheIOException;
-use Phpfastcache\Exceptions\PhpfastcacheLogicException;
-use Simp\Core\lib\forms\AccountSettingForm;
-use Simp\Core\lib\forms\BasicSettingForm;
-use Simp\Core\lib\forms\ContentTypeEditForm;
-use Simp\Core\lib\forms\ContentTypeFieldEditForm;
-use Simp\Core\lib\forms\ContentTypeFieldForm;
+use Simp\Core\lib\themes\View;
+use Simp\FormBuilder\FormBuilder;
+use Simp\Core\lib\forms\LoginForm;
+use Simp\Core\lib\forms\SiteSmtpForm;
+use Simp\Core\modules\user\entity\User;
 use Simp\Core\lib\forms\ContentTypeForm;
 use Simp\Core\lib\forms\DevelopmentForm;
-use Simp\Core\lib\forms\LoginForm;
 use Simp\Core\lib\forms\ProfileEditForm;
-use Simp\Core\lib\forms\SiteSmtpForm;
-use Simp\Core\lib\forms\UserAccountEditForm;
-use Simp\Core\lib\memory\session\Session;
-use Simp\Core\lib\themes\View;
-use Simp\Core\modules\auth\AuthenticationSystem;
-use Simp\Core\modules\auth\normal_auth\AuthUser;
-use Simp\Core\modules\config\ConfigManager;
 use Simp\Core\modules\messager\Messager;
-use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
-use Simp\Core\modules\structures\content_types\entity\Node;
-use Simp\Core\modules\structures\content_types\form\ContentTypeDefinitionForm;
-use Simp\Core\modules\structures\content_types\storage\ContentDefinitionStorage;
-use Simp\Core\modules\user\current_user\CurrentUser;
-use Simp\Core\modules\user\entity\User;
-use Simp\FormBuilder\FormBuilder;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use GuzzleHttp\Exception\GuzzleException;
+use Simp\Core\lib\forms\BasicSettingForm;
+use Simp\Core\lib\memory\session\Session;
+use Simp\Core\lib\forms\AccountSettingForm;
+use Simp\Core\modules\config\ConfigManager;
+use Simp\Core\lib\forms\ContentTypeEditForm;
+use Simp\Core\lib\forms\UserAccountEditForm;
+use Simp\Core\lib\forms\ContentTypeFieldForm;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
+use Simp\Core\modules\auth\AuthenticationSystem;
+use Simp\Core\modules\auth\normal_auth\AuthUser;
+use Simp\Core\lib\forms\ContentTypeFieldEditForm;
+use Simp\Core\lib\forms\ContentTypeInnerFieldForm;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Phpfastcache\Exceptions\PhpfastcacheIOException;
+use Simp\Core\modules\user\current_user\CurrentUser;
+use Phpfastcache\Exceptions\PhpfastcacheCoreException;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Phpfastcache\Exceptions\PhpfastcacheLogicException;
+use Phpfastcache\Exceptions\PhpfastcacheDriverException;
+use Simp\Core\modules\structures\content_types\entity\Node;
+use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
+use Simp\Core\modules\structures\content_types\form\ContentTypeDefinitionForm;
 
 class SystemController
 {
@@ -483,5 +483,25 @@ class SystemController
         extract($args);
         $content_list = ContentDefinitionManager::contentDefinitionManager()->getContentTypes();
         return new Response(View::view('default.view.content_content_admin_node_add',['contents' => $content_list]), 200);
+    }
+
+    public function content_structure_field_inner_manage_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $fields = ContentDefinitionManager::contentDefinitionManager()
+                  ->getContentType($request->get('machine_name'));
+        $inner_fields = $fields['fields'][$request->get('field_name')]['inner_field'] ?? [];
+
+        return new Response(View::view('default.view.content_structure_field_inner_manage',
+         ['fields'=>$inner_fields, 'content'=> $fields, 'parent_field'=> $request->get('field_name')]));
+    }
+
+    public function content_structure_field_inner_add_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $form_base = new FormBuilder(new ContentTypeInnerFieldForm);
+        $form_base->getFormBase()->setFormMethod('POST');
+        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
+        return new Response(View::view('default.view.structure_content_type_manage_add_field', ['_form' => $form_base, 'parent_field'=>$request->get('field_name')]), 200);
     }
 }

@@ -408,6 +408,38 @@ system.structure.content-type.manage.field.delete:
     class: Simp\Core\lib\controllers\SystemController
     method: content_type_manage_delete_field_controller
 
+system.structure.field.wrapper.field:
+  title: "Inner fields"
+  path: '/admin/structure/content-type/[machine_name:string]/field/[field_name:string]/inner-fields'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_structure_field_inner_manage_controller
+
+system.structure.field.wrapper.field.inner.add:
+  title: "Inner fields"
+  path: '/admin/structure/content-type/[machine_name:string]/field/[field_name:string]/add/inner/new'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_structure_field_inner_add_controller
+
 system.structure.content:
   title: "Content"
   path: '/admin/content'

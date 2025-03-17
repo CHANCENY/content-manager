@@ -20,7 +20,7 @@ use Simp\FormBuilder\FormBase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-class ContentTypeFieldForm extends FormBase
+class ContentTypeInnerFieldForm extends FormBase
 {
 
     protected bool $validated = true;
@@ -216,6 +216,7 @@ class ContentTypeFieldForm extends FormBase
            };
 
            $persist = true;
+          
            if (in_array($data['type'], ['details', 'fieldset', 'conditional'])) {
               $field['inner_field'] = [];
               if ($data['type'] === 'conditional') {
@@ -228,12 +229,18 @@ class ContentTypeFieldForm extends FormBase
            $name = strtolower($name);
            $field['name'] = $name_content.'_'.$name;
 
-            $persist_override = $field;
+           $original_field = ContentDefinitionManager::contentDefinitionManager()->getContentType($name_content);
+           $original_field_data = $original_field['fields'][$request->get('field_name')] ?? [];
+           $original_field_data['inner_field'][$field['name']] = $field;
+
+           $parent_field = $request->get('field_name');
+           
+           $persist_override = $field;
             if (in_array($data['type'], ['details', 'fieldset', 'conditional'])) {
-                $persist_override = [];
+               $persist_override = [];
             }
 
-           if (ContentDefinitionManager::contentDefinitionManager()->addField($name_content, $name_content.'_'.$name, $field, $persist, $persist_override)) {
+           if (ContentDefinitionManager::contentDefinitionManager()->addField($name_content, $parent_field, $original_field_data, $persist, $persist_override)) {
                Messager::toast()->addMessage("Field '$name' has been created");
            }
            $redirect = new RedirectResponse('/admin/structure/content-type/'.$name_content. '/manage');

@@ -13,7 +13,7 @@ class Node
 {
     use StaticHelperTrait;
 
-    protected array $entity_types = [];
+    protected ?array $entity_types = [];
     protected array $values = [];
 
     public function __construct(
@@ -27,7 +27,7 @@ class Node
         protected ?int $uid,
     )
     {
-        $this->entity_types = ContentDefinitionManager::contentDefinitionManager()->getContentType($this->bundle);
+        $this->entity_types = ContentDefinitionManager::contentDefinitionManager()->getContentType($this->bundle) ?? [];
         $storage = ContentDefinitionStorage::contentDefinitionStorage($this->bundle)->getStorageJoinStatement($this->nid);
         $query = Database::database()->con()->prepare($storage);
         $query->bindValue(':nid', $this->nid);
@@ -131,18 +131,12 @@ class Node
             $query->execute();
             $nid = $connection->lastInsertId();
             if (!empty($nid)) {
-                $query = "SELECT * FROM node_data WHERE nid = :nid";
-                $query = $connection->prepare($query);
-                $query->bindValue(':nid', $nid);
-                $query->execute();
-                $result = $query->fetch();
-                $node = new Node(...$result);
-
+                $node = Node::load($nid);
                 // Add more field data.
                 foreach ($data as $key => $value) {
                     $node->addFieldData($key, $value);
                 }
-                return $node;
+                return Node::load($nid);
             }
         }
         return null;
@@ -189,5 +183,18 @@ class Node
 
         }
         return false;
+    }
+
+    public static function load(int $nid): ?Node {
+        $connection = Database::database()->con();
+        $query = "SELECT * FROM node_data WHERE nid = :nid";
+        $query = $connection->prepare($query);
+        $query->bindValue(':nid', $nid);
+        $query->execute();
+        $result = $query->fetch();
+        if (empty($result)) {
+            return null;
+        }
+        return new Node(...$result);
     }
 }

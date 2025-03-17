@@ -23,6 +23,12 @@
                 <td>
                     <a href="/admin/structure/content-type/{{ content.machine_name }}/field/{{ field.name }}/edit" class="edit-button">Edit</a>
                     <a href="/admin/structure/content-type/{{ content.machine_name }}/field/{{ field.name }}/delete" class="btn delete-btn">Delete</a>
+
+                    {% if field.type == 'details' or field.type == 'fieldset' or field.type == 'conditional'  %}
+                      
+                      <a href="/admin/structure/content-type/{{ content.machine_name }}/field/{{ field.name }}/inner-fields" class="edit-button">Fields</a>
+
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

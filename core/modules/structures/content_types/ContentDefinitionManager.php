@@ -3,6 +3,8 @@
 namespace Simp\Core\modules\structures\content_types;
 
 use Simp\Core\lib\installation\SystemDirectory;
+use Simp\Core\modules\database\Database;
+use Simp\Core\modules\structures\content_types\storage\ContentDefinitionStorage;
 use Symfony\Component\Yaml\Yaml;
 
 class ContentDefinitionManager extends SystemDirectory
@@ -53,10 +55,16 @@ class ContentDefinitionManager extends SystemDirectory
         return file_put_contents($this->content_file, Yaml::dump($this->content_types,Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
     }
 
-    public function addField(string $name, string $field_name, array $config = []): bool
+    public function addField(string $name, string $field_name, array $config = [], bool $persist = false, array $persist_override = []): bool
     {
         $this->content_types[$name]['fields'][$field_name] = $config;
         if (file_put_contents($this->content_file, Yaml::dump($this->content_types,Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK))) {
+
+            $storage = ContentDefinitionStorage::contentDefinitionStorage($name);
+            // process the tables.
+            if ($persist) {
+                $storage->storageDefinitionsPersistent($persist_override);
+            }
             return true;
         }
         return false;
@@ -71,6 +79,14 @@ class ContentDefinitionManager extends SystemDirectory
     {
         if (isset($this->content_types[$name]['fields'][$field_name])) {
             unset($this->content_types[$name]['fields'][$field_name]);
+        }
+
+        $index = array_search('node__' . $field_name, $this->content_types[$name]['storage']);
+        if ($index !== false) {
+            unset($this->content_types[$name]['storage'][$index]);
+            $delete_query = ContentDefinitionStorage::contentDefinitionStorage($name)->getStorageDropStatement($field_name);
+            $sta = Database::database()->con()->prepare($delete_query);
+            $sta->execute();
         }
         if (file_put_contents($this->content_file, Yaml::dump($this->content_types,Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK))) {
             return true;

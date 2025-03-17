@@ -1,19 +1,19 @@
 articles:
     name: Articles
-    description: 'This is article content type'
+    description: 'this is content type for creating and managing articles data'
     machine_name: articles
-    created: '2025-03-13 17:28 PM'
+    created: '2025-03-15 16:25 PM'
     fields:
-        articles_body:
+        articles_content:
             type: textarea
-            label: Body
+            label: Content
             required: true
             class:
                 - form-control
             default_value: ''
-            id: body
+            id: content
             handler: Simp\Default\TextAreaField
-            name: articles_body
+            name: articles_content
         articles_image:
             type: file
             label: Image
@@ -22,10 +22,72 @@ articles:
                 - form-control
             default_value: ''
             id: image
-            options:
-                multiple: multiple
             handler: Simp\Default\FileField
             name: articles_image
+        articles_meta_information:
+            type: details
+            label: 'Meta Information'
+            required: false
+            class:
+                - form-control
+            default_value: ''
+            id: meta-info
+            options:
+                open: open
+            handler: Simp\Default\DetailWrapperField
+            inner_field:
+                articles_meta_title:
+                    type: text
+                    label: 'Meta Title'
+                    required: false
+                    class:
+                        - form-control
+                    default_value: ''
+                    id: title-meta
+                    handler: Simp\Default\BasicField
+                    name: articles_meta_title
+                articles_meta_description:
+                    type: textarea
+                    label: 'Meta Description'
+                    required: false
+                    class:
+                        - form-control
+                    default_value: ''
+                    id: meta-description
+                    handler: Simp\Default\TextAreaField
+                    name: articles_meta_description
+                articles_meta_image:
+                    type: file
+                    label: 'Meta Image'
+                    required: false
+                    class:
+                        - form-control
+                    default_value: ''
+                    id: title-image
+                    handler: Simp\Default\FileField
+                    name: articles_meta_image
+            name: articles_meta_information
     storage:
-        - node__articles_body
+        - node__articles_content
         - node__articles_image
+        - node__articles_meta_title
+        - node__articles_meta_description
+        - node__articles_meta_image
+basic_page:
+    name: 'Basic page'
+    description: 'basic page content type'
+    machine_name: basic_page
+    created: '2025-03-16 15:44 PM'
+    fields:
+        basic_page_body:
+            type: textarea
+            label: Body
+            required: false
+            class:
+                - form-control
+            default_value: ''
+            id: body
+            handler: Simp\Default\TextAreaField
+            name: basic_page_body
+    storage:
+        - node__basic_page_body

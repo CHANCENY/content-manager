@@ -19,6 +19,7 @@ use Simp\Fields\FieldBase;
 use Simp\FormBuilder\FormBase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Throwable;
 
 class ContentTypeDefinitionForm extends FormBase
 {
@@ -125,9 +126,9 @@ class ContentTypeDefinitionForm extends FormBase
         }
     }
 
-    private function validate_recursive(FieldBase &$field): bool
+    private function validate_recursive(FieldBase &$field)
     {
-        foreach ($field->getField()['inner_fields'] as $inner_field) {
+        foreach ($field->getField()['inner_field'] as $inner_field) {
             if ($inner_field instanceof FieldBase && in_array($inner_field->getType(),['fieldset','conditional','details'])) {
                 return $this->validate_recursive($inner_field);
             }
@@ -135,6 +136,82 @@ class ContentTypeDefinitionForm extends FormBase
                 $inner_field->setError("{$field->getName()} is required");
                 $this->validated = false;
             }
+        }
+    }
+
+    private function submit_recursive(&$field, array &$temp, Request $request, $data_all, $parent_key)
+    {
+        foreach ($field['inner_field'] as $k=>$inner_field) {
+            if (in_array($inner_field['type'], ['fieldset', 'conditional', 'details'])) {
+                return $this->submit_recursive($inner_field, $temp, $request, $data_all, $k);
+            }
+            
+            elseif ($inner_field['type'] === 'file') {
+                $files = $data_all[$parent_key][$k] ?? [];
+                $processed_files = [];
+                if (isset($files['name']) && is_array($files['name'])) {
+                    $count = count($files['name']);
+                    for ($i = 0; $i < $count; $i++) {
+                        $processed_files[] = [
+                            'name' => $files['name'][$i],
+                            'full_path' => $files['full_path'][$i],
+                            'size' => $files['size'][$i],
+                            'type' => $files['type'][$i],
+                            'tmp_name' => $files['tmp_name'][$i],
+                            'error' => $files['error'][$i],
+                        ];
+                    }
+                } elseif (isset($files['name']) && is_string($files['name'])) {
+                    $processed_files[] = $files;
+                }
+
+                $file_fids = [];
+                foreach ($processed_files as $file) {
+
+                    $form = new FormUpload();
+                    // TODO: get settings for content type
+                    $form->addAllowedExtension('image/*');
+                    $form->addAllowedExtension('application/*');
+                    $form->addAllowedExtension('video/*');
+                    $form->addAllowedExtension('audio/*');
+                    $form->addAllowedMaxSize(1000000);
+                    $form->addFileObject($file);
+                    $form->validate();
+                    //TODO: get file location save.
+                    $filename = "public://content";
+                    if (!is_dir($filename)) {
+                        @mkdir($filename);
+                    }
+                    $filename .= "/" . $file['name'];
+                    $file = $form->moveFileUpload($filename);
+                    $object = $file->getFileObject();
+                    if ($object) {
+                        $file = File::create(
+                            [
+                                'name' => $object['name'],
+                                'size' => $object['size'],
+                                'uri' => $object['file_path'],
+                                'extension' => $object['extension'],
+                                'mime_type' => $object['mime_type'],
+                                'uid' => $data_all['uid']
+                            ]
+                        );
+                        if ($file) {
+                            $file_fids[] = $file->getFid();
+                        }
+                    }
+                }
+                $temp[$k] = $file_fids;
+            }
+            else {
+                try {
+                    $temp[$k] = $request->request->all($k);
+                } catch (Throwable) {
+                    $temp[$k] = $request->request->get($k);
+                }
+            }
+           
+            
         }
     }
 
@@ -164,6 +241,9 @@ class ContentTypeDefinitionForm extends FormBase
                 ];
                 $node_data = array_merge($data_all, $node_data);
 
+                $request = Request::createFromGlobals();
+
+                $temp = [];
                 foreach ($node_data as $key => $value) {
                     $field = $this->content_type["fields"][$key] ?? null;
 
@@ -225,8 +305,14 @@ class ContentTypeDefinitionForm extends FormBase
                         }
                         $node_data[$key] = $file_fids;
                     }
-                }
 
+                    elseif (isset($field) && in_array($field['type'], ['fieldset', 'details', 'conditional'])) 
+                    {
+                      $this->submit_recursive($field, $temp, $request, $node_data, $key);
+                      unset($node_data[$key]);
+                    }
+                }
+                $node_data = array_merge($node_data, $temp);
                 // now insert in other tables.
                 $node = Node::create($node_data);
                 Messager::toast()->addMessage("Content of type {$this->content_type['name']} created");

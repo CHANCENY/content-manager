@@ -2,9 +2,10 @@
 
 {% block body %}
 
+    {% if content %}
     <div class="db-form-container">
         <h2>Manage Fields for Content Type: {{ content.name }}</h2>
-        <a href="/admin/structure/content-type/{{ content.machine_name }}/field/new" class="button">+ Create a new field</a>
+        <a href="/admin/structure/content-type/{{ content.machine_name }}/field/{{ parent_field }}/add/inner/new" class="button">+ Create a new field</a>
         <table>
             <thead>
             <tr>
@@ -15,7 +16,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for field in content.fields %}
+            {% for field in fields %}
             <tr>
                 <td>{{ field.label }}</td>
                 <td>{{ field.name }}</td>
@@ -35,5 +36,6 @@
             </tbody>
         </table>
     </div>
+    {% endif %}
 
 {% endblock %}

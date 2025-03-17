@@ -2,11 +2,18 @@
 
 namespace Simp\Core\lib\forms;
 
-use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
-use Simp\Default\FieldSetField;
+use Google\Service\Batch\Message;
+use Simp\Default\FileField;
+use Simp\Default\BasicField;
 use Simp\Default\SelectField;
+use Simp\Default\FieldSetField;
 use Simp\Default\TextAreaField;
+use Simp\Default\ConditionalField;
+use Simp\Default\DetailWrapperField;
+use Simp\Core\modules\messager\Messager;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
 
 class ContentTypeFieldEditForm extends ContentTypeFieldForm
 {
@@ -26,7 +33,7 @@ class ContentTypeFieldEditForm extends ContentTypeFieldForm
         if (!empty($field)) {
 
             $list = [];
-            foreach ($field['options'] as $key=>$other) {
+            foreach ($field['options'] ?? [] as $key=>$other) {
              $list[$key] = $other;
             }
             $form['title'] = [
@@ -65,6 +72,10 @@ class ContentTypeFieldEditForm extends ContentTypeFieldForm
                     'range' => 'Range',
                     'select' => 'Select',
                     'file' => 'File',
+                    'textarea' => 'TextArea',
+                    'fieldset' => 'FieldSet',
+                    'details' => 'Details',
+                    'conditional' => 'Conditional fieldset'
                 ],
                 'name' => 'name',
                 'default_value' => $field['type'] ?? null,
@@ -149,6 +160,90 @@ class ContentTypeFieldEditForm extends ContentTypeFieldForm
             ];
         }
         return $form;
+    }
+
+    /**
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheIOException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
+    public function submitForm(array &$form): void
+    {
+        $request = Request::createFromGlobals();
+        if ($this->validated) {
+            $data = array_map(function ($item) {
+                return $item->getValue();
+            }, $form);
+
+            $field = [
+                'type' => $data['type'],
+                'label' => $data['title'],
+                'required' => $data['option']['field_required'] === 'yes',
+                'class' => explode(' ', $data['option']['field_classes']),
+                'default_value' => $data['option']['field_default'],
+                'id' => $data['option']['field_id'],
+            ];
+            $options = $data['option']['others'];
+            if (!empty($options)) {
+                $list = explode('\n', $options);
+                $options = [];
+                foreach ($list as $item) {
+                    $lis = explode('=', $item);
+                    if (count($lis) == 2) {
+                        $options[$lis[0]] = $lis[1];
+                    } else {
+                        $options[end($lis)] = end($lis);
+                    }
+                }
+                $field['options'] = $options;
+            }
+            $field['handler'] = match ($data['type']) {
+                'file' => FileField::class,
+                'textarea' => TextareaField::class,
+                'select' => SelectField::class,
+                'fieldset' => FieldSetField::class,
+                'details' => DetailWrapperField::class,
+                'conditional' => ConditionalField::class,
+                default => BasicField::class,
+            };
+
+            $persist = true;
+            if (in_array($data['type'], ['details', 'fieldset', 'conditional'])) {
+            
+                if ($data['type'] === 'conditional') {
+                    $field['conditions'] = [];
+                }
+                $persist = false;
+            }
+            $name_content = $request->get('machine_name');
+            $name = str_replace(' ', '_', $field['label']);
+            $name = strtolower($name);
+    
+            $persist_override = $field;
+            if (in_array($data['type'], ['details', 'fieldset', 'conditional'])) {
+                $persist_override = [];
+            }
+
+            $original_field = ContentDefinitionManager::contentDefinitionManager()
+            ->getContentType($name_content)['fields'][$request->get('field_name')] ?? [];
+
+            if (empty($original_field)) {
+                Messager::toast()->addError("Failed to update due to missing dependencies");
+                $redirect = new RedirectResponse('/admin/structure/content-type/' . $name_content . '/manage');
+                $redirect->send();
+                exit;
+            }
+
+            $field = array_merge($field, $original_field);
+           
+            if (ContentDefinitionManager::contentDefinitionManager()->addField($name_content, $name_content . '_' . $name, $field, $persist, $persist_override)) {
+                Messager::toast()->addMessage("Field '$name' has been updated");
+            }
+            $redirect = new RedirectResponse('/admin/structure/content-type/' . $name_content . '/manage');
+            $redirect->send();
+        }
     }
 
 }
