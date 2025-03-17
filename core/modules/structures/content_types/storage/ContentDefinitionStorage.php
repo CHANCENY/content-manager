@@ -35,16 +35,19 @@ class ContentDefinitionStorage
                 $type = "VARCHAR(255)";
             }
 
-            $entity_field = "`nid` INT NOT NULL";
-            $constraint = "CONSTRAINT `fk_node__{$key}_nid` FOREIGN KEY (`nid`) REFERENCES `node_data` (`nid`) ON DELETE CASCADE";
-            $required = !empty($field['required']) ? "NOT NULL" : "NULL";
-            $default = !empty($field['default_value']) ? "DEFAULT '" . $field['default_value'] . "'" : "NULL";
-            $comment = !empty($field['description']) ? "COMMENT '" . $field['description'] . "'" : "NULL";
-            $line = "CREATE TABLE IF NOT EXISTS `node__{$key}` (`{$key}_id` INT PRIMARY KEY AUTO_INCREMENT, $entity_field, `{$key}__value` {$type} $required {$default} {$comment}, $constraint)";
-            $query = Database::database()->con()->prepare($line);
-            if ($query->execute()) {
-                $created_tables[] = "node__" . $key;
+            if (!empty($key)) {
+                $entity_field = "`nid` INT NOT NULL";
+                $constraint = "CONSTRAINT `fk_node__{$key}_nid` FOREIGN KEY (`nid`) REFERENCES `node_data` (`nid`) ON DELETE CASCADE";
+                $required = !empty($field['required']) ? "NOT NULL" : "NULL";
+                $default = !empty($field['default_value']) ? "DEFAULT '" . $field['default_value'] . "'" : "NULL";
+                $comment = !empty($field['description']) ? "COMMENT '" . $field['description'] . "'" : "NULL";
+                $line = "CREATE TABLE IF NOT EXISTS `node__{$key}` (`{$key}_id` INT PRIMARY KEY AUTO_INCREMENT, $entity_field, `{$key}__value` {$type} $required {$default} {$comment}, $constraint)";
+                $query = Database::database()->con()->prepare($line);
+                if ($query->execute()) {
+                    $created_tables[] = "node__" . $key;
+                }
             }
+
         }
         
         $this->content_type['storage'] = array_unique($created_tables);
@@ -80,11 +83,7 @@ class ContentDefinitionStorage
     {
         $tables = $this->content_type['storage'] ?? [];
         $joins = [];
-        $columns = [
-            //'N.uid', 
-            //'N.title', 'N.status', 'N.bundle',
-            //'N.created', 'N.updated', 'N.lang'
-        ];
+        $columns = [];
 
         foreach ($tables as $key => $table) {
             $name = substr($table, 5);  // Trim the prefix

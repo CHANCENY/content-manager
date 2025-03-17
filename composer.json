@@ -16,7 +16,8 @@
         "league/oauth2-github": "^3.1",
         "simp/uploader": "^1.0",
         "simp/mail": "^1.0",
-        "catfan/medoo": "^2.1"
+        "catfan/medoo": "^2.1",
+      "ext-fileinfo": "*"
     },
     "autoload": {
         "psr-4": {

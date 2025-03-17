@@ -5,7 +5,6 @@ namespace Simp\Core\modules\user\entity;
 use PDO;
 use Simp\Core\modules\config\ConfigManager;
 use Simp\Core\modules\database\Database;
-use Simp\Core\modules\user\current_user\CurrentUser;
 use Simp\Core\modules\user\profiles\Profile;
 use Simp\Core\modules\user\roles\Role;
 use Simp\Core\modules\user\trait\StaticHelperTrait;
@@ -28,6 +27,20 @@ class User
             return null;
         }
         return new User(...$result);
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'uid' => $this->uid,
+            'name' => $this->name,
+            'created' => $this->created,
+            'updated' => $this->updated,
+            'login' => $this->login,
+            'status' => $this->status,
+            'profile' => $this->getProfile()->toArray()
+
+        ];
     }
 
     public static function loadByMail(string $mail): ?User
@@ -210,6 +223,11 @@ class User
     public function __get(string $name)
     {
         return $this->$name;
+    }
+
+    public function __toString(): string
+    {
+        return $this->name;
     }
 
     public function setName(?string $name): void

@@ -1,8 +1,8 @@
 articles:
     name: Articles
-    description: 'this is content type for creating and managing articles data'
+    description: 'This is articles content type.'
     machine_name: articles
-    created: '2025-03-15 16:25 PM'
+    created: '2025-03-17 05:13 AM'
     fields:
         articles_content:
             type: textarea
@@ -10,10 +10,17 @@ articles:
             required: true
             class:
                 - form-control
+                - textarea-editor
             default_value: ''
             id: content
             handler: Simp\Default\TextAreaField
             name: articles_content
+            conditions:
+                - ''
+            settings:
+                allowed_file_types:
+                    - ''
+                allowed_file_size: ''
         articles_image:
             type: file
             label: Image
@@ -21,20 +28,24 @@ articles:
             class:
                 - form-control
             default_value: ''
-            id: image
+            id: field-image
             handler: Simp\Default\FileField
+            conditions:
+                - ''
+            settings:
+                allowed_file_types:
+                    - 'image/*'
+                allowed_file_size: '100000'
             name: articles_image
-        articles_meta_information:
-            type: details
-            label: 'Meta Information'
+        articles_meta_conditional_wrapper:
+            type: conditional
+            label: 'Meta Conditional Wrapper'
             required: false
             class:
                 - form-control
             default_value: ''
-            id: meta-info
-            options:
-                open: open
-            handler: Simp\Default\DetailWrapperField
+            id: conditional-wrapper
+            handler: Simp\Default\ConditionalField
             inner_field:
                 articles_meta_title:
                     type: text
@@ -43,7 +54,7 @@ articles:
                     class:
                         - form-control
                     default_value: ''
-                    id: title-meta
+                    id: articles_meta_title
                     handler: Simp\Default\BasicField
                     name: articles_meta_title
                 articles_meta_description:
@@ -53,8 +64,14 @@ articles:
                     class:
                         - form-control
                     default_value: ''
-                    id: meta-description
+                    id: articles_meta_description
                     handler: Simp\Default\TextAreaField
+                    conditions:
+                        - ''
+                    settings:
+                        allowed_file_types:
+                            - ''
+                        allowed_file_size: ''
                     name: articles_meta_description
                 articles_meta_image:
                     type: file
@@ -63,10 +80,23 @@ articles:
                     class:
                         - form-control
                     default_value: ''
-                    id: title-image
+                    id: meta-image
                     handler: Simp\Default\FileField
+                    conditions: {  }
+                    settings:
+                        allowed_file_types:
+                            - 'image/*'
+                        allowed_file_size: '1000000'
                     name: articles_meta_image
-            name: articles_meta_information
+            name: articles_meta_conditional_wrapper
+            settings:
+                allowed_file_types:
+                    - ''
+                allowed_file_size: ''
+            conditions:
+                articles_meta_title:
+                    event: input
+                    receiver_field: articles_meta_description
     storage:
         - node__articles_content
         - node__articles_image
@@ -75,19 +105,25 @@ articles:
         - node__articles_meta_image
 basic_page:
     name: 'Basic page'
-    description: 'basic page content type'
+    description: 'This is basic page content type'
     machine_name: basic_page
-    created: '2025-03-16 15:44 PM'
+    created: '2025-03-17 11:49 AM'
     fields:
         basic_page_body:
             type: textarea
             label: Body
-            required: false
+            required: true
             class:
                 - form-control
+                - textarea-editor
             default_value: ''
             id: body
             handler: Simp\Default\TextAreaField
             name: basic_page_body
+            conditions: {  }
+            settings:
+                allowed_file_types:
+                    - ''
+                allowed_file_size: ''
     storage:
         - node__basic_page_body

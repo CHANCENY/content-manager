@@ -83,12 +83,12 @@ class ContentTypeFieldForm extends FormBase
             'handler' => TextareaField::class,
         ];
         $form['option'] = [
-            'type' => 'fieldset',
+            'type' => 'details',
             'label' => 'Field options',
             'id' => 'option',
             'required' => true,
             'class' => ['form-control'],
-            'handler' => FieldSetField::class,
+            'handler' => DetailWrapperField::class,
             'inner_field' => [
                 'field_id' => [
                     'type' => 'text',
@@ -137,6 +137,52 @@ class ContentTypeFieldForm extends FormBase
                 ]
             ],
             'name' => 'option'
+        ];
+        $form['conditions'] = [
+            'type' => 'details',
+            'label' => 'Conditions Settings',
+            'id' => 'conditions',
+            'class' => ['form-control'],
+            'handler' => DetailWrapperField::class,
+            'name' => 'conditions',
+            'description' => 'give conditions settings for conditional type field.',
+            'inner_field' => [
+             'conditional_line'=>[
+                 'type' => 'textarea',
+                 'label' => 'Conditions Lines',
+                 'id' => 'conditional_line',
+                 'class' => ['form-control'],
+                 'name' => 'conditional_line',
+                 'description' => 'give each condition in new line, eg"change:trigger_field:receiver_field"',
+                 'handler' => TextAreaField::class,
+             ]
+            ]
+        ];
+        $form['file_field_settings'] = [
+            'type' => 'details',
+            'label' => 'File Field Settings',
+            'id' => 'file_field_settings',
+            'class' => ['form-control'],
+            'handler' => DetailWrapperField::class,
+            'name' => 'file_field_settings',
+            'inner_field' => [
+                'allowed_file_types' => [
+                    'type' => 'text',
+                    'label' => 'Allowed file types',
+                    'id' => 'file_field_settings',
+                    'class' => ['form-control'],
+                    'name' => 'allowed_file_types',
+                    'description' => 'give allowed file types for file upload eg "image/jpg or image/* for all images" (separate with space)',
+                ],
+                'allowed_file_size' => [
+                    'type' => 'number',
+                    'label' => 'Allowed file size',
+                    'id' => 'file_field_settings',
+                    'class' => ['form-control'],
+                    'name' => 'allowed_file_size',
+                    'description' => 'give allowed file size for file upload',
+                ]
+            ]
         ];
         $form['submit'] = [
             'type' => 'submit',
@@ -215,6 +261,10 @@ class ContentTypeFieldForm extends FormBase
                default => BasicField::class,
            };
 
+           if ($data['type'] === 'textarea') {
+               $field['class'][] = "textarea-editor";
+           }
+
            $persist = true;
            if (in_array($data['type'], ['details', 'fieldset', 'conditional'])) {
               $field['inner_field'] = [];
@@ -232,6 +282,26 @@ class ContentTypeFieldForm extends FormBase
             if (in_array($data['type'], ['details', 'fieldset', 'conditional'])) {
                 $persist_override = [];
             }
+
+           $conditions = explode('\n', $data['conditions']['conditional_line']);
+           $field['conditions'] = [];
+           if (!empty($conditions)) {
+               foreach ($conditions as $condition) {
+                   $lines = explode(":",$condition);
+                   if (count($lines) == 2) {
+                       $field['conditions'][$lines[1]] = [
+                           'event' => $lines[0],
+                           'receiver_field' => $lines[2],
+                       ];
+                   }
+
+               }
+           }
+           $file_options = [
+               'allowed_file_types' => explode(' ',$data['file_field_settings']['allowed_file_types']),
+               'allowed_file_size' => $data['file_field_settings']['allowed_file_size'],
+           ];
+           $field['settings'] = $file_options;
 
            if (ContentDefinitionManager::contentDefinitionManager()->addField($name_content, $name_content.'_'.$name, $field, $persist, $persist_override)) {
                Messager::toast()->addMessage("Field '$name' has been created");

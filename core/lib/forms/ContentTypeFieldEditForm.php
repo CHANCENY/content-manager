@@ -3,6 +3,11 @@
 namespace Simp\Core\lib\forms;
 
 use Google\Service\Batch\Message;
+use Phpfastcache\Exceptions\PhpfastcacheCoreException;
+use Phpfastcache\Exceptions\PhpfastcacheDriverException;
+use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
+use Phpfastcache\Exceptions\PhpfastcacheIOException;
+use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Default\FileField;
 use Simp\Default\BasicField;
 use Simp\Default\SelectField;
@@ -151,6 +156,61 @@ class ContentTypeFieldEditForm extends ContentTypeFieldForm
                 ],
                 'name' => 'option'
             ];
+
+            $conditions = $field['conditions'] ?? [];
+            $line_cond = [];
+            foreach ($conditions as $k=>$condition) {
+                $line_cond[] = "{$condition['event']}:$k:{$condition['receiver_field']}";
+            }
+            $form['conditions'] = [
+                'type' => 'details',
+                'label' => 'Conditions Settings',
+                'id' => 'conditions',
+                'class' => ['form-control'],
+                'handler' => DetailWrapperField::class,
+                'name' => 'conditions',
+                'description' => 'give conditions settings for conditional type field.',
+                'inner_field' => [
+                    'conditional_line'=>[
+                        'type' => 'textarea',
+                        'label' => 'Conditions Lines',
+                        'id' => 'conditional_line',
+                        'class' => ['form-control'],
+                        'name' => 'conditional_line',
+                        'description' => 'give each condition in new line, eg"change:trigger_field:receiver_field"',
+                        'handler' => TextAreaField::class,
+                        'default_value' => implode('\n',$line_cond) ?? null,
+                    ]
+                ]
+            ];
+            $form['file_field_settings'] = [
+                'type' => 'details',
+                'label' => 'File Field Settings',
+                'id' => 'file_field_settings',
+                'class' => ['form-control'],
+                'handler' => DetailWrapperField::class,
+                'name' => 'file_field_settings',
+                'inner_field' => [
+                    'allowed_file_types' => [
+                        'type' => 'text',
+                        'label' => 'Allowed file types',
+                        'id' => 'file_field_settings',
+                        'class' => ['form-control'],
+                        'name' => 'allowed_file_types',
+                        'description' => 'give allowed file types for file upload eg "image/jpg or image/* for all images" (separate with space)',
+                        'default_value' => implode('\n', $field['settings']['allowed_file_types'] ?? []),
+                    ],
+                    'allowed_file_size' => [
+                        'type' => 'number',
+                        'label' => 'Allowed file size',
+                        'id' => 'file_field_settings',
+                        'class' => ['form-control'],
+                        'name' => 'allowed_file_size',
+                        'description' => 'give allowed file size for file upload',
+                        'default_value' => $field['settings']['allowed_file_size'] ?? null,
+                    ]
+                ]
+            ];
             $form['submit'] = [
                 'type' => 'submit',
                 'default_value' => 'Save field',
@@ -236,8 +296,28 @@ class ContentTypeFieldEditForm extends ContentTypeFieldForm
                 exit;
             }
 
-            $field = array_merge($field, $original_field);
-           
+            $conditions = explode('\n', $data['conditions']['conditional_line']);
+            $field['conditions'] = [];
+            if (!empty($conditions)) {
+                foreach ($conditions as $condition) {
+                    $lines = explode(":",$condition);
+                    if (count($lines) >= 2) {
+                        $field['conditions'][$lines[1]] = [
+                            'event' => $lines[0],
+                            'receiver_field' => $lines[2],
+                        ];
+                    }
+
+                }
+            }
+            $file_options = [
+                'allowed_file_types' => explode(' ',$data['file_field_settings']['allowed_file_types'] ?? ''),
+                'allowed_file_size' => $data['file_field_settings']['allowed_file_size'],
+            ];
+            $field['settings'] = $file_options;
+
+            $field = array_merge($original_field,$field);
+
             if (ContentDefinitionManager::contentDefinitionManager()->addField($name_content, $name_content . '_' . $name, $field, $persist, $persist_override)) {
                 Messager::toast()->addMessage("Field '$name' has been updated");
             }

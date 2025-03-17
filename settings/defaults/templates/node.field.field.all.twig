@@ -1,0 +1,33 @@
+{% if content %}
+
+    <div class="field">
+        {% if content.data is iterable %}
+
+            {%  for item in content.data %}
+
+                <div class="field--{{ definition.name|replace({'_':'-'}) }} field-text-{{ definition.name|replace({'_':'-'}) }} margin-top-field">
+                    {% if definition.label %}
+                        <strong class="field-label">{{ definition.label }}</strong>
+                    {% endif %}
+                    <p>
+                        {{ item }}
+                    </p>
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="field--{{ definition.name|replace({'_':'-'}) }} field-text-{{ definition.name|replace({'_':'-'}) }}">
+                {% if definition.label %}
+                    <strong class="field-label">{{ definition.label }}</strong>
+                {% endif %}
+                <p>
+                    {{ content.data }}
+                </p>
+            </div>
+
+        {% endif %}
+    </div>
+
+{% endif %}

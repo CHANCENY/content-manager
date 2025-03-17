@@ -5,6 +5,7 @@ namespace Simp\Core\modules\structures\content_types\entity;
 use PDO;
 use Simp\Core\modules\database\Database;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
+use Simp\Core\modules\structures\content_types\helper\NodeFunction;
 use Simp\Core\modules\structures\content_types\storage\ContentDefinitionStorage;
 use Simp\Core\modules\user\entity\User;
 use Simp\Core\modules\user\trait\StaticHelperTrait;
@@ -12,6 +13,7 @@ use Simp\Core\modules\user\trait\StaticHelperTrait;
 class Node
 {
     use StaticHelperTrait;
+    use NodeFunction;
 
     protected ?array $entity_types = [];
     protected array $values = [];
@@ -28,7 +30,7 @@ class Node
     )
     {
         $this->entity_types = ContentDefinitionManager::contentDefinitionManager()->getContentType($this->bundle) ?? [];
-        $storage = ContentDefinitionStorage::contentDefinitionStorage($this->bundle)->getStorageJoinStatement($this->nid);
+        $storage = ContentDefinitionStorage::contentDefinitionStorage($this->bundle)->getStorageJoinStatement();
         $query = Database::database()->con()->prepare($storage);
         $query->bindValue(':nid', $this->nid);
         $query->execute();
@@ -44,6 +46,21 @@ class Node
              }
         }
         $this->values = $rows;
+    }
+
+    public function getEntityArray(): ?array
+    {
+        return $this->entity_types;
+    }
+
+    public function getValues(): array
+    {
+        return $this->values;
+    }
+
+    public function get(string $field_name)
+    {
+        return $this->values[$field_name]['value'] ?? null;
     }
 
     public function getTitle(): ?string
@@ -162,6 +179,7 @@ class Node
         return User::load($this->uid);
     }
 
+
     public function addFieldData(string $field_name,  $values): bool
     {
         $storage_query = ContentDefinitionStorage::contentDefinitionStorage($this->bundle)
@@ -197,4 +215,21 @@ class Node
         }
         return new Node(...$result);
     }
+
+    public function __toString(): string
+    {
+        $top_table = [
+            'title' => $this->title,
+            'bundle' => $this->bundle,
+            'status' => $this->status,
+            'created' => $this->created,
+            'updated' => $this->updated,
+            'owner' => $this->getOwner()->toArray(),
+            ...$this->getValues()
+        ];
+
+        return json_encode($top_table, JSON_PRETTY_PRINT);
+    }
+
+
 }

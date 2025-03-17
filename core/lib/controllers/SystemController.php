@@ -2,6 +2,9 @@
 
 namespace Simp\Core\lib\controllers;
 
+use Simp\Core\lib\forms\ContentTypeInnerFieldEditForm;
+use Simp\Core\modules\assets_manager\AssetsManager;
+use Simp\Core\modules\structures\content_types\helper\NodeFunction;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use Twig\Error\RuntimeError;
@@ -41,6 +44,7 @@ use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
 use Simp\Core\modules\structures\content_types\form\ContentTypeDefinitionForm;
+use function Simp\Core\modules\structures\content_types\helpers\find_field;
 
 class SystemController
 {
@@ -126,6 +130,23 @@ class SystemController
             'title' => "Account Deletion Confirmation",
             'message' => "You are requesting to delete your account. Are you sure you want to proceed?",
         ]));
+    }
+
+    public function assets_loader_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $name = $request->get('name');
+        $file_path = (new AssetsManager())->getAssetsFile($name,false);
+        if (!empty($file_path) && file_exists($file_path)) {
+            $mime_type = mime_content_type($file_path);
+            $response = new Response(
+                file_get_contents($file_path),
+            );
+            $response->headers->set('Content-Type', $mime_type);
+            $response->setStatusCode(200);
+            return $response;
+        }
+        return new Response('', 404);
     }
 
     /**
@@ -503,5 +524,58 @@ class SystemController
         $form_base->getFormBase()->setFormMethod('POST');
         $form_base->getFormBase()->setFormEnctype('multipart/form-data');
         return new Response(View::view('default.view.structure_content_type_manage_add_field', ['_form' => $form_base, 'parent_field'=>$request->get('field_name')]), 200);
+    }
+
+    public function content_structure_field_inner_edit_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $form_base = new FormBuilder(new ContentTypeInnerFieldEditForm());
+        $form_base->getFormBase()->setFormMethod('POST');
+        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
+        return new Response(View::view('default.view.structure_content_type_manage_add_field', ['_form' => $form_base, 'parent_field'=>$request->get('field_name')]), 200);
+    }
+
+    public function content_type_manage_delete_inner_field_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $name = $request->get('machine_name');
+        $field_name = $request->get('field_name');
+        $parent_field = $request->get('parent_name');
+        if (ContentDefinitionManager::contentDefinitionManager()->removeInnerField($name,$parent_field,$field_name)) {
+            Messager::toast()->addMessage("Content type field \"$field_name\" successfully removed.");
+        }
+        return new RedirectResponse('/admin/structure/content-type/'.$name.'/manage');
+    }
+
+    /**
+     * @throws RuntimeError
+     * @throws LoaderError
+     * @throws SyntaxError
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheIOException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
+    public function content_node_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $nid = $request->get('nid');
+        if (empty($nid)) {
+            Messager::toast()->addWarning("Node id not found.");
+            return new RedirectResponse('/');
+        }
+        $node = Node::load($nid);
+        $entity = $node->getEntityArray();
+        $definitions = [];
+        foreach ($entity['storage'] as $field) {
+            $name = substr($field,6,strlen($field));
+            $definitions[$name] = Node::findField($entity['fields'], $name);
+        }
+        //dump($definitions);
+        return new Response(View::view('default.view.content_node_controller',[
+            'node'=>$node,
+            'definitions'=>$definitions
+        ]));
     }
 }

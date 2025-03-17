@@ -113,6 +113,21 @@ system.messager.toastify:
     class: Simp\Core\lib\controllers\SystemController
     method: toastify_controller
 
+system.assets.loader:
+  title: "Assets"
+  path: '/system/assets/file'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre:
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: assets_loader_controller
+
 system.people:
   title: "People"
   path: '/admin/people'
@@ -440,6 +455,38 @@ system.structure.field.wrapper.field.inner.add:
     class: Simp\Core\lib\controllers\SystemController
     method: content_structure_field_inner_add_controller
 
+system.structure.field.wrapper.field.inner.edit:
+  title: "Inner fields"
+  path: '/admin/structure/content-type/[machine_name:string]/field/[parent_name:string]/[field_name:string]/inner/edit'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_structure_field_inner_edit_controller
+
+system.structure.field.wrapper.field.inner.delete:
+  title: "Inner fields"
+  path: '/admin/structure/content-type/[machine_name:string]/field/[parent_name:string]/[field_name:string]/inner/delete'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_type_manage_delete_inner_field_controller
+
 system.structure.content:
   title: "Content"
   path: '/admin/content'
@@ -485,3 +532,19 @@ system.structure.content.form:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: content_node_add_controller
+
+system.structure.content.node:
+  title: "Content Type Field"
+  path: '/node/[nid:int]'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_node_controller

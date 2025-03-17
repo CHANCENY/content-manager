@@ -169,12 +169,12 @@ class ContentTypeDefinitionForm extends FormBase
                 foreach ($processed_files as $file) {
 
                     $form = new FormUpload();
-                    // TODO: get settings for content type
-                    $form->addAllowedExtension('image/*');
-                    $form->addAllowedExtension('application/*');
-                    $form->addAllowedExtension('video/*');
-                    $form->addAllowedExtension('audio/*');
-                    $form->addAllowedMaxSize(1000000);
+                    $allowedExtensions = $inner_field['settings']['allowed_file_types'] ?? ['image/png', 'image/jpeg', 'image/gif'];
+                    foreach ($allowedExtensions as $extension) {
+                        $form->addAllowedExtension($extension);
+                    }
+                    $allowed_size = $inner_field['settings']['allowed_file_size'] ?? 1000000;
+                    $form->addAllowedMaxSize($allowed_size);
                     $form->addFileObject($file);
                     $form->validate();
                     //TODO: get file location save.
@@ -269,14 +269,15 @@ class ContentTypeDefinitionForm extends FormBase
 
                         $file_fids = [];
                         foreach ($processed_files as $file) {
-                            
+
                             $form = new FormUpload();
-                            // TODO: get settings for content type
-                            $form->addAllowedExtension('image/*');
-                            $form->addAllowedExtension('application/*');
-                            $form->addAllowedExtension('video/*');
-                            $form->addAllowedExtension('audio/*');
-                            $form->addAllowedMaxSize(1000000);
+                            $allowedExtensions = $field['settings']['allowed_file_types'] ?? ['image/png', 'image/jpeg', 'image/gif'];
+                            foreach ($allowedExtensions as $extension) {
+                                $form->addAllowedExtension($extension);
+                            }
+                            $allowed_size = $field['settings']['allowed_file_size'] ?? 1000000;
+                            $form->addAllowedMaxSize($allowed_size);
+
                             $form->addFileObject($file);
                             $form->validate();
                             //TODO: get file location save.

@@ -103,4 +103,25 @@ class Profile
         return $timezone->getZone();
     }
 
+    public function __toString(): string
+    {
+        return json_encode([
+            'first_name' => $this->first_name,
+            'last_name' => $this->last_name,
+            'profile_image' => $this->profile_image,
+            'time_zone' => $this->time_zone,
+            'description' => $this->description,
+        ], JSON_PRETTY_PRINT);
+    }
+
+    public function toArray(): array {
+        return [
+            'first_name' => $this->first_name,
+            'last_name' => $this->last_name,
+            'profile_image' => $this->profile_image,
+            'time_zone' => $this->time_zone,
+            'description' => $this->description,
+        ];
+    }
+
 }

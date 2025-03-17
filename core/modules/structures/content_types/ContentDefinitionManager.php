@@ -94,6 +94,25 @@ class ContentDefinitionManager extends SystemDirectory
         return false;
     }
 
+    public function removeInnerField(string $name,string $parent_field, string $field_name): bool
+    {
+        if (isset($this->content_types[$name]['fields'][$parent_field]['inner_field'][$field_name])) {
+            unset($this->content_types[$name]['fields'][$parent_field]['inner_field'][$field_name]);
+        }
+
+        $index = array_search('node__' . $field_name, $this->content_types[$name]['storage']);
+        if ($index !== false) {
+            unset($this->content_types[$name]['storage'][$index]);
+            $delete_query = ContentDefinitionStorage::contentDefinitionStorage($name)->getStorageDropStatement($field_name);
+            $sta = Database::database()->con()->prepare($delete_query);
+            $sta->execute();
+        }
+        if (file_put_contents($this->content_file, Yaml::dump($this->content_types,Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK))) {
+            return true;
+        }
+        return false;
+    }
+
     public function getContentTypeStorage(): string
     {
         return $this->content_file;
