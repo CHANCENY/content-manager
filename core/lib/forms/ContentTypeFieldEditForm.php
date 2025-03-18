@@ -160,7 +160,9 @@ class ContentTypeFieldEditForm extends ContentTypeFieldForm
             $conditions = $field['conditions'] ?? [];
             $line_cond = [];
             foreach ($conditions as $k=>$condition) {
-                $line_cond[] = "{$condition['event']}:$k:{$condition['receiver_field']}";
+                if (!empty($condition)) {
+                    $line_cond[] = "{$condition['event']}:$k:{$condition['receiver_field']}";
+                }
             }
             $form['conditions'] = [
                 'type' => 'details',

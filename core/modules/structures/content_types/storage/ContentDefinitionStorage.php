@@ -119,7 +119,7 @@ class ContentDefinitionStorage
         if ($index !== false) {
             $name = substr($this->content_type['storage'][$index], 4, strlen($this->content_type['storage'][$index]));
             $name = trim($name, '_');
-            return "UPDATE `node__{$name}` SET `{$name}__value` = :value WHERE `nid` = :nid";
+            return "UPDATE `node__{$name}` SET `{$name}__value` = :field_value WHERE `nid` = :nid";
         }
         return null;
     }
@@ -150,5 +150,16 @@ class ContentDefinitionStorage
     public static function contentDefinitionStorage(string $content_name): ContentDefinitionStorage
     {
         return new self($content_name);
+    }
+
+    public function getStorageSelectStatement(string $field_name): ?string
+    {
+        $index = array_search("node__{$field_name}", $this->content_type['storage']);
+        if ($index !== false) {
+            $name = substr($this->content_type['storage'][$index], 4, strlen($this->content_type['storage'][$index]));
+            $name = trim($name, '_');
+            return "SELECT * FROM `node__{$name}` WHERE `nid` = :nid";
+        }
+        return null;
     }
 }

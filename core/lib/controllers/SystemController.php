@@ -4,7 +4,11 @@ namespace Simp\Core\lib\controllers;
 
 use Simp\Core\lib\forms\ContentTypeInnerFieldEditForm;
 use Simp\Core\modules\assets_manager\AssetsManager;
+use Simp\Core\modules\logger\ErrorLogger;
+use Simp\Core\modules\logger\ServerLogger;
+use Simp\Core\modules\structures\content_types\form\ContentTypeDefinitionEditForm;
 use Simp\Core\modules\structures\content_types\helper\NodeFunction;
+use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use Twig\Error\RuntimeError;
@@ -565,17 +569,103 @@ class SystemController
             Messager::toast()->addWarning("Node id not found.");
             return new RedirectResponse('/');
         }
-        $node = Node::load($nid);
-        $entity = $node->getEntityArray();
-        $definitions = [];
-        foreach ($entity['storage'] as $field) {
-            $name = substr($field,6,strlen($field));
-            $definitions[$name] = Node::findField($entity['fields'], $name);
+        try{
+            $node = Node::load($nid);
+            $entity = $node->getEntityArray();
+            $definitions = [];
+            foreach ($entity['storage'] as $field) {
+                $name = substr($field,6,strlen($field));
+                $definitions[$name] = Node::findField($entity['fields'], $name);
+            }
+            return new Response(View::view('default.view.content_node_controller',[
+                'node'=>$node,
+                'definitions'=>$definitions
+            ]));
+        }catch (Throwable $exception){
+            return new RedirectResponse('/');
         }
-        //dump($definitions);
-        return new Response(View::view('default.view.content_node_controller',[
-            'node'=>$node,
-            'definitions'=>$definitions
-        ]));
+    }
+
+    /**
+     * @throws RuntimeError
+     * @throws LoaderError
+     * @throws SyntaxError
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheIOException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
+    public function content_node_add_edit_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $nid = $request->get('nid');
+        if (empty($nid)) {
+            Messager::toast()->addWarning("Node id not found.");
+            return new RedirectResponse('/');
+        }
+        $form_base = new FormBuilder(new ContentTypeDefinitionEditForm());
+        $form_base->getFormBase()->setFormMethod('POST');
+        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
+        $obj = Node::load($nid);
+        if (is_null($obj)) {
+            Messager::toast()->addWarning("Node not found");
+            return new Response('/');
+        }
+        $content = ContentDefinitionManager::contentDefinitionManager()->getContentType($obj->getBundle());
+        return new Response(View::view('default.view.content_node_add',['_form'=>$form_base, 'content' => $content]), 200);
+    }
+
+    /**
+     * @throws RuntimeError
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheIOException
+     * @throws PhpfastcacheInvalidArgumentException
+     * @throws LoaderError
+     * @throws SyntaxError
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     */
+    public function content_node_add_delete_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $nid = $request->get('nid');
+        if (empty($nid)) {
+            Messager::toast()->addWarning("Node id not found.");
+            return new RedirectResponse('/');
+        }
+        $node = Node::load($nid);
+        if (empty($request->get('action'))) {
+            return new Response(View::view('default.view.confirm.content_node_delete',['node'=>$node]));
+        }
+        $title = $node->getTitle();
+        if ((int) $request->get('action') == 3) {
+            return new RedirectResponse('/node/'.$node->getNid());
+        }
+        if ($node->delete((int) $request->get('action'))) {
+            Messager::toast()->addMessage("Node \"$title\" successfully deleted.");
+            return $request->get('action') == 1 ? new RedirectResponse('/') : new RedirectResponse('/node/'.$node->getNid());
+        }
+        Messager::toast()->addWarning("Node \"$title\" was not deleted.");
+        return new RedirectResponse('/node/'.$node->getNid());
+    }
+
+
+    public function admin_report_site_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $offset =  $request->get('offset', 1);
+        $limit =  $request->get('limit', 124);
+        $server = new ServerLogger(limit: $limit, offset: $offset);
+        $errors = new ErrorLogger(read: true);
+        return new Response(View::view('default.view.admin_report_site_controller',
+            [
+                'server'=>$server->getLogs(),
+                'server_filter' => $server->getFilterNumber(2),
+                'offset' => $offset,
+                'limit' => $limit,
+                'errors'=>$errors->getLogs(),
+            ]
+        ), 200);
     }
 }

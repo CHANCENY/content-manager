@@ -203,6 +203,51 @@ class Node
         return false;
     }
 
+    public function updateFieldData(string $field_name,  $values): bool
+    {
+        $storage_query = ContentDefinitionStorage::contentDefinitionStorage($this->bundle)
+            ->getStorageUpdateStatement($field_name);
+
+        $storage_query1 = ContentDefinitionStorage::contentDefinitionStorage($this->bundle)
+            ->getStorageSelectStatement($field_name);
+
+        $storage_query2 = ContentDefinitionStorage::contentDefinitionStorage($this->bundle)
+            ->getStorageInsertStatement($field_name);
+
+        if (!empty($storage_query) && !empty($storage_query1) && !empty($storage_query2)) {
+
+            if (!is_array($values)) {
+                $values = [$values];
+            }
+
+            $flags = [];
+            foreach ($values as $value) {
+
+                // First check if we have data.
+                $query = Database::database()->con()->prepare($storage_query1);
+                $query->bindParam(':nid', $this->nid);
+                $query->execute();
+                $data = $query->fetch();
+                if (!empty($data)) {
+                    $query = Database::database()->con()->prepare($storage_query);
+                    $query->bindParam(':nid', $this->nid);
+                    $query->bindParam(':field_value', $value);
+                    $flags[]= $query->execute();
+                }
+                else {
+                   $query = Database::database()->con()->prepare($storage_query2);
+                   $query->bindParam(':nid', $this->nid);
+                   $query->bindParam(':field_value', $value);
+                   $flags[]= $query->execute();
+                }
+
+            }
+            return !in_array(false, $flags);
+
+        }
+        return false;
+    }
+
     public static function load(int $nid): ?Node {
         $connection = Database::database()->con();
         $query = "SELECT * FROM node_data WHERE nid = :nid";
@@ -231,5 +276,37 @@ class Node
         return json_encode($top_table, JSON_PRETTY_PRINT);
     }
 
+    public function update(array $other_fields): bool|Node|null
+    {
+        $connection = Database::database()->con();
+        $query = "UPDATE node_data SET title = :title, status = :status, uid = :uid WHERE nid = :nid";
+        $query = $connection->prepare($query);
+        $query->bindValue(':title', $this->title);
+        $query->bindValue(':status', $this->status);
+        $query->bindValue(':uid', $this->uid);
+        $query->bindValue(':nid', $this->nid);
+        if ($query->execute()) {
+            foreach ($other_fields as $key => $value) {
+               $this->updateFieldData($key, $value);
+            }
+            return  self::load($this->nid);
+        }
+        return false;
+    }
+
+    public function delete(int $action = 1): bool {
+        $connection = Database::database()->con();
+        $query = "DELETE FROM node_data WHERE nid = :nid";
+        if ($action == 1) {
+            $query = $connection->prepare($query);
+        }
+        else {
+            $query = "UPDATE node_data SET status = :status WHERE nid = :nid";
+            $query = $connection->prepare($query);
+            $query->bindValue(':status', 0);
+        }
+        $query->bindValue(':nid', $this->nid);
+        return $query->execute();
+    }
 
 }

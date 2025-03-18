@@ -1,0 +1,94 @@
+{% extends 'default.view.admin_base' %}
+
+{% block body %}
+
+    <div class="db-form-container">
+        <h2>Reports</h2>
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('activity-report')">Site Activity Report</div>
+            <div class="tab" onclick="showTab('error-report')">Errors Report</div>
+            <div class="tab" onclick="showTab('database-report')">Database Report</div>
+        </div>
+
+        <div id="activity-report" class="tab-content active">
+            <div class="mb-lg-5">
+                <form action="">
+                    <div class="row">
+                        <div class="form-group col-md-3">
+                            <label for="">Offset</label>
+                            <input class="form-control" type="number" min="0" value="{{ offset }}" max="{{ server_filter.offset_max }}" name="offset">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="">Limit</label>
+                            <input class="form-control" type="number" name="limit" min="2" max="50" value="{{ limit }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" class="btn btn-primary" value="Filter">
+                    </div>
+                    <input type="hidden" name="filter" value="server">
+                </form>
+            </div>
+            <table class="table-stripped">
+                <thead class="table-light">
+                   <tr>
+                       <th>Start Time</th>
+                       <th>End Time</th>
+                       <th>Elapsed Time</th>
+                       <th>Memory Usage</th>
+                       <th>System CPU</th>
+                       <th>System USER</th>
+                   </tr>
+                </thead>
+                <tbody>
+                {% for log in server %}
+
+                    <tr>
+                        <td>{{ log.start }}</td>
+                        <td>{{ log.end }}</td>
+                        <td>{{ log.elapsed }}</td>
+                        <td>{{ log.memory }}</td>
+                        <td>{{ log.system_usage }} secs</td>
+                        <td>{{ log.user_usage }} secs</td>
+                    </tr>
+
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="error-report" class="tab-content">
+            <table class="table-stripped">
+                <thead class="table-light">
+                <tr>
+                    <th>Level</th>
+                    <th>Severity</th>
+                    <th>Message</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for log in errors %}
+
+                    <tr>
+                        <td>{{ log.LEVEL }}</td>
+                        <td>{{ log.SEVERITY }}</td>
+                        <td><code>
+                                {{ log.MESSAGE }}
+                            </code>
+                        </td>
+                    </tr>
+
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="database-report" class="tab-content">
+            <h2>Confirm Deletion</h2>
+            <p>Are you sure you want to delete this node? This action cannot be undone.</p>
+            <a href="delete.php" class="btn delete-btn">Delete</a>
+            <a href="dashboard.php" class="btn cancel-btn">Cancel</a>
+        </div>
+    </div>
+
+{% endblock %}

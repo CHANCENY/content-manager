@@ -30,12 +30,11 @@ articles:
             default_value: ''
             id: field-image
             handler: Simp\Default\FileField
-            conditions:
-                - ''
+            conditions: {  }
             settings:
                 allowed_file_types:
                     - 'image/*'
-                allowed_file_size: '100000'
+                allowed_file_size: '1000000'
             name: articles_image
         articles_meta_conditional_wrapper:
             type: conditional

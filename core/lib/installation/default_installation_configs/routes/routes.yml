@@ -25,6 +25,18 @@ home.page.route:
   controller:
     class: Simp\Core\lib\controllers\HomeController
     method: home_controller
+system.reports.errors:
+  title: "Reports"
+  path: '/admin/reports'
+  method:
+    - GET
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+    post:
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: admin_report_site_controller
 
 # Account routes.
 user.account.login.form.route:
@@ -112,7 +124,6 @@ system.messager.toastify:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: toastify_controller
-
 system.assets.loader:
   title: "Assets"
   path: '/system/assets/file'
@@ -128,6 +139,7 @@ system.assets.loader:
     class: Simp\Core\lib\controllers\SystemController
     method: assets_loader_controller
 
+# Admin account routes.
 system.people:
   title: "People"
   path: '/admin/people'
@@ -262,7 +274,6 @@ system.configuration.smtp:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: configuration_smtp_controller
-
 system.configuration.logger:
   title: "Site Mail Server"
   path: '/admin/config/development/settings'
@@ -279,6 +290,7 @@ system.configuration.logger:
     class: Simp\Core\lib\controllers\SystemController
     method: configuration_logger_controller
 
+# system content type.
 system.structure:
   title: "Structure"
   path: '/admin/structure'
@@ -294,7 +306,6 @@ system.structure:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: structure_controller
-
 system.structure.content-type:
   title: "Content Type"
   path: '/admin/structure/types'
@@ -310,7 +321,6 @@ system.structure.content-type:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: structure_content_type_controller
-
 system.structure.content-type.form:
   title: "Content Type"
   path: '/admin/structure/types/new'
@@ -326,7 +336,6 @@ system.structure.content-type.form:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: structure_content_type_form_controller
-
 system.structure.content-type.edit:
   title: "Content Type Edit"
   path: '/admin/structure/content-type/[machine_name:string]/edit'
@@ -342,7 +351,6 @@ system.structure.content-type.edit:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: content_type_edit_form_controller
-
 system.structure.content-type.delete:
   title: "Content Type"
   path: '/admin/structure/content-type/[machine_name:string]/delete'
@@ -358,7 +366,6 @@ system.structure.content-type.delete:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: content_type_delete_controller
-
 system.structure.content-type.manage:
   title: "Content Type Manage"
   path: '/admin/structure/content-type/[machine_name:string]/manage'
@@ -374,7 +381,6 @@ system.structure.content-type.manage:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: content_type_manage_controller
-
 system.structure.content-type.manage.field.new:
   title: "Content Type Field"
   path: '/admin/structure/content-type/[machine_name:string]/field/new'
@@ -390,7 +396,6 @@ system.structure.content-type.manage.field.new:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: content_type_manage_add_field_controller
-
 system.structure.content-type.manage.field.edit:
   title: "Content Type Field"
   path: '/admin/structure/content-type/[machine_name:string]/field/[field_name:string]/edit'
@@ -406,7 +411,6 @@ system.structure.content-type.manage.field.edit:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: content_type_manage_edit_field_controller
-
 system.structure.content-type.manage.field.delete:
   title: "Content Type Field"
   path: '/admin/structure/content-type/[machine_name:string]/field/[field_name:string]/delete'
@@ -422,7 +426,6 @@ system.structure.content-type.manage.field.delete:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: content_type_manage_delete_field_controller
-
 system.structure.field.wrapper.field:
   title: "Inner fields"
   path: '/admin/structure/content-type/[machine_name:string]/field/[field_name:string]/inner-fields'
@@ -438,7 +441,6 @@ system.structure.field.wrapper.field:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: content_structure_field_inner_manage_controller
-
 system.structure.field.wrapper.field.inner.add:
   title: "Inner fields"
   path: '/admin/structure/content-type/[machine_name:string]/field/[field_name:string]/add/inner/new'
@@ -454,7 +456,6 @@ system.structure.field.wrapper.field.inner.add:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: content_structure_field_inner_add_controller
-
 system.structure.field.wrapper.field.inner.edit:
   title: "Inner fields"
   path: '/admin/structure/content-type/[machine_name:string]/field/[parent_name:string]/[field_name:string]/inner/edit'
@@ -470,7 +471,6 @@ system.structure.field.wrapper.field.inner.edit:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: content_structure_field_inner_edit_controller
-
 system.structure.field.wrapper.field.inner.delete:
   title: "Inner fields"
   path: '/admin/structure/content-type/[machine_name:string]/field/[parent_name:string]/[field_name:string]/inner/delete'
@@ -486,7 +486,6 @@ system.structure.field.wrapper.field.inner.delete:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: content_type_manage_delete_inner_field_controller
-
 system.structure.content:
   title: "Content"
   path: '/admin/content'
@@ -501,7 +500,6 @@ system.structure.content:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: content_content_admin_controller
-
 system.structure.content.add:
   title: "Content"
   path: '/node/add'
@@ -516,7 +514,6 @@ system.structure.content.add:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: content_content_node_add_controller
-
 system.structure.content.form:
   title: "Content Type Field"
   path: '/node/add/[content_name:string]'
@@ -532,7 +529,6 @@ system.structure.content.form:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: content_node_add_controller
-
 system.structure.content.node:
   title: "Content Type Field"
   path: '/node/[nid:int]'
@@ -548,3 +544,35 @@ system.structure.content.node:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: content_node_controller
+system.structure.content.form.edit:
+  title: "Content Type Field"
+  path: '/node/[nid:int]/edit'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_node_add_edit_controller
+system.structure.content.form.delete:
+  title: "Content Type Field"
+  path: '/node/[nid:int]/delete'
+  method:
+    - GET
+    - POST
+  middleware:
+    pre_middlewares:
+      - Simp\Core\lib\middlewares\AdminMiddleware
+
+    post:
+
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_node_add_delete_controller
+
+

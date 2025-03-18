@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e378a38cbd2243a65782d967ae6250fc",
+    "content-hash": "8fdfcdd94767999a3ae833dca9a16111",
     "packages": [
         {
             "name": "catfan/medoo",
@@ -1718,16 +1718,16 @@
         },
         {
             "name": "simp/forms",
-            "version": "v1.0.4",
+            "version": "v1.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CHANCENY/forms.git",
-                "reference": "d259d7d9503a770c30a8fbead4443aca79cf90a1"
+                "reference": "1b623b85c0ec84727f1b47b2bce3554d7216febd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CHANCENY/forms/zipball/d259d7d9503a770c30a8fbead4443aca79cf90a1",
-                "reference": "d259d7d9503a770c30a8fbead4443aca79cf90a1",
+                "url": "https://api.github.com/repos/CHANCENY/forms/zipball/1b623b85c0ec84727f1b47b2bce3554d7216febd",
+                "reference": "1b623b85c0ec84727f1b47b2bce3554d7216febd",
                 "shasum": ""
             },
             "require": {
@@ -1752,9 +1752,9 @@
             "description": "This is form builder library",
             "support": {
                 "issues": "https://github.com/CHANCENY/forms/issues",
-                "source": "https://github.com/CHANCENY/forms/tree/v1.0.4"
+                "source": "https://github.com/CHANCENY/forms/tree/v1.0.5"
             },
-            "time": "2025-03-13T11:47:33+00:00"
+            "time": "2025-03-18T06:56:01+00:00"
         },
         {
             "name": "simp/mail",
@@ -2540,7 +2540,8 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "ext-pdo": "*"
+        "ext-pdo": "*",
+        "ext-fileinfo": "*"
     },
     "platform-dev": {},
     "plugin-api-version": "2.6.0"

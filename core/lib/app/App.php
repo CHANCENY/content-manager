@@ -93,10 +93,12 @@ class App
         $end_time = microtime(true);
         $time_elapsed = $end_time - $start_time;
         $memory_elapsed = memory_get_usage();
-        $cpu_usage = round(($memory_elapsed / 1024 / 1024), 2);
+        $cpu_usage = getrusage();
+        $user_cpu = $cpu_usage["ru_utime.tv_sec"] + $cpu_usage["ru_utime.tv_usec"] / 1e6;
+        $system_cpu = $cpu_usage["ru_stime.tv_sec"] + $cpu_usage["ru_stime.tv_usec"] / 1e6;
 
         $log_file = $GLOBALS['system_store']->setting_dir . '/logs/app.log';
-        $log_content = "start:{$start_time} elapsed:{$time_elapsed} end:{$end_time} memory:{$memory_elapsed} cpu:{$cpu_usage}\n";
+        $log_content = "start:{$start_time} elapsed:{$time_elapsed} end:{$end_time} memory:{$memory_elapsed} system_usage:{$system_cpu} user_usage:{$user_cpu}\n";
         file_put_contents($log_file, $log_content, FILE_APPEND);
         if (isset($GLOBALS['temp_error_log'])) {
             unset($GLOBALS['temp_error_log']);

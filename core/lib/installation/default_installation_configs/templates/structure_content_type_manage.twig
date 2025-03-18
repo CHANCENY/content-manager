@@ -4,9 +4,9 @@
 
     <div class="db-form-container">
         <h2>Manage Fields for Content Type: {{ content.name }}</h2>
-        <a href="/admin/structure/content-type/{{ content.machine_name }}/field/new" class="button">+ Create a new field</a>
-        <table>
-            <thead>
+        <a href="/admin/structure/content-type/{{ content.machine_name }}/field/new">+ Create a new field</a>
+        <table class="table table-stripped">
+            <thead class="table-light">
             <tr>
                 <th>Label</th>
                 <th>Machine Name</th>
