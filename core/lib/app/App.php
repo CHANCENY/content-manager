@@ -13,9 +13,11 @@ use Phpfastcache\Exceptions\PhpfastcacheInvalidConfigurationException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidTypeException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\lib\installation\InstallerValidator;
+use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\lib\routes\Route;
 use Simp\Core\modules\config\ConfigManager;
 use Simp\Core\modules\logger\ErrorLogger;
+use Simp\Core\modules\user\current_user\CurrentUser;
 use Symfony\Component\HttpFoundation\Request;
 use Simp\Router\Route as Router;
 use Throwable;
@@ -121,8 +123,17 @@ class App
         /**@var Driver $cache **/
         $cache = $GLOBALS['caching'];
         $route_keys = $cache->getItem('system.routes.keys');
+
+        $system = new SystemDirectory;
+      
+        $middleware_file = $system->setting_dir . DIRECTORY_SEPARATOR . 'middleware' . DIRECTORY_SEPARATOR
+        . 'middleware.yml';
+
+        $router = new Router($middleware_file);
+
         if ($route_keys->isHit()) {
             $route_keys = $route_keys->get();
+
             foreach ($route_keys as $route_key) {
                 $route = $cache->getItem($route_key);
                 if ($route->isHit()) {
@@ -136,12 +147,13 @@ class App
                     $controller = $route->controller. "@" . $name;
 
                     $options = [
-                        ...$route->middleware
+                        'access' => $route->access,
+                        'route' => $route
                     ];
                     if (count($methods) > 0) {
                         foreach ($methods as $method) {
                             $method_single = strtolower($method);
-                            Router::$method_single($path, $name,$controller, $options);
+                            $router->$method_single($path, $name,$controller, $options);
                         }
                     }
                 }
@@ -149,8 +161,9 @@ class App
         }
         else {
             if (!empty($GLOBALS["routes"])) {
-                foreach ($GLOBALS["routes"] as $route) {
+                foreach ($GLOBALS["routes"] as $k=>$route) {
 
+                    $route['route_id'] = $k;
                     $methods = $route['method'];
                     $path = $route['path'];
                     $name = $route['controller']['method'];
@@ -158,12 +171,14 @@ class App
                     
                     // TODO: add more options values.
                     $options = [
-                        ...$route->middleware
+                       'access'=> $route->access,
+                       'route' => $route
                     ];
+                   
                     if (count($methods) > 0) {
                         foreach ($methods as $method) {
                             $method_single = strtolower($method);
-                            Router::$method_single($path, $name,$controller, $options);
+                            $router->$method_single($path, $name,$controller, $options);
                         }
                     }
 

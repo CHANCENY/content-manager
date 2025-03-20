@@ -7,7 +7,6 @@ use Simp\Core\modules\assets_manager\AssetsManager;
 use Simp\Core\modules\logger\ErrorLogger;
 use Simp\Core\modules\logger\ServerLogger;
 use Simp\Core\modules\structures\content_types\form\ContentTypeDefinitionEditForm;
-use Simp\Core\modules\structures\content_types\helper\NodeFunction;
 use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
@@ -48,7 +47,6 @@ use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
 use Simp\Core\modules\structures\content_types\form\ContentTypeDefinitionForm;
-use function Simp\Core\modules\structures\content_types\helpers\find_field;
 
 class SystemController
 {
@@ -64,6 +62,11 @@ class SystemController
         $messages = Session::init()->get('system.messages');
         Session::init()->delete('system.messages');
         return new JsonResponse($messages);
+    }
+
+    public function system_error_page_denied(...$args): Response
+    {
+        return new Response("Access denied. sorry you can acess this page", 403);
     }
 
     /**
@@ -127,7 +130,7 @@ class SystemController
             }
         }
         elseif ($is_confirmed === "no") {
-            return new RedirectResponse($request->server->get('REDIRECT_URL'));
+            return new RedirectResponse('/user/'. $request->get('uid'));
         }
 
         return new Response(View::view('default.view.delete_confirmation',[
@@ -426,6 +429,24 @@ class SystemController
         extract($args);
         $name = $request->get('machine_name');
         $content = ContentDefinitionManager::contentDefinitionManager()->getContentType($name);
+        if ($request->getMethod() === 'POST') {
+            $data = $request->request->all();
+            if(isset($data['display_submit'])) {
+                $settings = [];
+                $storages = $content['storage'] ?? [];
+                foreach($storages as $storage) {
+                    $name_field = substr($storage, 5, strlen($storage));
+                    $name_field = trim($name_field, '_');
+                    $settings[$name_field]['display_label'] = $data[$name_field. ':display_label'] ?? null;
+                    $settings[$name_field]['display_as'] = $data[$name_field . ':display_as'] ?? null;
+                    $settings[$name_field]['display_enabled'] = $data[$name_field . ':display_enabled'] ?? null;
+                }
+                $content['display_setting'] = $settings;
+                ContentDefinitionManager::contentDefinitionManager()->addContentType($name, $content);
+                Messager::toast()->addMessage("Display setting saved");
+                return new RedirectResponse('/admin/structure/content-type/'.$name.'/manage');
+            }
+        }
         return new Response(View::view('default.view.structure_content_type_manage',['content'=>$content]), 200);
     }
 

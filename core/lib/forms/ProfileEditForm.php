@@ -10,7 +10,6 @@ use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\modules\files\entity\File;
 use Simp\Core\modules\files\uploads\FormUpload;
 use Simp\Core\modules\messager\Messager;
-use Simp\Core\modules\user\current_user\CurrentUser;
 use Simp\Core\modules\user\entity\User;
 use Simp\Default\FileField;
 use Simp\Default\TextAreaField;
@@ -133,7 +132,7 @@ class ProfileEditForm extends FormBase
         }
 
         if ($profile->update()) {
-            $redirect = new RedirectResponse($request->server->get('REDIRECT_URL'));
+            $redirect = new RedirectResponse('/user/'.$user->getUid());
             Messager::toast()->addMessage("{$user->getName()} profile has been updated.");
             $redirect->send();
         }

@@ -1800,20 +1800,24 @@
         },
         {
             "name": "simp/router",
-            "version": "v1.0.6",
+            "version": "v1.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CHANCENY/router.git",
-                "reference": "9d6c1159f63867dd7738828aaf0adc3eb4afe178"
+                "reference": "367e4d89d6b93770303e4a8604cdd33626045edd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CHANCENY/router/zipball/9d6c1159f63867dd7738828aaf0adc3eb4afe178",
-                "reference": "9d6c1159f63867dd7738828aaf0adc3eb4afe178",
+                "url": "https://api.github.com/repos/CHANCENY/router/zipball/367e4d89d6b93770303e4a8604cdd33626045edd",
+                "reference": "367e4d89d6b93770303e4a8604cdd33626045edd",
                 "shasum": ""
             },
             "require": {
-                "symfony/http-foundation": "^7.2"
+                "symfony/http-foundation": "^7.2",
+                "symfony/yaml": "^7.2"
+            },
+            "require-dev": {
+                "symfony/var-dumper": "^7.2"
             },
             "type": "library",
             "autoload": {
@@ -1834,9 +1838,9 @@
             "description": "Library that provide the routing process",
             "support": {
                 "issues": "https://github.com/CHANCENY/router/issues",
-                "source": "https://github.com/CHANCENY/router/tree/v1.0.6"
+                "source": "https://github.com/CHANCENY/router/tree/v1.0.7"
             },
-            "time": "2025-03-12T05:39:49+00:00"
+            "time": "2025-03-19T15:58:32+00:00"
         },
         {
             "name": "simp/streamwrapper",

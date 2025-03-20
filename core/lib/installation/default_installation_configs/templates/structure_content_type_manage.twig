@@ -4,7 +4,17 @@
 
     <div class="db-form-container">
         <h2>Manage Fields for Content Type: {{ content.name }}</h2>
-        <a href="/admin/structure/content-type/{{ content.machine_name }}/field/new">+ Create a new field</a>
+
+         <a href="/admin/structure/content-type/{{ content.machine_name }}/field/new">+ Create a new field</a>
+         
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('manage-field')">Manage fields</div>
+            <div class="tab" onclick="showTab('display-settings')">Display settings</div>
+            <div class="tab" onclick="showTab('permission-settings')">Permission settings</div>
+        </div>
+
+        <div id="manage-field" class="tab-content active">
+            <div class="mb-lg-5">
         <table class="table table-stripped">
             <thead class="table-light">
             <tr>
@@ -34,6 +44,78 @@
             {% endfor %}
             </tbody>
         </table>
+        </div>
+        </div>  
+
+        <div id="display-settings" class="tab-content">
+          <form method="post">
+            <div class="mb-lg-5">
+               <table class="table table-stripped">
+            <thead class="table-light">
+            <tr>
+                <th>Field</th>
+                <th>Display Label</th>
+                <th>Display As</th>
+                <th>Display Enabled</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for field in content.fields %}
+            <tr>
+                <td>{{ field.label }}</td>
+                <td><input type="checkbox" class="form-check" name="{{field.name}}:display_label" value="1" /></td>
+                <td>
+                    <select name="{{field.name}}:display_as" class='form-control'>
+                       {% if field.type == 'file' %}
+                          <option value='link'>Link</option>
+                          <option value='image'>Image</option>
+                       {% elseif field.type != 'details' and field.type != 'fieldset' and field.type != 'conditional' %}
+                          <option value='p'>Paragraph text</option>
+                          <option value='h1'>Heading text (h1)</option>
+                          <option value='h2'>Heading text (h2)</option>
+                          <option value='h3'>Heading text (h3)</option>
+                          <option value='h4'>Heading text (h4)</option>
+                          <option value='h5'>Heading text (h5)</option>
+                          <option value='h6'>Heading text (h6)</option>
+                          <option value='strong'>Strong Text</option>
+                          <option value='link'>Link</option>
+                       {% else %}
+                          <option value='none'>None</option>
+                       {% endif %}
+                    </select>
+                </td>
+                <td>
+                   <input type="checkbox" name="{{field.name}}:display_enabled" value='1' />
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div>
+            <input name="display_submit" type="submit" value="Save display settings" class="btn btn-primary">
+        </div>
+            </div>
+            </form>
+        </div>
+
+        <div id="permission-settings" class="tab-content">
+            <div class="mb-lg-5">
+              <form method="post">
+                 <div class='form-group'>
+                    <select name='permission[]' class='form-control' multiple>
+                       <option value='administrator'>Administrator</option>
+                       <option value='authenticated'>Authenticated</option>
+                       <option value='manager'>Manager</option>
+                       <option value='content_creator'>Content creator</option>
+                       <option value='anonymous'>Anonymous</option>
+                    </select>
+                 </div>
+                 <div class="form-group">
+                    <button class="btn btn-primary" name="permission_submit" type="submit">Save Permission Settings</button>
+                 </div>
+              </form>
+            </div>
+        </div>      
     </div>
 
 {% endblock %}

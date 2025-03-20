@@ -102,6 +102,27 @@ articles:
         - node__articles_meta_title
         - node__articles_meta_description
         - node__articles_meta_image
+    display_setting:
+        articles_content:
+            display_label: '1'
+            display_as: p
+            display_enabled: null
+        articles_image:
+            display_label: null
+            display_as: link
+            display_enabled: '1'
+        articles_meta_title:
+            display_label: null
+            display_as: null
+            display_enabled: null
+        articles_meta_description:
+            display_label: null
+            display_as: null
+            display_enabled: null
+        articles_meta_image:
+            display_label: null
+            display_as: null
+            display_enabled: null
 basic_page:
     name: 'Basic page'
     description: 'This is basic page content type'
