@@ -106,10 +106,10 @@ articles:
         articles_content:
             display_label: '1'
             display_as: p
-            display_enabled: null
+            display_enabled: '1'
         articles_image:
-            display_label: null
-            display_as: link
+            display_label: '1'
+            display_as: image
             display_enabled: '1'
         articles_meta_title:
             display_label: null
@@ -123,6 +123,11 @@ articles:
             display_label: null
             display_as: null
             display_enabled: null
+    permission:
+        - administrator
+        - authenticated
+        - manager
+        - content_creator
 basic_page:
     name: 'Basic page'
     description: 'This is basic page content type'
@@ -147,3 +152,10 @@ basic_page:
                 allowed_file_size: ''
     storage:
         - node__basic_page_body
+    permission:
+        - authenticated
+    display_setting:
+        basic_page_body:
+            display_label: '1'
+            display_as: p
+            display_enabled: '1'

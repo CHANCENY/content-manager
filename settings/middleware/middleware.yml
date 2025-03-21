@@ -6,6 +6,9 @@ access:
   # This middleware checks only for routes with uid in params or uid in post body.
   - Simp\Core\lib\middlewares\AccountOwnerShipMiddleware
 
+  # This middleware checks only for node access route.
+  - Simp\Core\lib\middlewares\NodeAccessMiddleware
+
   # This middleware checks only on route access roles provided.
   - Simp\Core\lib\middlewares\RouteAccessMiddleware
   

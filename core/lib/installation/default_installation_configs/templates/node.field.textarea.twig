@@ -1,33 +1,60 @@
 {% if content %}
-
     <div class="field">
-        {% if content.data is iterable %}
+    {% if content.data is iterable %}
 
-            {%  for item in content.data %}
+        {%  for item in content.data %}
 
-                <div class="field--{{ definition.name|replace({'_':'-'}) }} field-text-{{ definition.name|replace({'_':'-'}) }} margin-top-field">
+            {% set settings = display[definition.name] %}
+
+            {% if settings.display_enabled %}
+
+            <div class="field--{{ definition.name|replace({'_':'-'}) }} field-text-{{ definition.name|replace({'_':'-'}) }} margin-top-field">
+                {% if settings.display_label == '1' %}
                     {% if definition.label %}
                         <strong class="field-label">{{ definition.label }}</strong>
                     {% endif %}
-                    <p>
-                        {{ item|raw }}
-                    </p>
+                {% endif %}
+
+                {% if settings.display_as %}
+                    <{{ settings.display_as }}>
+                    {{ item|raw }}
+                    </{{ settings.display_as }}>
+                {% else %}
+                    <p> {{ item|raw }} </p>
+                {% endif %}
                 </div>
 
-            {% endfor %}
+            {% endif %}
 
-        {% else %}
+        {% endfor %}
 
-            <div class="field--{{ definition.name|replace({'_':'-'}) }} field-text-{{ definition.name|replace({'_':'-'}) }}">
+    {% else %}
+
+
+        {% set settings = display[definition.name] %}
+
+        {% if settings.display_enabled %}
+
+        <div class="field--{{ definition.name|replace({'_':'-'}) }} field-text-{{ definition.name|replace({'_':'-'}) }} margin-top-field">
+            {% if settings.display_label == '1' %}
                 {% if definition.label %}
                     <strong class="field-label">{{ definition.label }}</strong>
                 {% endif %}
-                <p>
-                    {{ content.data|raw }}
-                </p>
+            {% endif %}
+
+            {% if settings.display_as %}
+                <{{ settings.display_as }}>
+                {{ content|raw }}
+                </{{ settings.display_as }}>
+            {% else %}
+                <p> {{ content|raw }} </p>
+            {% endif %}
             </div>
 
         {% endif %}
+
+
+    {% endif %}
     </div>
 
 

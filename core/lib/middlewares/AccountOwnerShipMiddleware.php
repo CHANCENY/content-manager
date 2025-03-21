@@ -2,6 +2,10 @@
 
 namespace Simp\Core\lib\middlewares;
 
+use Phpfastcache\Exceptions\PhpfastcacheCoreException;
+use Phpfastcache\Exceptions\PhpfastcacheDriverException;
+use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
+use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\lib\routes\Route;
 use Simp\Core\modules\user\current_user\CurrentUser;
 use Simp\Core\modules\user\entity\User;
@@ -12,6 +16,12 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AccountOwnerShipMiddleware implements Middleware
 {
+    /**
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheInvalidArgumentException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     */
     public function __invoke(Request $request, Access $access_interface, $next)
     {
         $user = CurrentUser::currentUser()?->getUser() ?? null;

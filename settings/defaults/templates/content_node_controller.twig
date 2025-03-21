@@ -12,7 +12,8 @@
                     {%
                         set file_values = {
                         'content': node.nodeFileContent(node.get(definition.name)),
-                        'definition': definition
+                        'definition': definition,
+                        'display': display[definition.name]
                     }
                     %}
                     {% include 'default.view.node.field.file' with file_values %}
@@ -20,7 +21,8 @@
                     {% set url_value = {'content': {
                         'name':node.get(definition.name),
                         'url': node.get(definition.name),
-                        'definition': definition
+                        'definition': definition,
+                        'display': display[definition.name]
                     }} %}
                     {% include 'default.view.node.field.url' with url_value  %}
 
@@ -28,7 +30,8 @@
 
                     {% set content = {'content': {
                         'data':node.get(definition.name),
-                        'definition': definition
+                        'definition': definition,
+                        'display': display[definition.name]
                     }} %}
 
                     {% include 'default.view.node.field.textarea' with content %}
@@ -37,7 +40,8 @@
 
                     {% set content = {'content': {
                         'data':node.get(definition.name),
-                        'definition': definition
+                        'definition': definition,
+                        'display': display[definition.name]
                     }} %}
 
                     {% include 'default.view.node.field.field.all' with content %}

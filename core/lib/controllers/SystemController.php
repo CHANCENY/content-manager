@@ -424,6 +424,16 @@ class SystemController
         return new RedirectResponse('/admin/structure/types');
     }
 
+    /**
+     * @throws RuntimeError
+     * @throws LoaderError
+     * @throws SyntaxError
+     * @throws PhpfastcacheIOException
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
     public function content_type_manage_controller(...$args): RedirectResponse|Response
     {
         extract($args);
@@ -446,7 +456,16 @@ class SystemController
                 Messager::toast()->addMessage("Display setting saved");
                 return new RedirectResponse('/admin/structure/content-type/'.$name.'/manage');
             }
+            elseif (isset($data['permission_submit'])) {
+                $permission = $data['permission'];
+                $content['permission'] = $permission;
+                ContentDefinitionManager::contentDefinitionManager()->addContentType($name, $content);
+                Messager::toast()->addMessage("Content type permission saved");
+                return new RedirectResponse('/admin/structure/content-type/'.$name.'/manage');
+            }
         }
+        $content['permission'] = $content['permission'] ?? [];
+        $content['display_setting'] = $content['display_setting'] ?? [];
         return new Response(View::view('default.view.structure_content_type_manage',['content'=>$content]), 200);
     }
 
@@ -598,11 +617,14 @@ class SystemController
                 $name = substr($field,6,strlen($field));
                 $definitions[$name] = Node::findField($entity['fields'], $name);
             }
+            $content_definitions = ContentDefinitionManager::contentDefinitionManager()->getContentType($node->getBundle());
             return new Response(View::view('default.view.content_node_controller',[
                 'node'=>$node,
-                'definitions'=>$definitions
+                'definitions'=>$definitions,
+                'display' => $content_definitions['display_setting'] ?? []
             ]));
         }catch (Throwable $exception){
+            dd($exception->getMessage());
             return new RedirectResponse('/');
         }
     }

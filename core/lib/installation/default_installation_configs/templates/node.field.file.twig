@@ -1,13 +1,18 @@
 {% if content %}
+       {% if display.display_enabled == '1' %}
+
     <div class="field">
         {% if content is iterable %}
+
+            {% if display.display_label == '1' %}
             {% if definition.label %}
                 <strong class="field-label">{{ definition.label }}</strong>
             {% endif %}
+                {% endif %}
             <div class="row">
                 {% for item in content %}
 
-                    {% if item.is_image %}
+                    {% if display.display_as == 'image' %}
                         <div class="col-md-6">
                             <img src="{{ item.uri }}" alt="{{ item.name }}" class="node-image field-image field--file-image field-view-{{ definition.name|replace({'_':'-'}) }}"/>
                         </div>
@@ -21,4 +26,5 @@
             {{ dump(content) }}
         {% endif %}
     </div>
+           {% endif %}
 {% endif %}
