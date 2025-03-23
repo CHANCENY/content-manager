@@ -8,6 +8,7 @@ use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheIOException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\lib\memory\session\Session;
+use Simp\Core\modules\user\current_user\CurrentUser;
 
 class Messager
 {

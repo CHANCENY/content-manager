@@ -9,6 +9,7 @@ use Simp\Core\modules\structures\content_types\helper\NodeFunction;
 use Simp\Core\modules\structures\content_types\storage\ContentDefinitionStorage;
 use Simp\Core\modules\user\entity\User;
 use Simp\Core\modules\user\trait\StaticHelperTrait;
+use Throwable;
 
 class Node
 {
@@ -31,21 +32,25 @@ class Node
     {
         $this->entity_types = ContentDefinitionManager::contentDefinitionManager()->getContentType($this->bundle) ?? [];
         $storage = ContentDefinitionStorage::contentDefinitionStorage($this->bundle)->getStorageJoinStatement();
-        $query = Database::database()->con()->prepare($storage);
-        $query->bindValue(':nid', $this->nid);
-        $query->execute();
-        $data = $query->fetchAll();
-        $rows = [];
+        
+        try{
+            $query = Database::database()->con()->prepare($storage);
+            $query->bindValue(':nid', $this->nid);
+            $query->execute();
+            $data = $query->fetchAll();
+            $rows = [];
 
-        foreach($data as $key=>$value) {
-             if(is_array($value)) {
-                foreach($value as $k=>$v) {
-                    $rows[$k]['value'][] = $v;
-                    $rows[$k]['value'] = array_unique($rows[$k]['value']);
+            foreach ($data as $key => $value) {
+                if (is_array($value)) {
+                    foreach ($value as $k => $v) {
+                        $rows[$k]['value'][] = $v;
+                        $rows[$k]['value'] = array_unique($rows[$k]['value']);
+                    }
                 }
-             }
-        }
-        $this->values = $rows;
+            }
+
+            $this->values = $rows;
+        }catch(\Throwable){}
     }
 
     public function getEntityArray(): ?array

@@ -49,6 +49,21 @@ system.error.page.denied:
     class: Simp\Core\lib\controllers\SystemController
     method: system_error_page_denied
 
+system.user.filter.page:
+  title: "User Filter"
+  path: '/user/search/[search:string]/[content_name:string]/auto'
+  method:
+    - GET
+    - POST
+  access:
+    - anonymous
+    - authenticated
+    - administrator
+    - content_creator
+    - manager
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: system_user_filter_auto_page
 
 # Account routes.
 user.account.login.form.route:

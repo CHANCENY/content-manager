@@ -74,6 +74,8 @@ class ContentTypeForm extends FormBase
         $data['machine_name'] = $line;
         $data['created'] = date('Y-m-d H:i A');
         $data['fields'] = [];
+        $data['display_setting'] = [];
+        $data['permission'] = [];
 
         $manager = ContentDefinitionManager::contentDefinitionManager();
         $exist_name = $manager->getContentType($line);

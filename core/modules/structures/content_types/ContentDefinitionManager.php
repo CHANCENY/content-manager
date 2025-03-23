@@ -19,15 +19,14 @@ class ContentDefinitionManager extends SystemDirectory
         @mkdir($file);
         $file .= DIRECTORY_SEPARATOR . "content_types";
         @mkdir($file);
-        $file .= DIRECTORY_SEPARATOR . "content-types.yml";
-        if (!file_exists($file)) {
-            touch($file);
-        }
-        $content_types = Yaml::parse(file_get_contents($file));
-        if (empty($content_types)) {
-            $this->content_types = [];
-        }else {
-            $this->content_types = $content_types;
+        $list = array_diff(scandir($file)?? [], ['.', '..']);
+        foreach($list as $file_name) {
+            $full_name = $file . DIRECTORY_SEPARATOR . $file_name;
+            if (file_exists($full_name)) {
+                $content = Yaml::parseFile($full_name);
+                $list_n = explode('.', $file_name);
+                $this->content_types[$list_n[0]] = $content;
+            }
         }
         $this->content_file = $file;
     }
@@ -41,24 +40,41 @@ class ContentDefinitionManager extends SystemDirectory
         return $this->content_types[$name] ?? null;
     }
 
+    private function savable($name, array $all) {
+        return $all[$name] ?? [];
+    }
+
     public function addContentType(string $name, array $config = []): void
     {
         $this->content_types[$name] = $config;
-        file_put_contents($this->content_file, Yaml::dump($this->content_types,Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
+        file_put_contents($this->content_file .DIRECTORY_SEPARATOR.$name.'.yml'  , Yaml::dump(
+            $this->savable($name, $this->content_types),Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
     }
 
     public function removeContentType(string $name): bool
     {
         if (isset($this->content_types[$name])) {
             unset($this->content_types[$name]);
+            $storage = ContentDefinitionStorage::contentDefinitionStorage($name);
+            $storages = $this->content_types['storage'] ?? [];
+            foreach($storages as $store) {
+                $name_t = substr($store, 5, strlen($store));
+                $name_t = trim($name_t, '_');
+                $storage->removeStorageDefinition($name_t);
+            }
+            $query = "DELETE FROM node_data WHERE bundle = :name";
+            $query = Database::database()->con()->prepare($query);
+            $query->bindParam(':name', $name);
+            $query->execute();
         }
-        return file_put_contents($this->content_file, Yaml::dump($this->content_types,Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
+        return @unlink($this->content_file. DIRECTORY_SEPARATOR. $name . '.yml');
     }
 
     public function addField(string $name, string $field_name, array $config = [], bool $persist = false, array $persist_override = []): bool
     {
         $this->content_types[$name]['fields'][$field_name] = $config;
-        if (file_put_contents($this->content_file, Yaml::dump($this->content_types,Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK))) {
+        if (file_put_contents($this->content_file . DIRECTORY_SEPARATOR . $name . '.yml', 
+        Yaml::dump($this->savable($name, $this->content_types),Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK))) {
 
             $storage = ContentDefinitionStorage::contentDefinitionStorage($name);
             // process the tables.
@@ -88,7 +104,8 @@ class ContentDefinitionManager extends SystemDirectory
             $sta = Database::database()->con()->prepare($delete_query);
             $sta->execute();
         }
-        if (file_put_contents($this->content_file, Yaml::dump($this->content_types,Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK))) {
+        if (file_put_contents($this->content_file . DIRECTORY_SEPARATOR . $name . '.yml',
+         Yaml::dump($this->savable($name, $this->content_types),Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK))) {
             return true;
         }
         return false;
@@ -107,7 +124,8 @@ class ContentDefinitionManager extends SystemDirectory
             $sta = Database::database()->con()->prepare($delete_query);
             $sta->execute();
         }
-        if (file_put_contents($this->content_file, Yaml::dump($this->content_types,Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK))) {
+        if (file_put_contents($this->content_file . DIRECTORY_SEPARATOR . $name . '.yml', 
+        Yaml::dump($this->savable($name, $this->content_types),Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK))) {
             return true;
         }
         return false;

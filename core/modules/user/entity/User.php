@@ -267,4 +267,14 @@ class User
         $query->bindParam(':login', $this->login, PDO::PARAM_STR);
         return $query->execute();
     }
+
+    public static function filter(string $name) {
+        $query = "SELECT * FROM users WHERE name LIKE :name OR mail LIKE :mail";
+        $query = Database::database()->con()->prepare($query);
+        $name = '%'.strip_tags($name).'%';
+        $query->bindParam(':name', $name);
+        $query->bindParam(':mail', $name);
+        $query->execute();
+        return $query->fetchAll();
+    }
 }

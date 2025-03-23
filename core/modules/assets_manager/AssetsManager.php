@@ -42,4 +42,10 @@ class AssetsManager
         return '';
     }
 
+
+    public static function assetManager(): AssetsManager
+    {
+        return new self();
+    }
+
 }

@@ -14,6 +14,7 @@ use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
 use Simp\Core\modules\structures\content_types\entity\Node;
 use Simp\Core\modules\user\current_user\CurrentUser;
 use Simp\Core\modules\user\entity\User;
+use Simp\Core\modules\user\fields\UserReferenceField;
 use Simp\Default\SelectField;
 use Simp\Fields\FieldBase;
 use Simp\FormBuilder\FormBase;
@@ -94,13 +95,21 @@ class ContentTypeDefinitionForm extends FormBase
             'name' => 'status'
             // Add default settings from content type.
         ];
+        $form['entity_name'] = [
+            'type' => 'hidden',
+            'default_value' => $this->content_type['machine_name'],
+            'class' => [''],
+            'id' => 'entity_name',
+            'name' => 'entity_name'
+        ];
         $form['owner'] = [
-            'type' => 'search',
+            'type' => 'user',
             'label' => "Author",
             'required' => true,
             'class' => ['form-control'],
             'id' => 'owner',
             'name' => 'owner',
+            'handler' => UserReferenceField::class ,
             'default_value' => CurrentUser::currentUser()->getUser()->getName() ?? User::load(1)->getName()
         ];
         $form['submit'] = [

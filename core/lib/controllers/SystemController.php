@@ -69,6 +69,41 @@ class SystemController
         return new Response("Access denied. sorry you can acess this page", 403);
     }
 
+    public function system_user_filter_auto_page(...$args): JsonResponse
+    {
+        extract($args);
+        $name = $request->get('content_name');
+        $value = $request->get('search');
+        $content_type = ContentDefinitionManager::contentDefinitionManager()->getContentType($name);
+        if ($content_type) {
+            $permission = $content_type['permission'] ?? [];
+            $user_roles = CurrentUser::currentUser()?->getUser()?->getRoles();
+            $flag = false;
+            if ($user_roles) {
+                $roles = array_map(function($role){return $role->getRoleName(); }, $user_roles);
+                if(array_intersect($permission, $roles)) {
+                    $flag = true;
+                }
+                if (CurrentUser::currentUser()->isIsAdmin()) {
+                    $flag = true;
+                }
+            }
+            elseif(in_array('anonymous', $permission)) {
+                $flag = true;
+            }
+
+            if($flag) {
+
+                $users = User::filter($value);
+                if (!empty($users)) {
+                    $users = array_column($users, 'name');
+                }
+                return new JsonResponse($users, 200);
+            }
+        }
+        return new JsonResponse(['user'=>1],200);
+    }
+
     /**
      * @throws SyntaxError
      * @throws RuntimeError
@@ -146,6 +181,7 @@ class SystemController
         $file_path = (new AssetsManager())->getAssetsFile($name,false);
         if (!empty($file_path) && file_exists($file_path)) {
             $mime_type = mime_content_type($file_path);
+            $mime_type = str_ends_with($name, '.js') ? 'application/javascript' : $mime_type;
             $response = new Response(
                 file_get_contents($file_path),
             );
@@ -442,14 +478,14 @@ class SystemController
         if ($request->getMethod() === 'POST') {
             $data = $request->request->all();
             if(isset($data['display_submit'])) {
-                $settings = [];
+                $settings = $content['display_setting'] ?? [];
                 $storages = $content['storage'] ?? [];
                 foreach($storages as $storage) {
                     $name_field = substr($storage, 5, strlen($storage));
                     $name_field = trim($name_field, '_');
-                    $settings[$name_field]['display_label'] = $data[$name_field. ':display_label'] ?? null;
-                    $settings[$name_field]['display_as'] = $data[$name_field . ':display_as'] ?? null;
-                    $settings[$name_field]['display_enabled'] = $data[$name_field . ':display_enabled'] ?? null;
+                    $settings[$name_field]['display_label'] = $data[$name_field . ':display_label'] ?? $settings[$name_field]['display_label'] ?? null;
+                    $settings[$name_field]['display_as'] = $data[$name_field . ':display_as'] ?? $settings[$name_field]['display_as'] ?? null;
+                    $settings[$name_field]['display_enabled'] = $data[$name_field . ':display_enabled'] ?? $settings[$name_field]['display_enabled'] ?? null;
                 }
                 $content['display_setting'] = $settings;
                 ContentDefinitionManager::contentDefinitionManager()->addContentType($name, $content);
@@ -553,9 +589,32 @@ class SystemController
     public function content_structure_field_inner_manage_controller(...$args): RedirectResponse|Response
     {
         extract($args);
+        $name = $request->get('machine_name');
         $fields = ContentDefinitionManager::contentDefinitionManager()
-                  ->getContentType($request->get('machine_name'));
+                  ->getContentType($name);
         $inner_fields = $fields['fields'][$request->get('field_name')]['inner_field'] ?? [];
+
+        $content = ContentDefinitionManager::contentDefinitionManager()->getContentType($name);
+        if ($request->getMethod() === 'POST') {
+            $data = $request->request->all();
+            if (isset($data['display_submit'])) {
+                $settings = $content['display_setting'] ?? [];
+                $storages = $content['storage'] ?? [];
+                foreach ($storages as $storage) {
+                    $name_field = substr($storage, 5, strlen($storage));
+                    $name_field = trim($name_field, '_');
+                    $settings[$name_field]['display_label'] = $data[$name_field . ':display_label'] ?? $settings[$name_field]['display_label'] ?? null;
+                    $settings[$name_field]['display_as'] = $data[$name_field . ':display_as'] ?? $settings[$name_field]['display_as'] ?? null;
+                    $settings[$name_field]['display_enabled'] = $data[$name_field . ':display_enabled'] ?? $settings[$name_field]['display_enabled'] ?? null;
+                }
+                $content['display_setting'] = $settings;
+                ContentDefinitionManager::contentDefinitionManager()->addContentType($name, $content);
+                Messager::toast()->addMessage("Display setting saved");
+                return new RedirectResponse('/admin/structure/content-type/' . $name . '/manage');
+            }
+        }
+        
+        $content['display_setting'] = $content['display_setting'] ?? [];
 
         return new Response(View::view('default.view.content_structure_field_inner_manage',
          ['fields'=>$inner_fields, 'content'=> $fields, 'parent_field'=> $request->get('field_name')]));

@@ -1,10 +1,10 @@
-hostname: database
-username: lamp
-password: lamp
+hostname: localhost
+username: root
+password: '1234'
 port: '3306'
 dsn: 'mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4'
 cache:
     active: true
     timeout: 3600
 log: true
-dbname: lamp
+dbname: content_manager
