@@ -70,7 +70,7 @@ class ContentTypeForm extends FormBase
         $request = Request::createFromGlobals();
         $data = $request->request->all();
         $line = str_replace(' ', '_', $data['name']);
-        $line = strtolower($line);
+        $line = 'content_'.strtolower($line);
         $data['machine_name'] = $line;
         $data['created'] = date('Y-m-d H:i A');
         $data['fields'] = [];

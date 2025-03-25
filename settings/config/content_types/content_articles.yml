@@ -1,0 +1,50 @@
+name: Articles
+description: '<p>This is content type</p>'
+machine_name: content_articles
+created: '2025-03-25 13:21 PM'
+fields:
+    content_articles_field_content_body:
+        type: textarea
+        label: 'Content Body'
+        required: true
+        class:
+            - form-control
+            - textarea-editor
+        default_value: ''
+        id: field-content_body
+        handler: Simp\Default\TextAreaField
+        name: content_articles_field_content_body
+        conditions: {  }
+        settings:
+            allowed_file_types:
+                - ''
+            allowed_file_size: ''
+    content_articles_field_image:
+        type: file
+        label: Image
+        required: true
+        class:
+            - form-control
+        default_value: ''
+        id: field-image
+        handler: Simp\Default\FileField
+        name: content_articles_field_image
+        conditions: {  }
+        settings:
+            allowed_file_types:
+                - 'image/*'
+            allowed_file_size: '1000000'
+display_setting:
+    content_articles_field_content_body:
+        display_label: null
+        display_as: p
+        display_enabled: '1'
+    content_articles_field_image:
+        display_label: null
+        display_as: image
+        display_enabled: '1'
+permission:
+    - administrator
+storage:
+    - node__content_articles_field_content_body
+    - node__content_articles_field_image

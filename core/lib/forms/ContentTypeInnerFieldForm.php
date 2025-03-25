@@ -293,7 +293,7 @@ class ContentTypeInnerFieldForm extends FormBase
            }
            $name_content = $request->get('machine_name');
            $name = str_replace(' ','_',$field['label']);
-           $name = strtolower($name);
+           $name = 'field_'. strtolower($name);
            $field['name'] = $name_content.'_'.$name;
 
            $original_field = ContentDefinitionManager::contentDefinitionManager()->getContentType($name_content);

@@ -24,8 +24,8 @@ class ContentDefinitionManager extends SystemDirectory
             $full_name = $file . DIRECTORY_SEPARATOR . $file_name;
             if (file_exists($full_name)) {
                 $content = Yaml::parseFile($full_name);
-                $list_n = explode('.', $file_name);
-                $this->content_types[$list_n[0]] = $content;
+                $list_n = pathinfo($full_name, PATHINFO_FILENAME);
+                $this->content_types[$list_n] = $content;
             }
         }
         $this->content_file = $file;

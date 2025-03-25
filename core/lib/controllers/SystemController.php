@@ -3,6 +3,7 @@
 namespace Simp\Core\lib\controllers;
 
 use Simp\Core\lib\forms\ContentTypeInnerFieldEditForm;
+use Simp\Core\lib\forms\ViewAddForm;
 use Simp\Core\modules\assets_manager\AssetsManager;
 use Simp\Core\modules\logger\ErrorLogger;
 use Simp\Core\modules\logger\ServerLogger;
@@ -522,7 +523,6 @@ class SystemController
     public function content_type_manage_edit_field_controller(...$args): RedirectResponse|Response
     {
         extract($args);
-        extract($args);
         $form_base = new FormBuilder(new ContentTypeFieldEditForm());
         $form_base->getFormBase()->setFormMethod('POST');
         $form_base->getFormBase()->setFormEnctype('multipart/form-data');
@@ -770,4 +770,25 @@ class SystemController
             ]
         ), 200);
     }
+
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    public function content_views_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        return new Response(View::view('default.view.content_views_controller'));
+    }
+
+    public function content_views_add_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $form_base = new FormBuilder(new ViewAddForm());
+        $form_base->getFormBase()->setFormMethod('POST');
+        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
+        return new Response(View::view('default.view.content_views_add_controller', ['_form'=>$form_base]));
+    }
+
 }

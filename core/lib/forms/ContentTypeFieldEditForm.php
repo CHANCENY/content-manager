@@ -281,7 +281,7 @@ class ContentTypeFieldEditForm extends ContentTypeFieldForm
             }
             $name_content = $request->get('machine_name');
             $name = str_replace(' ', '_', $field['label']);
-            $name = strtolower($name);
+            $name = 'field_'.strtolower($name);
     
             $persist_override = $field;
             if (in_array($data['type'], ['details', 'fieldset', 'conditional'])) {

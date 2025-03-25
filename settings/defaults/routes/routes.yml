@@ -509,4 +509,28 @@ system.structure.content.form.delete:
     class: Simp\Core\lib\controllers\SystemController
     method: content_node_add_delete_controller
 
+#views admin routes
+system.structure.views:
+  title: "Views"
+  path: '/admin/structure/views'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_views_controller
+system.structure.views.add:
+  title: "Add View"
+  path: '/admin/structure/views/add'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_views_add_controller
+
 

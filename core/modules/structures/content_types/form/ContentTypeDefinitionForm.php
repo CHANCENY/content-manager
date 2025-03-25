@@ -54,8 +54,6 @@ class ContentTypeDefinitionForm extends FormBase
             $redirect->setStatusCode(302);
             $redirect->send();
         }
-        //TODO: check for permissions.
-
     }
 
     public function getFormId(): string
@@ -124,12 +122,12 @@ class ContentTypeDefinitionForm extends FormBase
 
     public function validateForm(array $form): void
     {
-        foreach ($form as $field) {
+        foreach ($form as &$field) {
             if ($field instanceof FieldBase && in_array($field->getType(),['fieldset','conditional','details'])) {
                 $this->validate_recursive($field);
             }
             elseif ($field instanceof FieldBase && $field->getRequired() === 'required' && empty($field->getValue())) {
-                $field->setError("{$field->getName()} is required");
+                $field->setError("{$field->getLabel()} is required");
                 $this->validated = false;
             }
         }
@@ -137,7 +135,7 @@ class ContentTypeDefinitionForm extends FormBase
 
     private function validate_recursive(FieldBase &$field)
     {
-        foreach ($field->getField()['inner_field'] as $inner_field) {
+        foreach ($field->getField()['inner_field'] as &$inner_field) {
             if ($inner_field instanceof FieldBase && in_array($inner_field->getType(),['fieldset','conditional','details'])) {
                 return $this->validate_recursive($inner_field);
             }

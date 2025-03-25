@@ -437,3 +437,94 @@ th {
     padding: 20px;}
 .tab-content.active {
     display: block;}
+
+/* Input Fields */
+input[type="text"], input[type="email"], input[type="password"],
+input[type="url"], input[type="tel"], textarea, select {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #a6aab4; /* Claro input border */
+    border-radius: 5px;
+    font-size: 16px;
+    background: #f8f9fb; /* Claro input background */
+    transition: border 0.3s ease-in-out, background 0.3s;
+    color: #32373d; /* Claro text color */
+}
+
+input:focus, textarea:focus, select:focus {
+    border-color: #005ea8; /* Drupal Blue */
+    outline: none;
+    background: white;
+}
+
+/* Link Input */
+input[type="url"] {
+    border-color: #579aca; /* Claro blue */
+    color: #005ea8;
+}
+
+input[type="url"]:focus {
+    border-color: #005ea8;
+}
+
+/* Fieldset Styling */
+fieldset {
+    border: 1px solid #a6aab4; /* Claro gray */
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    background: #f8f9fb; /* Light background */
+}
+
+legend {
+    font-weight: bold;
+    color: #005ea8; /* Drupal Blue */
+}
+
+/* Details and Summary */
+details {
+    background: #f8f9fb; /* Claro background */
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    border: 1px solid #d8dae2;
+}
+
+summary {
+    font-weight: bold;
+    cursor: pointer;
+    color: #005ea8; /* Drupal Blue */
+}
+
+summary:hover {
+    text-decoration: underline;
+}
+
+/* Labels */
+label {
+    font-weight: bold;
+    color: #32373d; /* Claro text */
+}
+
+/* Buttons */
+button, input[type="submit"] {
+    background: #005ea8; /* Drupal Blue */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+button:hover, input[type="submit"]:hover {
+    background: #00457c; /* Darker Drupal Blue */
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    form {
+        width: 90%;
+    }
+}
