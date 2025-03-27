@@ -1,0 +1,8 @@
+name: 'Articles View'
+description: 'this is articles page for listing articles.'
+content_type: all
+permission:
+    - administrator
+displays:
+    - views.view.articles.view.listing.articles
+machine_name: view.articles.view

@@ -8,6 +8,7 @@ use Simp\Core\modules\assets_manager\AssetsManager;
 use Simp\Core\modules\logger\ErrorLogger;
 use Simp\Core\modules\logger\ServerLogger;
 use Simp\Core\modules\structures\content_types\form\ContentTypeDefinitionEditForm;
+use Simp\Core\modules\structures\views\ViewsManager;
 use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
@@ -779,9 +780,15 @@ class SystemController
     public function content_views_controller(...$args): RedirectResponse|Response
     {
         extract($args);
-        return new Response(View::view('default.view.content_views_controller'));
+        $views_listing = ViewsManager::viewsManager()->getViews();
+        return new Response(View::view('default.view.content_views_controller', ['views'=>$views_listing]));
     }
 
+    /**
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws LoaderError
+     */
     public function content_views_add_controller(...$args): RedirectResponse|Response
     {
         extract($args);
@@ -789,6 +796,173 @@ class SystemController
         $form_base->getFormBase()->setFormMethod('POST');
         $form_base->getFormBase()->setFormEnctype('multipart/form-data');
         return new Response(View::view('default.view.content_views_add_controller', ['_form'=>$form_base]));
+    }
+
+    /**
+     * @throws PhpfastcacheIOException
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
+    public function content_views_view_delete_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $view_name = $request->get('view_name');
+        if (empty($view_name)) {
+            Messager::toast()->addWarning("View name not found.");
+            return new RedirectResponse('/admin/structure/views');
+        }
+        if (ViewsManager::viewsManager()->removeView($view_name)) {
+            Messager::toast()->addMessage("View \"$view_name\" was successfully removed.");
+            return new RedirectResponse('/admin/structure/views');
+        }
+        Messager::toast()->addWarning("View \"$view_name\" was not removed.");
+        return new RedirectResponse('/admin/structure/views');
+    }
+
+    /**
+     * @throws RuntimeError
+     * @throws LoaderError
+     * @throws SyntaxError
+     * @throws PhpfastcacheIOException
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
+    public function content_views_view_edit_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $view_name = $request->get('view_name');
+        if (empty($view_name)) {
+            Messager::toast()->addWarning("View name not found.");
+            return new RedirectResponse('/admin/structure/views');
+        }
+        $view = ViewsManager::viewsManager()->getView($view_name);
+        $form_base = new FormBuilder(new ViewAddForm());
+        $form_base->getFormBase()->setFormMethod('POST');
+        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
+
+        return new Response(View::view('default.view.content_views_edit_controller', ['view'=>$view, '_form'=>$form_base]));
+    }
+
+    /**
+     * @throws RuntimeError
+     * @throws LoaderError
+     * @throws SyntaxError
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheIOException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
+    public function content_views_view_display_controller(...$args): RedirectResponse|Response|JsonResponse
+    {
+        extract($args);
+
+        $view_name = $request->get('view_name');
+        $content_field = json_decode($request->getContent(), true);
+        if (!empty($content_field) && !isset($content_field['reorder'])) {
+            $display = ViewsManager::viewsManager()->getDisplay($content_field['display']);
+            $fields = $display[$content_field['type']] ?? [];
+            $fields[$content_field['content_type']][$content_field['field']] = $content_field;
+            $display[$content_field['type']] = $fields;
+            $result = ViewsManager::viewsManager()->addFieldDisplay($content_field['display'], $display);
+            return new JsonResponse(['result'=>$result]);
+        }
+
+        if (!empty($content_field['reorder'])) {
+            $data = $content_field['reorder'];
+            $fields = $data['fields'] ?? [];
+            $view_fields = ViewsManager::viewsManager()->getDisplay($content_field['display']);
+
+
+            foreach ($fields as $field) {
+
+            }
+
+            uksort($view_fields['fields'], function ($a, $b) use ($fields) {
+                return array_search($a, $fields) - array_search($b, $fields);
+            });
+            return new JsonResponse(['all'=>$view_fields, 'new'=> $fields ]);
+        }
+
+        if (empty($view_name)) {
+            Messager::toast()->addWarning("View name not found.");
+            return new RedirectResponse('/admin/structure/views');
+        }
+
+        if ($request->getMethod() == 'POST' && $request->request->has('submit-new-display')) {
+            $data = $request->request->all();
+
+            if (!empty($data['display_name']) && !empty($data['display_url']) && !empty($data['response_type'])) {
+
+                $view = ViewsManager::viewsManager()->getView($view_name);
+                dump($view);
+                $name = strtolower($data['display_name']);
+                $name = str_replace(' ', '.', $name);
+                $display = [
+                    'name' => $data['display_name'],
+                    'display_name' => $name,
+                    'response_type' => $data['response_type'],
+                    'content_type' => $view['content_type'],
+                    'template' => '',
+                    'params' => '',
+                    'permission' => $data['permission'] ?? $view['permission'] ?? [],
+                    'display_url' => $data['display_url'],
+                    'fields' => [],
+                    'filter_criteria'=> [
+                        'bundle' => $view['content_type'],
+                        'status' => 'Yes'
+                    ],
+                    'sort_criteria' => [
+                        'created' => 'DESC'
+                    ]
+
+                ];
+                $list = explode('/',  $data['display_url']);
+                if (!empty($list)) {
+                    $place_holders = array_map(function ($part) {
+                        if (str_starts_with($part,'[') && str_ends_with($part,']')) {
+                            $part = substr($part, 1, -1);
+                            $list = explode(':', $part);
+                            return $list[0];
+                        }
+                        else {
+                            return null;
+                        }
+                    }, $list);
+                    $place_holders = array_values(array_filter($place_holders));
+                    $display['params'] = $place_holders;
+                }
+
+                if (ViewsManager::viewsManager()->addViewDisplay($view_name, $display)) {
+                    Messager::toast()->addMessage("Display \"$view_name\" was successfully added.");
+                    return new RedirectResponse("/admin/structure/views/view/$view_name/displays");
+                }
+            }
+
+        }
+
+        $view = ViewsManager::viewsManager()->getView($view_name);
+        $types = ContentDefinitionManager::contentDefinitionManager()->getContentTypes();
+        $types = array_keys($types);
+        $contents = $view['content_type'] === 'all' ? $types : [$view['content_type']];
+        $list = ContentDefinitionManager::contentDefinitionManager()->getContentTypes();
+        $fields = [];
+
+        foreach ($list as $content) {
+            $storages = $content['storage'] ?? [];
+            foreach ($storages as $storage) {
+                $name = substr($storage,6, strlen($storage));
+                $field = Node::findField($content['fields'] ?? [], $name);
+                $fields[$content['machine_name'].'|'.$name] = $content['name']. ': '.  $field['label'] ?? $name;
+            }
+        }
+
+        return new Response(View::view('default.view.content_views_view_display_controller',
+            ['view'=>$view, 'types'=>$types, 'contents'=>$contents, 'fields'=> $fields]));
     }
 
 }

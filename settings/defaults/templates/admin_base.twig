@@ -8,12 +8,18 @@
     <meta name="robots" content="noindex, nofollow">
     <meta name="keywords" content="{{ page_keywords }}">
     <style>
-        {{ assets.getAssetsFile('ckeditor5.css') }}
+        {{ assets.getAssetsFile('ckeditor5.css')|raw }}
     </style>
     {#  TODO: settings for toastify  #}
     <style>
-        {{ assets.getAssetsFile('admin.css') }}
+        {{ assets.getAssetsFile('admin.css')|raw }}
     </style>
+    <script>
+        {{ assets.getAssetsFile('modal.js')|raw }}
+    </script>
+    <script>
+        {{ assets.getAssetsFile('Sortable.min.js')|raw }}
+    </script>
 </head>
 <body>
 

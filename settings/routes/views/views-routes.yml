@@ -1,0 +1,65 @@
+views.view.articles.page.listing.articles:
+    title: 'Listing Articles'
+    path: /articles
+    method:
+        - GET
+        - POST
+        - PUT
+        - OPTIONS
+        - DELETE
+        - ANY
+    controller:
+        class: Simp\Core\lib\controllers\ViewsController
+        method: views_entry_controller
+    access:
+        - administrator
+        - content_creator
+        - manager
+        - authenticated
+views.view.articles.page.article:
+    title: Article
+    path: '/article/[id:int]'
+    method:
+        - GET
+        - POST
+        - PUT
+        - OPTIONS
+        - DELETE
+        - ANY
+    controller:
+        class: Simp\Core\lib\controllers\ViewsController
+        method: views_entry_controller
+    access:
+        - administrator
+        - content_creator
+        - manager
+        - authenticated
+views.view.articles.view.listing.articles:
+    title: 'Listing Articles'
+    path: /articles
+    method:
+        - GET
+        - POST
+        - PUT
+        - OPTIONS
+        - DELETE
+        - ANY
+    controller:
+        class: Simp\Core\lib\controllers\ViewsController
+        method: views_entry_controller
+    access:
+        - administrator
+views.view.articles.view.article:
+    title: Article
+    path: '/article/[id:int]'
+    method:
+        - GET
+        - POST
+        - PUT
+        - OPTIONS
+        - DELETE
+        - ANY
+    controller:
+        class: Simp\Core\lib\controllers\ViewsController
+        method: views_entry_controller
+    access: {  }

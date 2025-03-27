@@ -777,16 +777,16 @@
         },
         {
             "name": "monolog/monolog",
-            "version": "3.8.1",
+            "version": "3.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "aef6ee73a77a66e404dd6540934a9ef1b3c855b4"
+                "reference": "10d85740180ecba7896c87e06a166e0c95a0e3b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/aef6ee73a77a66e404dd6540934a9ef1b3c855b4",
-                "reference": "aef6ee73a77a66e404dd6540934a9ef1b3c855b4",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/10d85740180ecba7896c87e06a166e0c95a0e3b6",
+                "reference": "10d85740180ecba7896c87e06a166e0c95a0e3b6",
                 "shasum": ""
             },
             "require": {
@@ -864,7 +864,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Seldaek/monolog/issues",
-                "source": "https://github.com/Seldaek/monolog/tree/3.8.1"
+                "source": "https://github.com/Seldaek/monolog/tree/3.9.0"
             },
             "funding": [
                 {
@@ -876,7 +876,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-12-05T17:15:07+00:00"
+            "time": "2025-03-24T10:02:05+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
@@ -1718,16 +1718,16 @@
         },
         {
             "name": "simp/forms",
-            "version": "v1.0.5",
+            "version": "v1.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CHANCENY/forms.git",
-                "reference": "1b623b85c0ec84727f1b47b2bce3554d7216febd"
+                "reference": "12bd490100facfe06db7860fc4e12a3a1d6abbae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CHANCENY/forms/zipball/1b623b85c0ec84727f1b47b2bce3554d7216febd",
-                "reference": "1b623b85c0ec84727f1b47b2bce3554d7216febd",
+                "url": "https://api.github.com/repos/CHANCENY/forms/zipball/12bd490100facfe06db7860fc4e12a3a1d6abbae",
+                "reference": "12bd490100facfe06db7860fc4e12a3a1d6abbae",
                 "shasum": ""
             },
             "require": {
@@ -1752,9 +1752,9 @@
             "description": "This is form builder library",
             "support": {
                 "issues": "https://github.com/CHANCENY/forms/issues",
-                "source": "https://github.com/CHANCENY/forms/tree/v1.0.5"
+                "source": "https://github.com/CHANCENY/forms/tree/v1.0.6"
             },
-            "time": "2025-03-18T06:56:01+00:00"
+            "time": "2025-03-26T05:46:23+00:00"
         },
         {
             "name": "simp/mail",

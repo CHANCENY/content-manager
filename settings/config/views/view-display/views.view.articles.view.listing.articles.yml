@@ -1,0 +1,54 @@
+name: 'Listing Articles'
+display_name: views.view.articles.view.listing.articles
+response_type: text/html
+content_type: all
+template: ''
+params: {  }
+permission:
+    - administrator
+fields:
+    node:
+        title:
+            field: title
+            type: field
+            view: view.articles.view
+            display: views.view.articles.view.listing.articles
+            content_type: node
+        created:
+            field: created
+            type: fields
+            view: view.articles.view
+            display: views.view.articles.view.listing.articles
+            content_type: node
+    content_articles:
+        content_articles_field_content_body:
+            field: content_articles_field_content_body
+            type: field
+            view: view.articles.view
+            display: views.view.articles.view.listing.articles
+            content_type: content_articles
+        content_articles_field_image:
+            field: content_articles_field_image
+            type: field
+            view: view.articles.view
+            display: views.view.articles.view.listing.articles
+            content_type: content_articles
+filter_criteria:
+    bundle: all
+    status: 'Yes'
+    node:
+        created:
+            field: created
+            type: filter_criteria
+            view: view.articles.view
+            display: views.view.articles.view.listing.articles
+            content_type: node
+sort_criteria:
+    created: DESC
+    node:
+        created:
+            field: created
+            type: sort_criteria
+            view: view.articles.view
+            display: views.view.articles.view.listing.articles
+            content_type: node

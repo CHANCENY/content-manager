@@ -45,7 +45,7 @@ class Theme extends SystemDirectory
                 'http' => Request::createFromGlobals()
             ],
             'site' => $site,
-            'assets' => new AssetsManager()
+            'assets' => new AssetsManager(),
         ];
         $twig_views = [];
         $theme_keys = Caching::init()->get("system.theme.keys") ?? [];

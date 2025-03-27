@@ -16,6 +16,7 @@ use Simp\Default\SelectField;
 use Simp\Fields\FieldBase;
 use Simp\FormBuilder\FormBase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 class ViewAddForm extends FormBase
 {
@@ -27,6 +28,12 @@ class ViewAddForm extends FormBase
        return 'view_add';
     }
 
+    /**
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
     public function buildForm(array &$form): array
     {
         $routes = Caching::init()->get('system.routes.keys');
@@ -36,6 +43,9 @@ class ViewAddForm extends FormBase
         $content_list = ContentDefinitionManager::contentDefinitionManager()->getContentTypes();
         $content_list = array_keys($content_list);
         $content_list = array_combine($content_list, $content_list);
+
+        $request = Request::createFromGlobals();
+        $view = ViewsManager::viewsManager()->getView($request->get('view_name', ''));
 
         $form['wrapper'] = [
             'type' => 'fieldset',
@@ -52,6 +62,7 @@ class ViewAddForm extends FormBase
                     'id' => 'name',
                     'class' => ['form-control'],
                     'name' => 'name',
+                    'default_value' => $view['name'] ?? null,
                 ],
                 'description' => [
                     'type' => 'text',
@@ -60,6 +71,7 @@ class ViewAddForm extends FormBase
                     'id' => 'description',
                     'class' => ['form-control'],
                     'name' => 'description',
+                    'default_value' => $view['description'] ?? null,
                 ],
             ]
         ];
@@ -84,7 +96,7 @@ class ViewAddForm extends FormBase
                         ...$content_list,
                     ],
                     'handler' => SelectField::class,
-                    'default_value' => 'administrator',
+                    'default_value' => $view['content_type'] ?? 'all',
                 ],
                 'permission' => [
                     'type' => 'select',
@@ -101,7 +113,7 @@ class ViewAddForm extends FormBase
                         'anonymous' => 'Anonymous',
                     ],
                     'handler' => SelectField::class,
-                    'default_value' => 'administrator',
+                    'default_value' => $view['permission'] ?? 'all',
                     'options' => [
                         'multiple' => 'multiple',
                     ]
@@ -165,21 +177,31 @@ class ViewAddForm extends FormBase
                 ...$data['page_settings'],
                 'displays' => []
             ];
+            $types = ContentDefinitionManager::contentDefinitionManager()->getContentTypes();
+            $types = array_keys($types);
 
             $redirect = new RedirectResponse('/admin/structure/views');
             $redirect->setStatusCode(302);
-
             unset($data['submit']);
-            $views = ViewsManager::viewsManager();
-            $name = $view_data['name'] ?? '';
 
-            if (!empty($name)) {
-                $name = str_replace(' ', '.', $name);
-                $name = 'view.'.strtolower($name);
+            $request = Request::createFromGlobals();
+            $view = ViewsManager::viewsManager()->getView($request->get('view_name', ''));
+            $message = "Views successfully created!";
+            $name = null;
+            if (empty($view)) {
+                $name = $view_data['name'] ?? '';
+                if (!empty($name)) {
+                    $name = str_replace(' ', '.', $name);
+                    $name = 'view.'.strtolower($name);
+                }
             }
-
-            if ($views->addView($name, $view_data)) {
-                Messager::toast()->addMessage("Views successfully added");
+            else {
+                $view_data = array_merge($view, $view_data);
+                $name = $view['machine_name'];
+                $message = "View successfully updated!";
+            }
+            if (ViewsManager::viewsManager()->addView($name, $view_data)) {
+                Messager::toast()->addMessage("$message");
                 $redirect->send();
             }
         }

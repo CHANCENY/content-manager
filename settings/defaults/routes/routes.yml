@@ -532,5 +532,37 @@ system.structure.views.add:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: content_views_add_controller
-
+system.structure.views.delete:
+  title: "Delete View"
+  path: '/admin/structure/views/view/[view_name:string]/delete'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_views_view_delete_controller
+system.structure.views.edit:
+  title: "Edit View"
+  path: '/admin/structure/views/view/[view_name:string]'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_views_view_edit_controller
+system.structure.views.display:
+  title: "Display View"
+  path: '/admin/structure/views/view/[view_name:string]/displays'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_views_view_display_controller
 

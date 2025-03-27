@@ -25,7 +25,7 @@ use Symfony\Component\Yaml\Yaml;
 use Throwable;
 
 /**
- * @class This class is for managing site set up checking requirements.
+ * @class This class is for managing site-set-up checking requirements.
  */
 
 class InstallerValidator extends SystemDirectory {
@@ -97,9 +97,12 @@ class InstallerValidator extends SystemDirectory {
         return $this->installer_schema->database_installed !== "pending";
     }
 
+
     /**
-     * Check if project is set to handle request.
-     * @return bool
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
      */
     public function validateProject(): bool {
         if ($this->installer_schema->project_installed === "pending") {
@@ -290,9 +293,14 @@ class InstallerValidator extends SystemDirectory {
 
     protected function developerCustomRoutes(): array
     {
-        $developer_routes_file = $this->setting_dir . DIRECTORY_SEPARATOR . '/custom/routes.yml';
-        if (file_exists($developer_routes_file)) {
-            return Yaml::parseFile($developer_routes_file);
+        $views_routes = $this->setting_dir . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'views-routes.yml';
+        $general_routes = $this->setting_dir . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'general'.DIRECTORY_SEPARATOR.'general-routes.yml';
+        //TODO: read all modules routes.
+        if (file_exists($views_routes)) {
+            return Yaml::parseFile($views_routes) ?? [];
+        }
+        if (file_exists($general_routes)) {
+            return Yaml::parseFile($general_routes) ?? [];
         }
         return [];
     }

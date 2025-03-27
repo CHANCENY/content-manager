@@ -1,0 +1,279 @@
+{% extends 'default.view.admin_base' %}
+
+{% block body %}
+
+    <div class="db-form-container">
+        <h2>View {{ view.name }} Display</h2>
+        <div class="db-views-container">
+            <a href="#" id="add-display">+ add display</a>
+        </div>
+
+        <div class="tabs">
+            {% for index, display in view.displays %}
+                {% if index == 0 %}
+                    <div class="tab active" onclick="showTab('{{ display.display_name }}')">{{ display.name }}</div>
+                {% else %}
+                    <div class="tab" onclick="showTab('{{ display.display_name }}')">{{ display.name }}</div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        {% for index, display in view.displays %}
+            {% if index == 0 %}
+                <div id="{{ display.display_name }}" class="tab-content active">
+                    <div class="mb-lg-5">
+                        <div class="display">
+                            <div class="title">Display name: <strong>{{ display.name }}</strong></div>
+
+                            <div class="section">
+                                <div class="section-title">TITLE</div>
+                                <div><em>Title: {{ display.name }}</em></div>
+                            </div>
+
+                            <div class="section">
+                                <div class="section-title">
+                                    <span>FIELDS</span>
+                                    <span><a href="#fields-{{ display.display_name }}" style="text-align: end; float: right;" id="add-field">+ Add Field</a></span>
+                                </div>
+                                <ul class="list" id="fields">
+                                    {% for fields in display.fields %}
+                                        {% for field in fields %}
+                                            {% set field_data = get_content_type_field(field.content_type, field.field) %}
+                                            {% set type = get_content_type(field.content_type) %}
+                                            <li class="list-item" data-field="fields|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}">{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            <div class="section">
+                                <div class="section-title">
+                                    <span>FILTER CRITERIA</span>
+                                    <span><a href="#filter_criteria-{{ display.display_name }}" style="text-align: end; float: right;" id="add-field-filter">+ Add Field</a></span>
+                                </div>
+                                <ul class="list" id="filter_criteria">
+                                    {% for index, fields in display.filter_criteria %}
+                                        {% for field in fields %}
+                                            {% set field_data = get_content_type_field(field.content_type, field.field) %}
+                                            {% set type = get_content_type(field.content_type) %}
+                                            <li class="list-item" data-field="filter_criteria|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}">{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            <div class="section">
+                                <div class="section-title">
+                                    <span>SORT CRITERIA</span>
+                                    <span><a href="#sort_criteria-{{ display.display_name }}" style="text-align: end; float: right;" id="add-field-sort">+ Add Field</a></span>
+                                </div>
+                                <ul class="list" id="sort_criteria">
+                                    {% for index, fields in display.sort_criteria %}
+                                        {% for field in fields %}
+                                            {% set field_data = get_content_type_field(field.content_type, field.field) %}
+                                            {% set type = get_content_type(field.content_type) %}
+                                            <li class="list-item" data-field="sort_criteria|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}">{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            <div class="buttons">
+                                <button id="save-change">Save</button>
+                                <button class="cancel">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div id="{{ display.display_name }}" class="tab-content">
+                    <div class="mb-lg-5">
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div id="view-modal" class="modal">
+        <div class="modal-content">
+            <span id="close" class="close float-end">&times;</span>
+            <div class="modal-header">Add New Display</div>
+            <div>
+                <form method="post" class="form">
+                    <div class="form-group">
+                        <label for="display_name">Display Name</label>
+                        <input type="text" class="form-control" id="display_name" required name="display_name" placeholder="Display Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="display_url">Display Url</label>
+                        <input type="text" class="form-control" id="display_url" required name="display_url" placeholder="Display URL">
+                        <span class="field-description">Given placeholder eg "/article/[id:int]" or "article/[title:string]/read" or "/articles"</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="response_type">Response Type</label>
+                        <select name="response_type" id="response_type" class="form-control">
+                            <option value="text/html">Document Html</option>
+                            <option value="application/json">Application Json</option>
+                            <option value="application/yml">Application Yaml</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" class="btn btn-primary" name="submit-new-display" value="Save Display">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-field-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-field" class="close float-end">&times;</span>
+            <div class="modal-header">Fields</div>
+            <div>
+                <form method="post" class="form">
+                    <div class="form-group">
+                        <label for="response_type">Content Type Fields</label>
+                        <select onchange="addField(this)" name="view_field" id="view_field" class="form-control">
+                            <option value="">Select</option>
+                            <option value="node|title">Node: Title</option>
+                            <option value="node|created">Node: Created At</option>
+                            <option value="node|updated">Node: Updated At</option>
+                            <option value="node|status">Node: Status</option>
+                            {% for index, field in fields %}
+                                <option value="{{ index }}">{{ field }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="hidden" name="view" value="{{ view.machine_name }}">
+                    </div>
+                    <div class="form-group">
+                        <input id="add-field-btn" type="submit" class="btn btn-primary" name="add-field" value="Save Field">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+
+        document.addEventListener('DOMContentLoaded', ()=>{
+            init();
+        });
+
+        function init() {
+            let active_display = document.querySelector('.tab-content.active');
+
+            console.log(active_display);
+
+            if (active_display) {
+                window.modal(active_display.querySelector('#view-modal'),active_display.querySelector('#add-display'),active_display.querySelector('#close'))
+                window.modal(active_display.querySelector('#add-field-modal'),active_display.querySelector('#add-field'),active_display.querySelector('#close-field'))
+
+                window.modal(active_display.querySelector('#add-field-modal'),active_display.querySelector('#add-field-filter'),active_display.querySelector('#close-field'))
+                window.modal(active_display.querySelector('#add-field-modal'),active_display.querySelector('#add-field-sort'),active_display.querySelector('#close-field'))
+            }
+
+            if (active_display) {
+                new Sortable(active_display.querySelector('#fields'), {
+                    animation: 150,
+                    ghostClass: 'blue-background-class'
+                });
+
+                new Sortable(active_display.querySelector('#filter_criteria'), {
+                    animation: 150,
+                    ghostClass: 'blue-background-class'
+                });
+
+                new Sortable(active_display.querySelector('#filter_criteria'), {
+                    animation: 150,
+                    ghostClass: 'blue-background-class'
+                });
+            }
+
+            let data = {};
+
+            function addField(e) {
+                const value = e.value;
+                if (value.length > 0) {
+                    const type = window.location.hash.substring(1);
+                    const list_v = value.split('|');
+                    const list = type.split('-');
+                    const form_data = new FormData(e.parentElement.parentElement);
+                    data = {
+                        field: list_v[1],
+                        type: list[0],
+                        view: form_data.get('view'),
+                        display: list[1],
+                        content_type: list_v[0],
+                    };
+                }
+            }
+
+            const send = async (data) => {
+                const requestOptions = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                };
+
+                const response = await fetch(window.location.href, requestOptions);
+                const result = await response.json();
+                console.log(result);
+                if (result.hasOwnProperty('result') && result.result === true) {
+                    window.location.reload();
+                }
+            }
+
+            if (active_display) {
+
+                if (active_display.querySelector('#add-field-btn')) {
+                    active_display.querySelector('#add-field-btn').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        send(data);
+                    })
+                }
+
+                if (active_display.querySelector('#save-change')) {
+                    active_display.querySelector('#save-change').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const list = Array.from(active_display.querySelectorAll('.list-item')).map((item) => {
+                            return item.dataset.field;
+                        });
+
+                        if (list.length > 0) {
+                            const reorder_changes = {};
+                            list.forEach((item)=>{
+                                const line = item.split('|');
+                                if (reorder_changes.hasOwnProperty(line[0])) {
+                                    reorder_changes[line[0]].push({
+                                        content_type: line[1],
+                                        field: line[2],
+                                    });
+                                }
+                                else {
+                                    reorder_changes[line[0]] = [];
+                                    reorder_changes[line[0]].push(
+                                        {
+                                            content_type: line[1],
+                                            field: line[2],
+                                        }
+                                    );
+                                }
+                            });
+                            send({
+                                reorder: reorder_changes,
+                                display: active_display.id
+                            });
+                        }
+                    })
+                }
+            }
+        }
+
+    </script>
+
+
+
+{% endblock %}
