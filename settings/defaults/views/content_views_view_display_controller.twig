@@ -40,7 +40,11 @@
                                         {% for field in fields %}
                                             {% set field_data = get_content_type_field(field.content_type, field.field) %}
                                             {% set type = get_content_type(field.content_type) %}
-                                            <li class="list-item" data-field="fields|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}">{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</li>
+                                            <li class="list-item" data-field="fields|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}">
+                                                <span>{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</span>
+                                                <span><strong>Display position:</strong> {{ field.weight }}</span>
+                                                <span><a href="#">remove</a></span>
+                                            </li>
                                         {% endfor %}
                                     {% endfor %}
                                 </ul>
@@ -133,7 +137,7 @@
                 <form method="post" class="form">
                     <div class="form-group">
                         <label for="response_type">Content Type Fields</label>
-                        <select onchange="addField(this)" name="view_field" id="view_field" class="form-control">
+                        <select name="view_field" id="view_field" class="form-control">
                             <option value="">Select</option>
                             <option value="node|title">Node: Title</option>
                             <option value="node|created">Node: Created At</option>
@@ -163,14 +167,16 @@
         function init() {
             let active_display = document.querySelector('.tab-content.active');
 
-            console.log(active_display);
-
             if (active_display) {
-                window.modal(active_display.querySelector('#view-modal'),active_display.querySelector('#add-display'),active_display.querySelector('#close'))
-                window.modal(active_display.querySelector('#add-field-modal'),active_display.querySelector('#add-field'),active_display.querySelector('#close-field'))
+                window.modal(document.querySelector('#view-modal'),active_display.querySelector('#add-display'),document.querySelector('#close'))
+                window.modal(document.querySelector('#add-field-modal'),active_display.querySelector('#add-field'),document.querySelector('#close-field'))
 
-                window.modal(active_display.querySelector('#add-field-modal'),active_display.querySelector('#add-field-filter'),active_display.querySelector('#close-field'))
-                window.modal(active_display.querySelector('#add-field-modal'),active_display.querySelector('#add-field-sort'),active_display.querySelector('#close-field'))
+                window.modal(document.querySelector('#add-field-modal'),active_display.querySelector('#add-field-filter'),document.querySelector('#close-field'))
+                window.modal(document.querySelector('#add-field-modal'),active_display.querySelector('#add-field-sort'),document.querySelector('#close-field'));
+
+                if (document.querySelector('#view_field')) {
+                    document.querySelector('#view_field').addEventListener('change',(e)=>addField(e.target));
+                }
             }
 
             if (active_display) {
@@ -222,14 +228,13 @@
                 const result = await response.json();
                 console.log(result);
                 if (result.hasOwnProperty('result') && result.result === true) {
-                    window.location.reload();
+                   window.location.reload();
                 }
             }
 
             if (active_display) {
-
-                if (active_display.querySelector('#add-field-btn')) {
-                    active_display.querySelector('#add-field-btn').addEventListener('click', (e) => {
+                if (document.querySelector('#add-field-btn')) {
+                    document.querySelector('#add-field-btn').addEventListener('click', (e) => {
                         e.preventDefault();
                         send(data);
                     })
@@ -269,6 +274,8 @@
                         }
                     })
                 }
+
+
             }
         }
 

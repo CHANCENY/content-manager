@@ -866,6 +866,7 @@ class SystemController
         if (!empty($content_field) && !isset($content_field['reorder'])) {
             $display = ViewsManager::viewsManager()->getDisplay($content_field['display']);
             $fields = $display[$content_field['type']] ?? [];
+            $content_field['weight'] = count($fields) + 1;
             $fields[$content_field['content_type']][$content_field['field']] = $content_field;
             $display[$content_field['type']] = $fields;
             $result = ViewsManager::viewsManager()->addFieldDisplay($content_field['display'], $display);

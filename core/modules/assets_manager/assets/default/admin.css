@@ -629,3 +629,8 @@ button.cancel {
 .display {
     width: 50%;
 }
+.display .list-item {
+    display: inline-flex;
+    width: 100%;
+    justify-content: space-between;
+}
