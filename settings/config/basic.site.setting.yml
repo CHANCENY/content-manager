@@ -1,5 +1,5 @@
 site:
-    site_name: Barkdale
+    site_name: 'Simple CMS'
     site_slogan: 'this is chance cms'
     site_email: test@articlepulsehub.com
 front_page:
