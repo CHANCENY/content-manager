@@ -23,4 +23,53 @@ class Route
         $this->access = $route_data['access'] ?? [];
     }
 
+    public function getRouteId(): string
+    {
+        return $this->route_id;
+    }
+
+    public function getRouteTitle(): string
+    {
+        return $this->route_title;
+    }
+
+    public function getRoutePath(): string
+    {
+        return $this->route_path;
+    }
+
+    public function getMethod(): array
+    {
+        return $this->method;
+    }
+
+    public function getController(): string
+    {
+        return $this->controller;
+    }
+
+    public function getControllerMethod(): string
+    {
+        return $this->controller_method;
+    }
+
+    public function getAccess(): array
+    {
+        return $this->access;
+    }
+
+    public function __get(string $name)
+    {
+        return match ($name) {
+            'access' => $this->access,
+            'controller', 'class' => $this->controller,
+            'controller_method' => $this->controller_method,
+            'method', 'methods' => $this->method,
+            'route_id', 'id' => $this->route_id,
+            'route_title', 'title' => $this->route_title,
+            'route_path', 'path' => $this->route_path,
+            default => null,
+        };
+    }
+
 }

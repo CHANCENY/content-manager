@@ -27,7 +27,7 @@
 
                             <div class="section">
                                 <div class="section-title">TITLE</div>
-                                <div><em>Title: {{ display.name }}</em></div>
+                                <div><em>Title: {{ display.name }}</em> ({{ route_by_name(display.display_name).getRoutePath|default('none') }})</div>
                             </div>
 
                             <div class="section">
@@ -36,16 +36,17 @@
                                     <span><a href="#fields-{{ display.display_name }}" style="text-align: end; float: right;" id="add-field">+ Add Field</a></span>
                                 </div>
                                 <ul class="list" id="fields">
-                                    {% for fields in display.fields %}
-                                        {% for field in fields %}
-                                            {% set field_data = get_content_type_field(field.content_type, field.field) %}
-                                            {% set type = get_content_type(field.content_type) %}
-                                            <li class="list-item" data-field="fields|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}">
-                                                <span>{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</span>
-                                                <span><strong>Display position:</strong> {{ field.weight }}</span>
-                                                <span><a href="#">remove</a></span>
-                                            </li>
-                                        {% endfor %}
+                                    {% for field in display.fields %}
+                                        {% set field_data = get_content_type_field(field.content_type, field.field) %}
+                                        {% set type = get_content_type(field.content_type) %}
+                                        <li class="list-item"
+                                            data-field="fields|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
+                                            data-field_all="{{ field_data|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                            data-display="{{ field|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                            data-view="{{ view|json_encode(constant('JSON_PRETTY_PRINT')) }}">
+                                            <span>{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</span>
+                                            <span><a href="#">remove</a></span>
+                                        </li>
                                     {% endfor %}
                                 </ul>
                             </div>
@@ -56,12 +57,17 @@
                                     <span><a href="#filter_criteria-{{ display.display_name }}" style="text-align: end; float: right;" id="add-field-filter">+ Add Field</a></span>
                                 </div>
                                 <ul class="list" id="filter_criteria">
-                                    {% for index, fields in display.filter_criteria %}
-                                        {% for field in fields %}
-                                            {% set field_data = get_content_type_field(field.content_type, field.field) %}
-                                            {% set type = get_content_type(field.content_type) %}
-                                            <li class="list-item" data-field="filter_criteria|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}">{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</li>
-                                        {% endfor %}
+                                    {% for field in display.filter_criteria %}
+                                        {% set field_data = get_content_type_field(field.content_type, field.field) %}
+                                        {% set type = get_content_type(field.content_type) %}
+                                        <li class="list-item"
+                                            data-field="fields|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
+                                            data-field_all="{{ field_data|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                            data-display="{{ field|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                            data-view="{{ view|json_encode(constant('JSON_PRETTY_PRINT')) }}">
+                                            <span>{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</span>
+                                            <span><a href="#">remove</a></span>
+                                        </li>
                                     {% endfor %}
                                 </ul>
                             </div>
@@ -72,12 +78,17 @@
                                     <span><a href="#sort_criteria-{{ display.display_name }}" style="text-align: end; float: right;" id="add-field-sort">+ Add Field</a></span>
                                 </div>
                                 <ul class="list" id="sort_criteria">
-                                    {% for index, fields in display.sort_criteria %}
-                                        {% for field in fields %}
-                                            {% set field_data = get_content_type_field(field.content_type, field.field) %}
-                                            {% set type = get_content_type(field.content_type) %}
-                                            <li class="list-item" data-field="sort_criteria|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}">{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</li>
-                                        {% endfor %}
+                                    {% for field in display.sort_criteria %}
+                                        {% set field_data = get_content_type_field(field.content_type, field.field) %}
+                                        {% set type = get_content_type(field.content_type) %}
+                                        <li class="list-item"
+                                            data-field="fields|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
+                                            data-field_all="{{ field_data|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                            data-display="{{ field|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                            data-view="{{ view|json_encode(constant('JSON_PRETTY_PRINT')) }}">
+                                            <span>{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</span>
+                                            <span><a href="#">remove</a></span>
+                                        </li>
                                     {% endfor %}
                                 </ul>
                             </div>
@@ -92,6 +103,82 @@
             {% else %}
                 <div id="{{ display.display_name }}" class="tab-content">
                     <div class="mb-lg-5">
+                        <div class="display">
+                            <div class="title">Display name: <strong>{{ display.name }}</strong></div>
+
+                            <div class="section">
+                                <div class="section-title">TITLE</div>
+                                <div><em>Title: {{ display.name }}</em> ({{ route_by_name(display.display_name).getRoutePath|default('none') }})</div>
+                            </div>
+
+                            <div class="section">
+                                <div class="section-title">
+                                    <span>FIELDS</span>
+                                    <span><a href="#fields-{{ display.display_name }}" style="text-align: end; float: right;" id="add-field">+ Add Field</a></span>
+                                </div>
+                                <ul class="list" id="fields">
+                                    {% for field in display.fields %}
+                                        {% set field_data = get_content_type_field(field.content_type, field.field) %}
+                                        {% set type = get_content_type(field.content_type) %}
+                                        <li class="list-item"
+                                            data-field="fields|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
+                                            data-field_all="{{ field_data|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                            data-display="{{ field|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                            data-view="{{ view|json_encode(constant('JSON_PRETTY_PRINT')) }}">
+                                            <span>{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</span>
+                                            <span><a href="#">remove</a></span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            <div class="section">
+                                <div class="section-title">
+                                    <span>FILTER CRITERIA</span>
+                                    <span><a href="#filter_criteria-{{ display.display_name }}" style="text-align: end; float: right;" id="add-field-filter">+ Add Field</a></span>
+                                </div>
+                                <ul class="list" id="filter_criteria">
+                                    {% for field in display.filter_criteria %}
+                                        {% set field_data = get_content_type_field(field.content_type, field.field) %}
+                                        {% set type = get_content_type(field.content_type) %}
+                                        <li class="list-item"
+                                            data-field="fields|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
+                                            data-field_all="{{ field_data|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                            data-display="{{ field|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                            data-view="{{ view|json_encode(constant('JSON_PRETTY_PRINT')) }}">
+                                            <span>{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</span>
+                                            <span><a href="#">remove</a></span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            <div class="section">
+                                <div class="section-title">
+                                    <span>SORT CRITERIA</span>
+                                    <span><a href="#sort_criteria-{{ display.display_name }}" style="text-align: end; float: right;" id="add-field-sort">+ Add Field</a></span>
+                                </div>
+                                <ul class="list" id="sort_criteria">
+                                    {% for field in display.sort_criteria %}
+                                        {% set field_data = get_content_type_field(field.content_type, field.field) %}
+                                        {% set type = get_content_type(field.content_type) %}
+                                        <li class="list-item"
+                                            data-field="fields|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
+                                            data-field_all="{{ field_data|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                            data-display="{{ field|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                            data-view="{{ view|json_encode(constant('JSON_PRETTY_PRINT')) }}">
+                                            <span>{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</span>
+                                            <span><a href="#">remove</a></span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            <div class="buttons">
+                                <button id="save-change">Save</button>
+                                <button class="cancel">Cancel</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             {% endif %}
@@ -139,6 +226,8 @@
                         <label for="response_type">Content Type Fields</label>
                         <select name="view_field" id="view_field" class="form-control">
                             <option value="">Select</option>
+                            <option value="node|nid">Node: ID</option>
+                            <option value="node|uid">Node: Author</option>
                             <option value="node|title">Node: Title</option>
                             <option value="node|created">Node: Created At</option>
                             <option value="node|updated">Node: Updated At</option>
@@ -157,18 +246,44 @@
         </div>
     </div>
 
+    <div id="setting-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-field" class="close float-end">&times;</span>
+            <div class="modal-header">Field</div>
+            <div>
+                <form method="post" class="form">
+                    <div class="form-group">
+                        <input type="hidden" name="view" value="{{ view.machine_name }}">
+                    </div>
+                    <div class="wrapper">
+
+                    </div>
+                    <div class="form-group">
+                        <input id="settings-field-btn" type="submit" class="btn btn-primary" name="settings-field-btn" value="Save Settings">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
-
-
         document.addEventListener('DOMContentLoaded', ()=>{
             init();
+
+            if (document.querySelectorAll('.tab')) {
+                document.querySelectorAll('.tab').forEach((el)=>{
+                    el.addEventListener('click', ()=>{
+                        setTimeout(()=>{ init(); },1500)
+                    });
+                })
+            }
         });
 
         function init() {
             let active_display = document.querySelector('.tab-content.active');
+            window.modal(document.querySelector('#view-modal'),document.querySelector('#add-display'),document.querySelector('#close'))
 
             if (active_display) {
-                window.modal(document.querySelector('#view-modal'),active_display.querySelector('#add-display'),document.querySelector('#close'))
                 window.modal(document.querySelector('#add-field-modal'),active_display.querySelector('#add-field'),document.querySelector('#close-field'))
 
                 window.modal(document.querySelector('#add-field-modal'),active_display.querySelector('#add-field-filter'),document.querySelector('#close-field'))
@@ -248,24 +363,14 @@
                         });
 
                         if (list.length > 0) {
-                            const reorder_changes = {};
+                            const reorder_changes = {
+                                'fields': [],
+                                'sort_criteria': [],
+                                'filter_criteria': [],
+                            };
                             list.forEach((item)=>{
                                 const line = item.split('|');
-                                if (reorder_changes.hasOwnProperty(line[0])) {
-                                    reorder_changes[line[0]].push({
-                                        content_type: line[1],
-                                        field: line[2],
-                                    });
-                                }
-                                else {
-                                    reorder_changes[line[0]] = [];
-                                    reorder_changes[line[0]].push(
-                                        {
-                                            content_type: line[1],
-                                            field: line[2],
-                                        }
-                                    );
-                                }
+                                reorder_changes[line[0]].push(`${ line[1] }|${line[2]}`);
                             });
                             send({
                                 reorder: reorder_changes,
@@ -275,9 +380,228 @@
                     })
                 }
 
+                if (active_display.querySelectorAll('.list-item')) {
+                    Array.from(active_display.querySelectorAll('.list-item')).forEach((item) => {
+                        window.modal(document.querySelector('#setting-modal'),item, document.querySelector('#setting-modal').querySelector('#close-field'));
+                        item.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const modal = document.querySelector('#setting-modal');
+                            modal.querySelector('div > form > .wrapper').innerHTML = '';
+                            const display = JSON.parse(item.dataset.display);
+                            const field_all = JSON.parse(item.dataset.field_all);
+                            const view = JSON.parse(item.dataset.view);
+
+                            const div_group = document.createElement('div');
+                            div_group.classList.add('form-group');
+
+                            if (display.type === 'fields') {
+
+                                const title_modal = (field_all ? field_all.name : display.field);
+                                modal.querySelector('div > .modal-header').textContent = 'Settings for field ' + title_modal;
+                                const exclude = document.createElement('input');
+                                exclude.type = 'checkbox';
+                                exclude.name = 'exclude';
+                                exclude.value = '1';
+
+                                exclude.className = 'form-check-input';
+                                let label = document.createElement('label');
+                                label.innerText = `Exclude field from display`;
+
+                                let clone_group = div_group.cloneNode(true);
+                                clone_group.appendChild(label);
+                                clone_group.appendChild(exclude);
+
+                                modal.querySelector('div > form > .wrapper').appendChild(clone_group);
+
+                                let default_field = document.createElement('input');
+                                default_field.type = 'text';
+                                default_field.name = 'default';
+                                default_field.classList.add('form-control');
+                                label = document.createElement('label');
+                                label.innerText = `Default Value on empty results`;
+                                clone_group = div_group.cloneNode(true);
+                                clone_group.appendChild(label);
+                                clone_group.appendChild(default_field);
+
+                                modal.querySelector('div > form > .wrapper').appendChild(clone_group);
+
+                                default_field = document.createElement('input');
+                                default_field.type = 'text';
+                                default_field.name = 'display_template_field';
+                                default_field.classList.add('form-control');
+                                label = document.createElement('label');
+                                label.innerText = `Display twig template for this field`;
+                                clone_group = div_group.cloneNode(true);
+                                clone_group.appendChild(label);
+                                clone_group.appendChild(default_field);
+
+                                modal.querySelector('div > form > .wrapper').appendChild(clone_group);
+
+                                default_field = document.createElement('input');
+                                default_field.type = 'hidden';
+                                default_field.name = 'target';
+                                default_field.value = 'fields|'+ display.content_type+ '|' + display.field;
+                                clone_group = div_group.cloneNode(true);
+                                clone_group.appendChild(default_field);
+                                modal.querySelector('div > form > .wrapper').appendChild(clone_group);
+
+                                default_field = document.createElement('input');
+                                default_field.type = 'hidden';
+                                default_field.name = 'display_name';
+                                default_field.value = display.display;
+                                clone_group = div_group.cloneNode(true);
+                                clone_group.appendChild(default_field);
+                                modal.querySelector('div > form > .wrapper').appendChild(clone_group);
+                            }
+
+                            else if (display.type === 'filter_criteria') {
+                                const title_modal = (field_all ? field_all.name : display.field);
+                                modal.querySelector('div > .modal-header').textContent = 'Filter Setting ' + title_modal;
+
+                                let select = document.createElement('select');
+                                select.name = 'conjunction';
+                                select.className = 'form-control';
+                                let options = ['AND', 'OR'];
+                                options.forEach((item)=>{
+                                    let option = document.createElement('option');
+                                    option.value = item;
+                                    option.innerText = item;
+                                    select.appendChild(option);
+                                });
+                                let label = document.createElement('label');
+                                label.innerText = `Conjunction operator`;
+
+                                let clone_group = div_group.cloneNode(true);
+                                clone_group.appendChild(label);
+                                clone_group.appendChild(select);
+                                modal.querySelector('div > form > .wrapper').appendChild(clone_group);
+
+                                select = document.createElement('select');
+                                select.name = 'param_name';
+                                select.className = 'form-control';
+                                options = [];
+                                view.displays.forEach((item)=> {
+                                    item.params.forEach((param)=>{
+                                        options.push(param);
+                                    })
+                                });
+                                options.forEach((item)=>{
+                                    let option = document.createElement('option');
+                                    option.value = item;
+                                    option.innerText = item;
+                                    select.appendChild(option);
+                                });
+                                label = document.createElement('label');
+                                label.innerText = `Parameter Placeholder`;
+
+                                clone_group = div_group.cloneNode(true);
+                                clone_group.appendChild(label);
+                                clone_group.appendChild(select);
+                                modal.querySelector('div > form > .wrapper').appendChild(clone_group);
+
+                                let default_field = document.createElement('input');
+                                default_field.type = 'hidden';
+                                default_field.name = 'target';
+                                default_field.value = 'filter_criteria|'+ display.content_type+ '|' + display.field;
+                                clone_group = div_group.cloneNode(true);
+                                clone_group.appendChild(default_field);
+                                modal.querySelector('div > form > .wrapper').appendChild(clone_group);
+
+                                default_field = document.createElement('input');
+                                default_field.type = 'hidden';
+                                default_field.name = 'display_name';
+                                default_field.value = display.display;
+                                clone_group = div_group.cloneNode(true);
+                                clone_group.appendChild(default_field);
+                                modal.querySelector('div > form > .wrapper').appendChild(clone_group);
+                            }
+
+                            else if (display.type === 'sort_criteria') {
+
+                                const title_modal = (field_all ? field_all.name : display.field);
+                                modal.querySelector('div > .modal-header').textContent = 'Order By Setting ' + title_modal;
+
+                                let select = document.createElement('select');
+                                select.name = 'order_in';
+                                select.className = 'form-control';
+                                let options = ['DESC', 'ASC'];
+
+                                options.forEach((item)=>{
+                                    let option = document.createElement('option');
+                                    option.value = item;
+                                    option.innerText = item;
+                                    select.appendChild(option);
+                                });
+                                let label = document.createElement('label');
+                                label.innerText = `Order By`;
+
+                                let clone_group = div_group.cloneNode(true);
+                                clone_group.appendChild(label);
+                                clone_group.appendChild(select);
+                                modal.querySelector('div > form > .wrapper').appendChild(clone_group);
+
+                                let default_field = document.createElement('input');
+                                default_field.type = 'hidden';
+                                default_field.name = 'target';
+                                default_field.value = 'sort_criteria|'+ display.content_type+ '|' + display.field;
+                                clone_group = div_group.cloneNode(true);
+                                clone_group.appendChild(default_field);
+                                modal.querySelector('div > form > .wrapper').appendChild(clone_group);
+
+                                default_field = document.createElement('input');
+                                default_field.type = 'hidden';
+                                default_field.name = 'display_name';
+                                default_field.value = display.display;
+                                clone_group = div_group.cloneNode(true);
+                                clone_group.appendChild(default_field);
+                                modal.querySelector('div > form > .wrapper').appendChild(clone_group);
+                            }
+
+                        })
+                    })
+                }
+
+                if (document.querySelector('#settings-field-btn')) {
+
+                    document.querySelector('#settings-field-btn').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const form =  document.querySelector('#settings-field-btn').parentElement.parentElement;
+                        const form_data = new FormData(form);
+                        let data = {};
+                        const target = form_data.get('target');
+                        data.target = target;
+                        data.display_name = form_data.get('display_name');
+                        const split = target.split('|');
+
+                        if (split[0] === 'filter_criteria') {
+                            data.settings = {
+                                conjunction: form_data.get('conjunction'),
+                                param_name: form_data.get('param_name'),
+                                field: split[2],
+                            };
+                        }
+                        else if (split[0] === 'sort_criteria') {
+                            data.settings = {
+                                order_in: form_data.get('order_in'),
+                                field: split[2],
+                            }
+                        }
+                        else if (split[0] === 'fields') {
+                            data.settings = {
+                                exclude: form_data.get('exclude'),
+                                default: form_data.get('default'),
+                                display_template_field: form_data.get('display_template_field'),
+                            }
+                        }
+
+                        send({type:'settings', data:data})
+                    })
+                }
 
             }
+
         }
+
 
     </script>
 

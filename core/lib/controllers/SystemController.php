@@ -863,11 +863,12 @@ class SystemController
 
         $view_name = $request->get('view_name');
         $content_field = json_decode($request->getContent(), true);
-        if (!empty($content_field) && !isset($content_field['reorder'])) {
+
+        if (!empty($content_field) && !isset($content_field['reorder']) && !isset($content_field['type'])) {
             $display = ViewsManager::viewsManager()->getDisplay($content_field['display']);
             $fields = $display[$content_field['type']] ?? [];
-            $content_field['weight'] = count($fields) + 1;
-            $fields[$content_field['content_type']][$content_field['field']] = $content_field;
+            $key = $content_field['content_type']. "|". $content_field['field'];
+            $fields[$key] = $content_field;
             $display[$content_field['type']] = $fields;
             $result = ViewsManager::viewsManager()->addFieldDisplay($content_field['display'], $display);
             return new JsonResponse(['result'=>$result]);
@@ -878,15 +879,23 @@ class SystemController
             $fields = $data['fields'] ?? [];
             $view_fields = ViewsManager::viewsManager()->getDisplay($content_field['display']);
 
-
-            foreach ($fields as $field) {
-
-            }
-
             uksort($view_fields['fields'], function ($a, $b) use ($fields) {
                 return array_search($a, $fields) - array_search($b, $fields);
             });
-            return new JsonResponse(['all'=>$view_fields, 'new'=> $fields ]);
+            ViewsManager::viewsManager()->addFieldDisplay($content_field['display'], $view_fields);
+            return new JsonResponse([$view_fields,$content_field]);
+        }
+
+        if (!empty($content_field['type']) && $content_field['type'] == 'settings') {
+            $data = $content_field['data'] ?? [];
+            $target = $data['target'] ?? '';
+            if (!empty($target)) {
+                $list = explode('|', $target);
+               $view_fields = ViewsManager::viewsManager()->getDisplay($data['display_name']);
+               $view_fields[$list[0]][$list[1].'|'.end($list)]['settings'] = $data['settings'] ?? [];
+               $result = ViewsManager::viewsManager()->addFieldDisplay($data['display_name'], $view_fields);
+                return new JsonResponse(['result'=>$result]);
+            }
         }
 
         if (empty($view_name)) {
@@ -900,7 +909,6 @@ class SystemController
             if (!empty($data['display_name']) && !empty($data['display_url']) && !empty($data['response_type'])) {
 
                 $view = ViewsManager::viewsManager()->getView($view_name);
-                dump($view);
                 $name = strtolower($data['display_name']);
                 $name = str_replace(' ', '.', $name);
                 $display = [
@@ -913,14 +921,8 @@ class SystemController
                     'permission' => $data['permission'] ?? $view['permission'] ?? [],
                     'display_url' => $data['display_url'],
                     'fields' => [],
-                    'filter_criteria'=> [
-                        'bundle' => $view['content_type'],
-                        'status' => 'Yes'
-                    ],
-                    'sort_criteria' => [
-                        'created' => 'DESC'
-                    ]
-
+                    'filter_criteria'=> [],
+                    'sort_criteria' => []
                 ];
                 $list = explode('/',  $data['display_url']);
                 if (!empty($list)) {

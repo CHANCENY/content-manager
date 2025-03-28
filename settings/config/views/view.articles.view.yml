@@ -5,4 +5,5 @@ permission:
     - administrator
 displays:
     - views.view.articles.view.listing.articles
+    - views.view.articles.view.article
 machine_name: view.articles.view

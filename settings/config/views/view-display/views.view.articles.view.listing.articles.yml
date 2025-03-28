@@ -7,38 +7,47 @@ params: {  }
 permission:
     - administrator
 fields:
-    node:
-        title:
-            field: title
-            type: fields
-            view: view.articles.view
-            display: views.view.articles.view.listing.articles
-            content_type: node
-            weight: 1
-        created:
-            field: created
-            type: fields
-            view: view.articles.view
-            display: views.view.articles.view.listing.articles
-            content_type: node
-            weight: 3
-    content_articles:
-        content_articles_field_content_body:
-            field: content_articles_field_content_body
-            type: fields
-            view: view.articles.view
-            display: views.view.articles.view.listing.articles
-            content_type: content_articles
-            weight: 2
-        content_articles_field_image:
-            field: content_articles_field_image
-            type: fields
-            view: view.articles.view
-            display: views.view.articles.view.listing.articles
-            content_type: content_articles
-            weight: 3
+    node|title:
+        field: title
+        type: fields
+        view: view.articles.view
+        display: views.view.articles.view.listing.articles
+        content_type: node
+    content_articles|content_articles_field_image:
+        field: content_articles_field_image
+        type: fields
+        view: view.articles.view
+        display: views.view.articles.view.listing.articles
+        content_type: content_articles
+    node|created:
+        field: created
+        type: fields
+        view: view.articles.view
+        display: views.view.articles.view.listing.articles
+        content_type: node
+    content_articles|content_articles_field_content_body:
+        field: content_articles_field_content_body
+        type: fields
+        view: view.articles.view
+        display: views.view.articles.view.listing.articles
+        content_type: content_articles
 filter_criteria:
-    bundle: all
-    status: 'Yes'
+    node|status:
+        field: status
+        type: filter_criteria
+        view: view.articles.view
+        display: views.view.articles.view.listing.articles
+        content_type: node
+    node|title:
+        field: title
+        type: filter_criteria
+        view: view.articles.view
+        display: views.view.articles.view.listing.articles
+        content_type: node
 sort_criteria:
-    created: DESC
+    node|created:
+        field: created
+        type: sort_criteria
+        view: view.articles.view
+        display: views.view.articles.view.listing.articles
+        content_type: node
