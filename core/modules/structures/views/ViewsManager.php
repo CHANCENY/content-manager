@@ -11,6 +11,7 @@ class ViewsManager extends SystemDirectory
     protected array $views = [];
     protected string $view = '';
     protected array $pages = [];
+
     public function __construct() {
 
         parent::__construct();
@@ -86,7 +87,7 @@ class ViewsManager extends SystemDirectory
             @mkdir($display_path);
         }
 
-        $display_name = "views.{$view_name}.{$display['display_name']}";
+        $display_name = "views_{$view_name}_{$display['display_name']}";
         $display['display_name'] = $display_name;
         $route_id = "{$display['display_name']}";
 
@@ -105,7 +106,7 @@ class ViewsManager extends SystemDirectory
                 'class' => ViewsController::class,
                 'method' => 'views_entry_controller'
             ],
-            'access' => $display['permission'],
+            'access' => is_array($display['permission']) ? $display['permission'] : [$display['permission']],
         ];
 
         $route_path = $this->setting_dir . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'views-routes.yml';

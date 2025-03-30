@@ -1,5 +1,5 @@
-views.view.articles.view.listing.articles:
-    title: 'Listing Articles'
+views_view_articles_listing_articles_lsting:
+    title: 'Articles Lsting'
     path: /articles
     method:
         - GET
@@ -11,20 +11,4 @@ views.view.articles.view.listing.articles:
     controller:
         class: Simp\Core\lib\controllers\ViewsController
         method: views_entry_controller
-    access:
-        - administrator
-views.view.articles.view.article:
-    title: Article
-    path: '/article/[id:int]'
-    method:
-        - GET
-        - POST
-        - PUT
-        - OPTIONS
-        - DELETE
-        - ANY
-    controller:
-        class: Simp\Core\lib\controllers\ViewsController
-        method: views_entry_controller
-    access:
-        - administrator
+    access: ['administrator']

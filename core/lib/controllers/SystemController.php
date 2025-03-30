@@ -864,7 +864,7 @@ class SystemController
         $view_name = $request->get('view_name');
         $content_field = json_decode($request->getContent(), true);
 
-        if (!empty($content_field) && !isset($content_field['reorder']) && !isset($content_field['type'])) {
+        if (!empty($content_field) && !isset($content_field['reorder']) && !isset($content_field['setting'])) {
             $display = ViewsManager::viewsManager()->getDisplay($content_field['display']);
             $fields = $display[$content_field['type']] ?? [];
             $key = $content_field['content_type']. "|". $content_field['field'];
@@ -886,7 +886,7 @@ class SystemController
             return new JsonResponse([$view_fields,$content_field]);
         }
 
-        if (!empty($content_field['type']) && $content_field['type'] == 'settings') {
+        if (!empty($content_field['setting']) && $content_field['setting'] == 'settings') {
             $data = $content_field['data'] ?? [];
             $target = $data['target'] ?? '';
             if (!empty($target)) {
@@ -910,7 +910,7 @@ class SystemController
 
                 $view = ViewsManager::viewsManager()->getView($view_name);
                 $name = strtolower($data['display_name']);
-                $name = str_replace(' ', '.', $name);
+                $name = str_replace(' ', '_', $name);
                 $display = [
                     'name' => $data['display_name'],
                     'display_name' => $name,

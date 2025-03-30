@@ -1,0 +1,55 @@
+name: 'Articles Lsting'
+display_name: views_view_articles_listing_articles_lsting
+response_type: text/html
+content_type: content_articles
+template: ''
+params: {  }
+permission: administrator
+fields:
+    node|title:
+        field: title
+        type: fields
+        view: view_articles_listing
+        display: views_view_articles_listing_articles_lsting
+        content_type: node
+    node|status:
+        field: status
+        type: fields
+        view: view_articles_listing
+        display: views_view_articles_listing_articles_lsting
+        content_type: node
+    content_articles|content_articles_field_image:
+        field: content_articles_field_image
+        type: fields
+        view: view_articles_listing
+        display: views_view_articles_listing_articles_lsting
+        content_type: content_articles
+    content_articles|content_articles_field_content_body:
+        field: content_articles_field_content_body
+        type: fields
+        view: view_articles_listing
+        display: views_view_articles_listing_articles_lsting
+        content_type: content_articles
+    node|created:
+        field: created
+        type: fields
+        view: view_articles_listing
+        display: views_view_articles_listing_articles_lsting
+        content_type: node
+filter_criteria:
+    node|status:
+        field: status
+        type: filter_criteria
+        view: view_articles_listing
+        display: views_view_articles_listing_articles_lsting
+        content_type: node
+sort_criteria:
+    node|created:
+        field: created
+        type: sort_criteria
+        view: view_articles_listing
+        display: views_view_articles_listing_articles_lsting
+        content_type: node
+        settings:
+            order_in: DESC
+            field: created

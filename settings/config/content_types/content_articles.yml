@@ -1,7 +1,7 @@
 name: Articles
-description: '<p>This is content type</p>'
+description: 'This is articles contents store'
 machine_name: content_articles
-created: '2025-03-25 13:21 PM'
+created: '2025-03-28 17:34 PM'
 fields:
     content_articles_field_content_body:
         type: textarea
@@ -9,9 +9,10 @@ fields:
         required: true
         class:
             - form-control
+            - editor
             - textarea-editor
         default_value: ''
-        id: field-content_body
+        id: field-content
         handler: Simp\Default\TextAreaField
         name: content_articles_field_content_body
         conditions: {  }
@@ -34,17 +35,8 @@ fields:
             allowed_file_types:
                 - 'image/*'
             allowed_file_size: '1000000'
-display_setting:
-    content_articles_field_content_body:
-        display_label: null
-        display_as: p
-        display_enabled: '1'
-    content_articles_field_image:
-        display_label: null
-        display_as: image
-        display_enabled: '1'
-permission:
-    - administrator
+display_setting: {  }
+permission: {  }
 storage:
     - node__content_articles_field_content_body
     - node__content_articles_field_image

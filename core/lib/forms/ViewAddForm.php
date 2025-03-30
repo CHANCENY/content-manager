@@ -191,8 +191,8 @@ class ViewAddForm extends FormBase
             if (empty($view)) {
                 $name = $view_data['name'] ?? '';
                 if (!empty($name)) {
-                    $name = str_replace(' ', '.', $name);
-                    $name = 'view.'.strtolower($name);
+                    $name = str_replace(' ', '_', $name);
+                    $name = 'view_'.strtolower($name);
                 }
             }
             else {

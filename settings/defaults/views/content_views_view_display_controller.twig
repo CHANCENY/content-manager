@@ -160,6 +160,7 @@
                                 </div>
                                 <ul class="list" id="sort_criteria">
                                     {% for field in display.sort_criteria %}
+                                        {{ dump(field) }}
                                         {% set field_data = get_content_type_field(field.content_type, field.field) %}
                                         {% set type = get_content_type(field.content_type) %}
                                         <li class="list-item"
@@ -168,6 +169,7 @@
                                             data-display="{{ field|json_encode(constant('JSON_PRETTY_PRINT')) }}"
                                             data-view="{{ view|json_encode(constant('JSON_PRETTY_PRINT')) }}">
                                             <span>{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</span>
+                                            <span><em>{{ field.settings.order_in }}</em></span>
                                             <span><a href="#">remove</a></span>
                                         </li>
                                     {% endfor %}
@@ -594,7 +596,7 @@
                             }
                         }
 
-                        send({type:'settings', data:data})
+                        send({setting:'settings', data:data})
                     })
                 }
 
