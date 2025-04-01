@@ -148,8 +148,10 @@ class App
 
                     $options = [
                         'access' => $route->access,
-                        'route' => $route
+                        'route' => $route,
+                        'key' => $route_key,
                     ];
+
                     if (count($methods) > 0) {
                         foreach ($methods as $method) {
                             $method_single = strtolower($method);
@@ -172,9 +174,10 @@ class App
                     // TODO: add more options values.
                     $options = [
                        'access'=> $route->access,
-                       'route' => $route
+                       'route' => $route,
+                        'key' => $k,
                     ];
-                   
+
                     if (count($methods) > 0) {
                         foreach ($methods as $method) {
                             $method_single = strtolower($method);

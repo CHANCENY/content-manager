@@ -1,0 +1,34 @@
+name: 'Basic page'
+description: 'this is basic page content'
+machine_name: content_basic_page
+created: '2025-03-31 04:30 AM'
+fields:
+    content_basic_page_field_content:
+        type: textarea
+        label: Content
+        required: true
+        class:
+            - form-control
+            - editor
+        default_value: ''
+        id: field-content
+        handler: Simp\Default\TextAreaField
+        name: content_basic_page_field_content
+        conditions: {  }
+        settings:
+            allowed_file_types:
+                - ''
+            allowed_file_size: ''
+display_setting:
+    content_basic_page_field_content:
+        display_label: null
+        display_as: p
+        display_enabled: '1'
+permission:
+    - administrator
+    - authenticated
+    - manager
+    - content_creator
+    - anonymous
+storage:
+    - node__content_basic_page_field_content

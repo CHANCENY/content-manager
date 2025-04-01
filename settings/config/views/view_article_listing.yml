@@ -1,0 +1,11 @@
+name: 'Article Listing'
+description: 'this is articles page for listing articles.'
+content_type: all
+permission:
+    - administrator
+    - content_creator
+    - manager
+    - authenticated
+displays:
+    - views_view_article_listing_listing_articles
+machine_name: view_article_listing

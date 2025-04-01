@@ -78,6 +78,6 @@ closed: false
 twig_setting:
     debug: true
     cache: false
-    strict_variables: true
+    strict_variables: false
     optimizations: -1
     charset: utf-8

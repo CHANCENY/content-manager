@@ -100,7 +100,6 @@ class ViewsManager extends SystemDirectory
                 'PUT',
                 'OPTIONS',
                 'DELETE',
-                'ANY'
             ],
             'controller' => [
                 'class' => ViewsController::class,
@@ -121,6 +120,7 @@ class ViewsManager extends SystemDirectory
             $old = array_filter($old);
             $view['displays'] = array_values($old);
             $view['displays'][] = $display_name;
+            $view['view'] = $view_name;
             return $this->addView($view_name, $view);
         }
 
@@ -136,7 +136,18 @@ class ViewsManager extends SystemDirectory
         return [];
     }
 
-    public function removeDisplay(string $view, string $name): bool {
+    public function removeDisplay(string $view_name, string $name): bool {
+        $view = $this->getView($view_name);
+        if ($view['displays']) {
+            foreach ($view['displays'] as $key=>$display) {
+                if ($display['display_name'] === $name) {
+                    unset($view['displays'][$key]);
+                }
+            }
+            $this->addView($view_name, $view);
+            $line_file = $this->view. DIRECTORY_SEPARATOR . 'view-display'. DIRECTORY_SEPARATOR.$name. '.yml';
+            return @unlink($line_file);
+        }
         return true;
     }
 

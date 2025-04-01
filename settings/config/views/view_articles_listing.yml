@@ -1,7 +1,0 @@
-name: 'Articles Listing'
-description: 'this is view for listing articles'
-content_type: content_articles
-permission: administrator
-displays:
-    - views_view_articles_listing_articles_lsting
-machine_name: view_articles_listing

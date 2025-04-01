@@ -1,0 +1,48 @@
+name: 'Listing Articles'
+display_name: views_view_article_listing_listing_articles
+view: view_article_listing
+response_type: text/html
+content_type: all
+template: ''
+params: {  }
+permission:
+    - administrator
+    - content_creator
+    - manager
+    - authenticated
+fields:
+    node|title:
+        field: title
+        type: fields
+        view: view_article_listing
+        display: views_view_article_listing_listing_articles
+        content_type: node
+    node|uid:
+        field: uid
+        type: fields
+        view: view_article_listing
+        display: views_view_article_listing_listing_articles
+        content_type: node
+    content_articles|content_articles_field_content_body:
+        field: content_articles_field_content_body
+        type: fields
+        view: view_article_listing
+        display: views_view_article_listing_listing_articles
+        content_type: content_articles
+    content_articles|content_articles_field_article_image:
+        field: content_articles_field_article_image
+        type: fields
+        view: view_article_listing
+        display: views_view_article_listing_listing_articles
+        content_type: content_articles
+filter_criteria: { }
+sort_criteria:
+    node|updated:
+        field: updated
+        type: sort_criteria
+        view: view_article_listing
+        display: views_view_article_listing_listing_articles
+        content_type: node
+        settings:
+            order_in: DESC
+            field: updated

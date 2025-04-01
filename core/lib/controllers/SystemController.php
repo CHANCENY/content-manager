@@ -864,6 +864,14 @@ class SystemController
         $view_name = $request->get('view_name');
         $content_field = json_decode($request->getContent(), true);
 
+        if (!empty($content_field['delete']) && $content_field['delete'] === true) {
+
+            if (!empty($content_field['display_name']) && !empty($view_name)) {
+                $result  = ViewsManager::viewsManager()->removeDisplay($view_name, $content_field['display_name']);
+                return new JsonResponse(['result'=>$result]);
+            }
+        }
+
         if (!empty($content_field) && !isset($content_field['reorder']) && !isset($content_field['setting'])) {
             $display = ViewsManager::viewsManager()->getDisplay($content_field['display']);
             $fields = $display[$content_field['type']] ?? [];
@@ -882,8 +890,8 @@ class SystemController
             uksort($view_fields['fields'], function ($a, $b) use ($fields) {
                 return array_search($a, $fields) - array_search($b, $fields);
             });
-            ViewsManager::viewsManager()->addFieldDisplay($content_field['display'], $view_fields);
-            return new JsonResponse([$view_fields,$content_field]);
+            $result = ViewsManager::viewsManager()->addFieldDisplay($content_field['display'], $view_fields);
+            return new JsonResponse(['result'=>$result]);
         }
 
         if (!empty($content_field['setting']) && $content_field['setting'] == 'settings') {

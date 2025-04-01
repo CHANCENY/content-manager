@@ -1,5 +1,5 @@
-views_view_articles_listing_articles_lsting:
-    title: 'Articles Lsting'
+views_view_article_listing_listing_articles:
+    title: 'Listing Articles'
     path: /articles
     method:
         - GET
@@ -7,8 +7,11 @@ views_view_articles_listing_articles_lsting:
         - PUT
         - OPTIONS
         - DELETE
-        - ANY
     controller:
         class: Simp\Core\lib\controllers\ViewsController
         method: views_entry_controller
-    access: ['administrator']
+    access:
+        - administrator
+        - content_creator
+        - manager
+        - authenticated
