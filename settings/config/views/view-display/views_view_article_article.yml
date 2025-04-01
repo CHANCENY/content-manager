@@ -1,0 +1,41 @@
+name: Article
+display_name: views_view_article_article
+response_type: text/html
+content_type: content_articles
+view: view_article_listing
+template: ''
+params:
+    - id
+permission:
+    - administrator
+fields:
+    content_articles|content_articles_field_content_body:
+        field: content_articles_field_content_body
+        type: fields
+        view: view_article
+        display: views_view_article_article
+        content_type: content_articles
+    content_articles|content_articles_field_article_image:
+        field: content_articles_field_article_image
+        type: fields
+        view: view_article
+        display: views_view_article_article
+        content_type: content_articles
+    node|title:
+        field: title
+        type: fields
+        view: view_article
+        display: views_view_article_article
+        content_type: node
+filter_criteria:
+    node|nid:
+        field: nid
+        type: filter_criteria
+        view: view_article
+        display: views_view_article_article
+        content_type: node
+        settings:
+            conjunction: AND
+            param_name: id
+            field: nid
+sort_criteria: {  }

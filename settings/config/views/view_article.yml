@@ -1,0 +1,9 @@
+name: Article
+description: 'this is article detail page'
+content_type: content_articles
+permission:
+    - administrator
+displays:
+    - views_view_article_article
+machine_name: view_article
+view: view_article

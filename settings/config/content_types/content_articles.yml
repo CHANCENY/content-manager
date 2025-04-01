@@ -35,6 +35,8 @@ fields:
             allowed_file_types:
                 - 'image/*'
             allowed_file_size: '1000000'
+        options:
+            multple: multiple
 display_setting:
     content_articles_field_content_body:
         display_label: null

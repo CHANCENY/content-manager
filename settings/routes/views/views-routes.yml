@@ -15,3 +15,17 @@ views_view_article_listing_listing_articles:
         - content_creator
         - manager
         - authenticated
+views_view_article_article:
+    title: Article
+    path: '/article/[id:int]'
+    method:
+        - GET
+        - POST
+        - PUT
+        - OPTIONS
+        - DELETE
+    controller:
+        class: Simp\Core\lib\controllers\ViewsController
+        method: views_entry_controller
+    access:
+        - administrator

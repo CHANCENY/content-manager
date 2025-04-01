@@ -41,8 +41,9 @@ class ViewsController
             Messager::toast()->addError("Access Denied");
             return new RedirectResponse('/');
         }
-        $query = $display->prepareQuery();
-        dump($query);
+        $display->prepareQuery($request);
+        $display->runDisplayQuery();
+        dump($display);
         return new Response("hello world");
     }
 }
