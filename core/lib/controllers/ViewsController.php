@@ -7,20 +7,31 @@ use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheIOException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
+use Simp\Core\lib\memory\cache\Caching;
+use Simp\Core\lib\themes\View;
 use Simp\Core\modules\messager\Messager;
+use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
+use Simp\Core\modules\structures\content_types\helper\NodeFunction;
 use Simp\Core\modules\structures\views\Display;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 class ViewsController
 {
+    use NodeFunction;
     /**
-     * @throws PhpfastcacheCoreException
+     * @throws RuntimeError
      * @throws PhpfastcacheIOException
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheInvalidArgumentException
+     * @throws LoaderError
+     * @throws SyntaxError
      * @throws PhpfastcacheLogicException
      * @throws PhpfastcacheDriverException
-     * @throws PhpfastcacheInvalidArgumentException
      */
     public function views_entry_controller(...$args): Response|RedirectResponse|JsonResponse
     {
@@ -43,7 +54,44 @@ class ViewsController
         }
         $display->prepareQuery($request);
         $display->runDisplayQuery();
-        dump($display);
-        return new Response("hello world");
+        $display_settings = $display->getDisplay();
+
+        $view_rows = [];
+        foreach ($display_settings['fields'] as $field) {
+            $content_type = $field['content_type'] === 'node' ? null : ContentDefinitionManager::contentDefinitionManager()
+                ->getContentType($field['content_type']);
+
+            if (!empty($content_type)) {
+                $field = self::findField($content_type['fields'], $field['field']);
+            }
+            $view_rows[] = [
+                'name' => $field['name'] ?? $field['field'],
+                'label' => $field['label'] ?? ucfirst($field['field']),
+            ];
+        }
+
+
+        $response_type = $display_settings['response_type'] ?? 'application/json';
+        if ($response_type === 'text/html') {
+
+            $view_template = $display_settings['view'] .'_'. $display_settings['display_name'];
+            if (Caching::init()->has($view_template)) {
+                return new Response(View::view($view_template,['content'=> $display->getViewDisplayResults()]));
+            }
+            return new Response(View::view('default.view.view.results.rows',
+                [
+                    'content'=> $display->getViewDisplayResults(),
+                    'fields' => $view_rows,
+                ]
+            )
+            );
+
+        }
+
+        elseif ($response_type === 'application/json') {
+            return new JsonResponse($display->getRawResults());
+        }
+
+        return new JsonResponse("hellp");
     }
 }

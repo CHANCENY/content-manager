@@ -18,6 +18,7 @@ class Display
     protected array $placeholders = [];
     protected string $view_display_query = '';
     protected array $view_display_results = [];
+    protected array $raw_results = [];
 
     public function __construct(string $display_id)
     {
@@ -134,7 +135,7 @@ class Display
 
             // add sort criteria
             if (!empty($sortCriteria)) {
-                $sort_criteria = " GROUP BY node_data.nid ORDER BY ";
+                $sort_criteria = " ORDER BY ";
                 foreach ($sortCriteria as $key => $details) {
                     $field_name = $details['field'];
                     $table = $details['content_type'] !== 'node' ?"node__$field_name" : 'node_data';
@@ -143,10 +144,7 @@ class Display
                 }
                 $join_statement_line .= " {$sort_criteria}";
             }
-            else {
-                $sort_criteria = " GROUP BY node_data.nid";
-                $join_statement_line .= " {$sort_criteria}";
-            }
+
             return $join_statement_line;
 
         };
@@ -168,10 +166,24 @@ class Display
             }
             $statement->execute();
             $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
-            dump($result);
+            $processed = [];
             foreach ($result as $row) {
-
+                $keys_list = array_keys($row);
+                foreach ($keys_list as $key) {
+                    if (isset($processed[$row['nid']][$key])) {
+                        $new_value = $processed[$row['nid']][$key];
+                        $init_value = is_numeric($row[$key]) ? (int)$row[$key] : $row[$key];
+                        $processed[$row['nid']][$key] =  is_array($new_value)? [...$new_value,$init_value]: [$init_value];
+                        $processed[$row['nid']][$key] = array_unique($processed[$row['nid']][$key]);
+                    }else {
+                        $processed[$row['nid']][$key] = is_numeric($row[$key]) ? (int)$row[$key] : $row[$key];
+                    }
+                }
             }
+
+            $this->raw_results = array_values($processed);
+            $this->view_display_results = array_map(function ($row) { return new ViewDataObject($row); }, array_values($processed));
+
         }
 
     }
@@ -179,5 +191,45 @@ class Display
     public static function display(string $display_id): Display
     {
         return new Display($display_id);
+    }
+
+    public function getDisplay(): array
+    {
+        return $this->display;
+    }
+
+    public function getView(): array
+    {
+        return $this->view;
+    }
+
+    public function getDisplayId(): string
+    {
+        return $this->display_id;
+    }
+
+    public function getPlaceholders(): array
+    {
+        return $this->placeholders;
+    }
+
+    public function getViewDisplayQuery(): string
+    {
+        return $this->view_display_query;
+    }
+
+    public function getViewDisplayResults(): array
+    {
+        return $this->view_display_results;
+    }
+
+    public function getRawResults(): array
+    {
+        return $this->raw_results;
+    }
+
+    public function __toString(): string
+    {
+        return json_encode($this->raw_results);
     }
 }

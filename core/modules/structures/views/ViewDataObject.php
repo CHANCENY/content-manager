@@ -15,4 +15,27 @@ class ViewDataObject
             }
         }
     }
+    public function getData(): array {
+        return $this->data;
+    }
+
+    public function get(string $field_name)
+    {
+        return $this->data[$field_name] ?? null;
+    }
+
+    public function __call(string $name, array $arguments)
+    {
+        return $this->data[$name] ?? null;
+    }
+
+    public function __get(string $name)
+    {
+        return $this->data[$name] ?? null;
+    }
+
+    public function __toString(): string
+    {
+        return json_encode($this->data);
+    }
 }
