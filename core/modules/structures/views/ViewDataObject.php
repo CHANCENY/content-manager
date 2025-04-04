@@ -21,7 +21,15 @@ class ViewDataObject
 
     public function get(string $field_name)
     {
-        return $this->data[$field_name] ?? null;
+        $found = $this->data[$field_name] ?? null;
+        if (empty($found)) {
+            return null;
+        }
+
+        if (is_array($found) && count($found) === 1) {
+            return $found[0];
+        }
+        return $found;
     }
 
     public function __call(string $name, array $arguments)

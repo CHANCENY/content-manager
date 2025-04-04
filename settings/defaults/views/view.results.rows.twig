@@ -6,12 +6,68 @@
         <div class="table-responsive">
             <table class="table table-striped">
                 <thead>
-                  <tr>
-                      <th>#</th>
-                  </tr>
+                <tr>
+                    {% for field in fields %}
+                        <th>{{ field.label }}</th>
+                    {% endfor %}
+                </tr>
                 </thead>
+
+                <tbody>
+                {% for row in content %}
+
+                    <tr>
+                        {% for field in fields %}
+                            {% set results = row.get(field.name) %}
+                            {% set field = get_content_type_field(field.content_type, field.name) %}
+                            {% if results is iterable %}
+                                <td>
+                                    <ul>
+                                        {% for result in results %}
+                                            {% if field %}
+                                                {% if field.type == 'file' %}
+                                                    {% set file = file_uri(result) %}
+                                                   <li>
+                                                       <a href="{{ file }}">{{ file(result).getName }}</a>
+                                                   </li>
+                                                {% else %}
+                                                    <li>{{  result }}</li>
+                                                {% endif %}
+                                            {% else %}
+                                               {{  result|raw }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            {% else %}
+                                <td>
+                                    {% if field %}
+                                        {% if field.type == 'file' %}
+                                            {% set file = file_uri(results) %}
+                                            <a href="{{ file }}">{{ file(results).getName }}</a>
+                                        {% else %}
+                                            {{  results|raw }}
+                                        {% endif %}
+                                    {% else %}
+                                        {{  results|raw }}
+                                    {% endif %}
+                                </td>
+                            {% endif %}
+
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
             </table>
         </div>
+        {% if is_admin %}
+        <div class="row">
+            <div class="mysql-query">
+                <h5>View query</h5>
+                <pre>{{ query|raw }}</pre>
+            </div>
+        </div>
+        {% endif %}
     </div>
 
 {% endblock %}

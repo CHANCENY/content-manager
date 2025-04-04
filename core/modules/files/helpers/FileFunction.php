@@ -47,4 +47,9 @@ class FileFunction
         }
         return '';
     }
+
+    public static function file(int $fid): ?File
+    {
+        return File::load($fid);
+    }
 }

@@ -156,4 +156,20 @@ class ViewsManager extends SystemDirectory
         $display_path = $this->view . DIRECTORY_SEPARATOR . 'view-display'. DIRECTORY_SEPARATOR . $display_name . '.yml';
         return file_put_contents($display_path, Yaml::dump($display, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
     }
+
+    /**
+     * @param string $display_name
+     * @param string $key comprise with content_type_name|field_name
+     * @param string $section this could be fields, sort_criteria, filter_criteria.
+     * @return bool
+     */
+    public function removeDisplayFieldSetting(string $display_name, string $key, string $section): bool
+    {
+        $display = $this->getDisplay($display_name);
+        if (!empty($display[$section][$key])) {
+            unset($display[$section][$key]);
+            return $this->addFieldDisplay($display_name, $display);
+        }
+        return true;
+    }
 }

@@ -864,6 +864,19 @@ class SystemController
         $view_name = $request->get('view_name');
         $content_field = json_decode($request->getContent(), true);
 
+        if (!empty($content_field['delete_field_setting']) && $content_field['delete_field_setting'] === true) {
+            $content_field = $content_field['data'] ?? [];
+            $list = explode('|', $content_field['field']);
+            $section = $list[0] ?? false;
+            $display_name = $content_field['display_name'] ?? false;
+            $key = $list[1].'|'.$list[2];
+
+            if (empty($display_name) || empty($view_name) || empty($key) || empty($section)) {
+                return new JsonResponse(['result'=>false, 'message'=>'Invalid parameters.']);
+            }
+            $result = ViewsManager::viewsManager()->removeDisplayFieldSetting($display_name,$key,$section);
+            return new JsonResponse(['result'=>$result, 'message'=>'Display field setting removed.']);
+        }
         if (!empty($content_field['delete']) && $content_field['delete'] === true) {
 
             if (!empty($content_field['display_name']) && !empty($view_name)) {

@@ -35,14 +35,5 @@ fields:
         view: view_article_listing
         display: views_view_article_listing_listing_articles
         content_type: content_articles
-filter_criteria: { }
-sort_criteria:
-    node|updated:
-        field: updated
-        type: sort_criteria
-        view: view_article_listing
-        display: views_view_article_listing_listing_articles
-        content_type: node
-        settings:
-            order_in: DESC
-            field: updated
+filter_criteria: {  }
+sort_criteria: {  }

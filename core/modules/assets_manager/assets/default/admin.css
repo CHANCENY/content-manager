@@ -634,3 +634,29 @@ button.cancel {
     width: 100%;
     justify-content: space-between;
 }
+.mysql-query pre {
+    background-color: #272822; /* Dark background for contrast */
+    color: #f8f8f2; /* Light text color */
+    padding: 10px;
+    border-radius: 5px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 14px;
+    white-space: pre-wrap; /* Allow wrapping for better visibility */
+    overflow-x: auto; /* Scroll horizontally if needed */
+    border-left: 5px solid #f92672; /* Highlight border for style */
+}
+
+/* Syntax highlighting for MySQL keywords */
+.mysql-query pre .keyword {
+    color: #f92672; /* Red for keywords like SELECT, INSERT, etc. */
+    font-weight: bold;
+}
+.mysql-query pre .string {
+    color: #e6db74; /* Yellow for string literals */
+}
+.mysql-query pre .number {
+    color: #ae81ff; /* Purple for numbers */
+}
+.mysql-query pre .comment {
+    color: #75715e; /* Gray for comments */
+}

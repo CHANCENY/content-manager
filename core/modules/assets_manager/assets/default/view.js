@@ -79,6 +79,7 @@ function init() {
     }
 
     if (active_display) {
+
         if (document.querySelector('#add-field-btn')) {
             document.querySelector('#add-field-btn').addEventListener('click', (e) => {
                 e.preventDefault();
@@ -89,7 +90,7 @@ function init() {
         if (active_display.querySelector('#save-change')) {
             active_display.querySelector('#save-change').addEventListener('click', (e) => {
                 e.preventDefault();
-                const list = Array.from(active_display.querySelectorAll('.list-item')).map((item) => {
+                const list = Array.from(active_display.querySelectorAll('.list-item > .configure')).map((item) => {
                     return item.dataset.field;
                 });
 
@@ -111,8 +112,8 @@ function init() {
             })
         }
 
-        if (active_display.querySelectorAll('.list-item')) {
-            Array.from(active_display.querySelectorAll('.list-item')).forEach((item) => {
+        if (active_display.querySelectorAll('.list-item > .configure')) {
+            Array.from(active_display.querySelectorAll('.list-item > .configure')).forEach((item) => {
                 window.modal(document.querySelector('#setting-modal'),item, document.querySelector('#setting-modal').querySelector('#close-field'));
                 item.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -340,6 +341,22 @@ function init() {
                 send({delete: true, display_name: display_name});
             }
         });
+    }
+
+    if (active_display.querySelectorAll('.remove')) {
+        Array.from(active_display.querySelectorAll('.remove')).forEach((item)=>{
+            item.addEventListener('click', (e)=>{
+                e.preventDefault();
+                const field = item.parentElement.parentElement.dataset.field;
+                const display =JSON.parse( item.parentElement.parentElement.dataset.display).display;
+                const data = {
+                    field: field,
+                    display_name: display,
+                }
+
+                send({delete_field_setting: true, data});
+            })
+        })
     }
 
 }

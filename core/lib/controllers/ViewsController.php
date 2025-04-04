@@ -13,6 +13,7 @@ use Simp\Core\modules\messager\Messager;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
 use Simp\Core\modules\structures\content_types\helper\NodeFunction;
 use Simp\Core\modules\structures\views\Display;
+use Simp\Core\modules\user\current_user\CurrentUser;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -61,15 +62,19 @@ class ViewsController
             $content_type = $field['content_type'] === 'node' ? null : ContentDefinitionManager::contentDefinitionManager()
                 ->getContentType($field['content_type']);
 
+            $type = $field['content_type'];
+
             if (!empty($content_type)) {
                 $field = self::findField($content_type['fields'], $field['field']);
             }
             $view_rows[] = [
                 'name' => $field['name'] ?? $field['field'],
                 'label' => $field['label'] ?? ucfirst($field['field']),
+                'content_type' => $type,
             ];
         }
 
+        rsort($view_rows);
 
         $response_type = $display_settings['response_type'] ?? 'application/json';
         if ($response_type === 'text/html') {
@@ -82,6 +87,8 @@ class ViewsController
                 [
                     'content'=> $display->getViewDisplayResults(),
                     'fields' => $view_rows,
+                    'is_admin' => CurrentUser::currentUser()?->isIsAdmin(),
+                    'query' => $display->getViewDisplayQuery()
                 ]
             )
             );

@@ -45,7 +45,14 @@
                                             data-display="{{ field|json_encode(constant('JSON_PRETTY_PRINT')) }}"
                                             data-view="{{ view|json_encode(constant('JSON_PRETTY_PRINT')) }}">
                                             <span>{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</span>
-                                            <span><a href="#">remove</a></span>
+                                            <a href="#" class="configure"
+                                               data-field="fields|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
+                                               data-field_all="{{ field_data|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                               data-display="{{ field|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                               data-view="{{ view|json_encode(constant('JSON_PRETTY_PRINT')) }}">
+                                                configure
+                                            </a>
+                                            <span><a href="#" class="remove">remove</a></span>
                                         </li>
                                     {% endfor %}
                                 </ul>
@@ -61,12 +68,20 @@
                                         {% set field_data = get_content_type_field(field.content_type, field.field) %}
                                         {% set type = get_content_type(field.content_type) %}
                                         <li class="list-item"
-                                            data-field="fields|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
+                                            data-field="filter_criteria|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
                                             data-field_all="{{ field_data|json_encode(constant('JSON_PRETTY_PRINT')) }}"
                                             data-display="{{ field|json_encode(constant('JSON_PRETTY_PRINT')) }}"
                                             data-view="{{ view|json_encode(constant('JSON_PRETTY_PRINT')) }}">
                                             <span>{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</span>
-                                            <span><a href="#">remove</a></span>
+
+                                            <a href="#" class="configure"
+                                               data-field="filter_criteria|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
+                                               data-field_all="{{ field_data|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                               data-display="{{ field|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                               data-view="{{ view|json_encode(constant('JSON_PRETTY_PRINT')) }}">configure</a>
+
+                                            <span><em> Conjunction operator: {{ field.settings.conjunction }} Parameter Name: {{ field.settings.param_name }}</em></span>
+                                            <span><a href="#" class="remove">remove</a></span>
                                         </li>
                                     {% endfor %}
                                 </ul>
@@ -82,12 +97,20 @@
                                         {% set field_data = get_content_type_field(field.content_type, field.field) %}
                                         {% set type = get_content_type(field.content_type) %}
                                         <li class="list-item"
-                                            data-field="fields|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
+                                            data-field="sort_criteria|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
                                             data-field_all="{{ field_data|json_encode(constant('JSON_PRETTY_PRINT')) }}"
                                             data-display="{{ field|json_encode(constant('JSON_PRETTY_PRINT')) }}"
                                             data-view="{{ view|json_encode(constant('JSON_PRETTY_PRINT')) }}">
                                             <span>{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</span>
-                                            <span><a href="#">remove</a></span>
+
+                                            <a href="#" class="configure"
+                                               data-field="sort_criteria|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
+                                               data-field_all="{{ field_data|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                               data-display="{{ field|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                               data-view="{{ view|json_encode(constant('JSON_PRETTY_PRINT')) }}">configure</a>
+
+                                            <span><em>{{ field.settings.order_in }}</em></span>
+                                            <span><a href="#" class="remove">remove</a></span>
                                         </li>
                                     {% endfor %}
                                 </ul>
@@ -126,7 +149,14 @@
                                             data-display="{{ field|json_encode(constant('JSON_PRETTY_PRINT')) }}"
                                             data-view="{{ view|json_encode(constant('JSON_PRETTY_PRINT')) }}">
                                             <span>{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</span>
-                                            <span><a href="#">remove</a></span>
+
+                                            <a href="#" class="configure"
+                                               data-field="fields|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
+                                               data-field_all="{{ field_data|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                               data-display="{{ field|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                               data-view="{{ view|json_encode(constant('JSON_PRETTY_PRINT')) }}">configure</a>
+
+                                            <span><a href="#" class="remove">remove</a></span>
                                         </li>
                                     {% endfor %}
                                 </ul>
@@ -142,12 +172,20 @@
                                         {% set field_data = get_content_type_field(field.content_type, field.field) %}
                                         {% set type = get_content_type(field.content_type) %}
                                         <li class="list-item"
-                                            data-field="fields|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
+                                            data-field="filter_criteria|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
                                             data-field_all="{{ field_data|json_encode(constant('JSON_PRETTY_PRINT')) }}"
                                             data-display="{{ field|json_encode(constant('JSON_PRETTY_PRINT')) }}"
                                             data-view="{{ view|json_encode(constant('JSON_PRETTY_PRINT')) }}">
                                             <span>{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</span>
-                                            <span><a href="#">remove</a></span>
+
+                                            <a href="#" class="configure"
+                                               data-field="filter_criteria|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
+                                               data-field_all="{{ field_data|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                               data-display="{{ field|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                               data-view="{{ view|json_encode(constant('JSON_PRETTY_PRINT')) }}">configure</a>
+
+                                            <span><em> Conjunction operator: {{ field.settings.conjunction }} Parameter Name: {{ field.settings.param_name }}</em></span>
+                                            <span><a href="#" class="remove">remove</a></span>
                                         </li>
                                     {% endfor %}
                                 </ul>
@@ -163,12 +201,20 @@
                                         {% set field_data = get_content_type_field(field.content_type, field.field) %}
                                         {% set type = get_content_type(field.content_type) %}
                                         <li class="list-item"
-                                            data-field="fields|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
+                                            data-field="sort_criteria|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
                                             data-field_all="{{ field_data|json_encode(constant('JSON_PRETTY_PRINT')) }}"
                                             data-display="{{ field|json_encode(constant('JSON_PRETTY_PRINT')) }}"
                                             data-view="{{ view|json_encode(constant('JSON_PRETTY_PRINT')) }}">
                                             <span>{{ type.name|default(field.content_type) }}: {{ field_data.label|default(field.field) }}</span>
-                                            <span><a href="#">remove</a></span>
+
+                                            <a href="#" class="configure"
+                                               data-field="sort_criteria|{{ type.machine_name|default(field.content_type) }}|{{ field_data.name|default(field.field) }}"
+                                               data-field_all="{{ field_data|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                               data-display="{{ field|json_encode(constant('JSON_PRETTY_PRINT')) }}"
+                                               data-view="{{ view|json_encode(constant('JSON_PRETTY_PRINT')) }}">configure</a>
+
+                                            <span><em>{{ field.settings.order_in }}</em></span>
+                                            <span><a href="#" class="remove">remove</a></span>
                                         </li>
                                     {% endfor %}
                                 </ul>
