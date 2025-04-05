@@ -158,9 +158,12 @@ function user(array $options): void
         global $system;
         global $terminal_colors;
 
-        echo "You can search using email, uid, name".PHP_EOL;
-        $uid = readline("\nSearch User: ");
-        exit(1);
+        while (true) {
+            echo "You can search using email, uid, name".PHP_EOL;
+            $input = readline("\nSearch User: ");
+        }
+
+        return;
     };
 
     $found();
