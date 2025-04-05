@@ -28,9 +28,6 @@ database_installed_steps:
         die: false
 filesystem_installed_steps:
     directories:
-        - 'var://routing'
-        - 'var://form-build'
-        - 'var://content-types'
         - 'var://services'
         - 'var://sessions'
         - 'var://cache'
@@ -78,6 +75,6 @@ closed: false
 twig_setting:
     debug: true
     cache: false
-    strict_variables: false
+    strict_variables: true
     optimizations: -1
     charset: utf-8

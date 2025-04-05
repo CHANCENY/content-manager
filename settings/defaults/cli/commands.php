@@ -21,78 +21,153 @@ use Simp\Core\lib\installation\SystemDirectory;
 use Symfony\Component\Yaml\Yaml;
 
 global $system;
+global $terminal_colors;
+$terminal_colors = [
+    'black' => '0;30',
+    'red' => '0;31',
+    'green' => '0;32',
+    'yellow' => '0;33',
+    'blue' => '0;34',
+    'magenta' => '0;35',
+    'cyan' => '0;36',
+    'white' => '0;37',
+    'bold_black' => '1;30',
+    'bold_red' => '1;31',
+    'bold_green' => '1;32',
+    'bold_yellow' => '1;33',
+    'bold_blue' => '1;34',
+    'bold_magenta' => '1;35',
+    'bold_cyan' => '1;36',
+    'bold_white' => '1;37',
+];
+
 $system = new SystemDirectory();
 
-/**
- * @throws PhpfastcacheExtensionNotInstalledException
- * @throws PhpfastcacheDriverCheckException
- * @throws PhpfastcacheCoreException
- * @throws PhpfastcacheInvalidTypeException
- * @throws PhpfastcacheDriverNotFoundException
- * @throws PhpfastcacheDriverException
- * @throws PhpfastcacheInvalidArgumentException
- * @throws PhpfastcacheInvalidConfigurationException
- * @throws PhpfastcacheLogicException
- * @throws Exception
- */
-function cache_clear(): void
+function cache_clear(array $options): void
 {
     global $system;
-    global $manifest_file;
+    global $terminal_colors;
 
-    $manifest_file = $system->schema_dir . DIRECTORY_SEPARATOR . 'manifest.yml';
-    $schema = file_exists($manifest_file) ? Yaml::parseFile($manifest_file, Yaml::PARSE_OBJECT_FOR_MAP) : [];
+    if (count($options) !== 1) {
 
-    /**
-     * filesystem_installed
-     * session_installed
-     * caching_installed
-     * database_installed
-     * project_installed
-     * theme_installed
-     *
-     * finished
-     * project_cached
-     * route_cached
-     * service_cached
-     * setting_cached
-     * default_loaded
-     * closed
-     */
+        echo "\033[" . $terminal_colors['red'] . "m exact one option is required" . PHP_EOL;
+        echo PHP_EOL;
+        echo "--option first expected values eg 
+        --clear,
+        --cache,
+        --session,
+        --twig
+        --services
+        --routing
+        --forms
+        --logs
+        --db-logs
+        " .PHP_EOL.PHP_EOL;
+        echo "\033[0m";
+        return;
+    }
 
-    if (!empty($schema->filesystem_installed)) {
-        $refresh_schema = $system->schema_dir . DIRECTORY_SEPARATOR . 'refresh.yml';
-        if (file_exists($refresh_schema)) {
-            $yml = Yaml::parseFile($refresh_schema);
-            $file_manifest = $system->schema_dir . DIRECTORY_SEPARATOR . 'manifest.yml';
-            if (file_put_contents($file_manifest, Yaml::dump($yml))) {
-                $set_up_wizard = new InstallerValidator();
+    $option = $options[0];
+    $cleanable_paths = [
+        '--cache' => $system->var_dir . DIRECTORY_SEPARATOR . 'cache',
+        '--session' => $system->var_dir . DIRECTORY_SEPARATOR . 'sessions',
+        '--twig' => $system->var_dir . DIRECTORY_SEPARATOR . 'twig',
+        '--services' => $system->var_dir . DIRECTORY_SEPARATOR . 'services',
+        '--routing' => $system->var_dir . DIRECTORY_SEPARATOR . 'routing',
+        '--forms' => $system->var_dir . DIRECTORY_SEPARATOR . 'form-build',
+        '--logs' => $system->setting_dir . DIRECTORY_SEPARATOR . 'logs',
+        '--db-logs' => $system->setting_dir . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'database.log',
+    ];
 
-                /**
-                 * Check for filesystem and set up required areas.
-                 */
-                if (!$set_up_wizard->validateFileSystem()) {
-                    $set_up_wizard->setUpFileSystem();
+    $location = $cleanable_paths[$option] ?? null;
+
+    if (!empty($location)) {
+
+        if (is_file($location) && file_exists($location)) {
+            unlink($location);
+            echo "\033[" . $terminal_colors['green'] . "m clearing done successfully\033[0m\n";
+            return;
+        }
+
+        $list = array_diff(scandir($location)?? [], ['.', '..']);
+
+        $recursive = function($dir) use (&$recursive) {
+            $list_inner = array_diff(scandir($dir) ?? [], ['.', '..']);
+            foreach ($list_inner as $item) {
+                $full_inner_path = $dir . DIRECTORY_SEPARATOR . $item;
+                if (is_file($full_inner_path) && file_exists($full_inner_path)) {
+                    unlink($full_inner_path);
                 }
-
-                // check for session setting and start sessions.
-                if (!$set_up_wizard->validateSession()) {
-                    $set_up_wizard->setUpSession();
+                elseif (is_dir($full_inner_path)) {
+                    $recursive($full_inner_path);
+                    @rmdir($full_inner_path);
                 }
+            }
+        };
 
-                if (!$set_up_wizard->validateCaching()) {
-                    $set_up_wizard->setUpCaching();
-                }
-
-                if(!$set_up_wizard->validateProject()) {
-                    $set_up_wizard->setUpProject();
-                }
-                echo "cache cleared\n";
+        foreach ($list as $file) {
+            $full_path = $location  . DIRECTORY_SEPARATOR . $file;
+            if (is_file($full_path) && file_exists($full_path)) {
+                unlink($full_path);
+            }
+            elseif (is_dir($full_path)) {
+                $recursive($full_path);
+                @rmdir($full_path);
             }
         }
+
+        echo "\033[" . $terminal_colors['green'] . "m clearing done successfully\033[0m\n";
+        return;
     }
+
+    echo "\033[" . $terminal_colors['yellow'] . "m option not supported.\033[0m\n";
+}
+
+function user(array $options): void
+{
+    global $system;
+    global $terminal_colors;
+    $option = $options[0] ?? null;
+
+    $supported = [
+        '--find' => 'search_user',
+        '--create' => 'create_user',
+        '--update' => 'update_user',
+        '--delete' => 'delete_user',
+        '--block' => 'block_user',
+    ];
+
+    $found = $supported[$option] ?? null;
+    if (empty($found)) {
+
+        echo "\033[0m";
+        echo "\033[" . $terminal_colors['red'] . "m exact one option is required" . PHP_EOL;
+        echo PHP_EOL;
+        echo "--option first expected values eg
+        --find,
+        --create,
+        --update,
+        --delete,
+        --block,
+        " .PHP_EOL.PHP_EOL;
+        echo "\033[0m";
+        return;
+    }
+
+     function search_user (): void {
+        global $system;
+        global $terminal_colors;
+
+        echo "You can search using email, uid, name".PHP_EOL;
+        $uid = readline("\nSearch User: ");
+        exit(1);
+    };
+
+    $found();
+
 }
 
 return [
-    'cache:clear' => "cache_clear"
+    'cleaner' => "cache_clear",
+    'user' => "user"
 ];

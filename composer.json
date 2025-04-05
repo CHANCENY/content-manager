@@ -17,7 +17,8 @@
         "simp/uploader": "^1.0",
         "simp/mail": "^1.0",
         "catfan/medoo": "^2.1",
-      "ext-fileinfo": "*"
+      "ext-fileinfo": "*",
+      "ext-readline": "*"
     },
     "autoload": {
         "psr-4": {

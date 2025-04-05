@@ -28,9 +28,6 @@ database_installed_steps:
         die: false
 filesystem_installed_steps:
     directories:
-        - 'var://routing'
-        - 'var://form-build'
-        - 'var://content-types'
         - 'var://services'
         - 'var://sessions'
         - 'var://cache'
