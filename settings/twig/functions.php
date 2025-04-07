@@ -82,6 +82,39 @@ function breakLineToHtml(string $text,int $at = 100): string
     return nl2br($text_line);
 }
 
+function url(string $id, array $options, array $params = []): string
+{
+    if (!empty($id)) {
+        $route = Caching::init()->get($id);
+        if ($route instanceof \Simp\Core\lib\routes\Route) {
+            $pattern = $route->getRoutePath();
+            function generatePath(string $pattern, array $values): string {
+                $segments = explode('/', $pattern);
+
+                foreach ($segments as &$segment) {
+                    if (str_starts_with($segment, '[') && str_ends_with($segment, ']')) {
+                        // Trim the square brackets
+                        $placeholder = trim($segment, '[]');
+
+                        // Handle possible type e.g., id:int
+                        $parts = explode(':', $placeholder);
+                        $key = $parts[0];
+
+                        if (isset($values[$key])) {
+                            $segment = $values[$key];
+                        }
+                    }
+                }
+                return implode('/', $segments);
+            }
+            $with_value_pattern = generatePath($pattern, $options);
+
+            return empty($params) ? $with_value_pattern : $with_value_pattern . '?'. http_build_query($params);
+        }
+    }
+    return '';
+}
+
 
 return array(
     new \Twig\TwigFunction('get_content_type', function ($content_name) { return getContentType($content_name); }),
@@ -90,4 +123,5 @@ return array(
     new \Twig\TwigFunction('file_uri', function ($fid) { return FileFunction::resolve_fid($fid); }),
     new \Twig\TwigFunction('file', function ($fid) { return FileFunction::file($fid); }),
     new \Twig\TwigFunction('br', function ($text) { return breakLineToHtml($text); }),
+    new \Twig\TwigFunction('url', function ($url,$options = [], $params = []) { return url($url, $options, $params); }),
 );

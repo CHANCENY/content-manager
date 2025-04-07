@@ -94,21 +94,35 @@ function init() {
                     return item.dataset.field;
                 });
 
+                const reorder_changes = {
+                    'fields': [],
+                    'sort_criteria': [],
+                    'filter_criteria': [],
+                };
+
                 if (list.length > 0) {
-                    const reorder_changes = {
-                        'fields': [],
-                        'sort_criteria': [],
-                        'filter_criteria': [],
-                    };
+
                     list.forEach((item)=>{
                         const line = item.split('|');
                         reorder_changes[line[0]].push(`${ line[1] }|${line[2]}`);
                     });
-                    send({
-                        reorder: reorder_changes,
-                        display: active_display.id
-                    });
+
                 }
+
+                const others = {
+                    more_display_settings: {
+                        default_empty : active_display.querySelector('#empty_default').value,
+                        limit: active_display.querySelector('#limit').value,
+                        pagination: active_display.querySelector('#pagination').value,
+                        custom_params: active_display.querySelector('#custom_params').value,
+                    }
+                };
+
+                send({
+                    reorder: reorder_changes,
+                    display: active_display.id,
+                    ...others,
+                });
             })
         }
 
@@ -146,30 +160,6 @@ function init() {
                         modal.querySelector('div > form > .wrapper').appendChild(clone_group);
 
                         let default_field = document.createElement('input');
-                        default_field.type = 'text';
-                        default_field.name = 'default';
-                        default_field.classList.add('form-control');
-                        label = document.createElement('label');
-                        label.innerText = `Default Value on empty results`;
-                        clone_group = div_group.cloneNode(true);
-                        clone_group.appendChild(label);
-                        clone_group.appendChild(default_field);
-
-                        modal.querySelector('div > form > .wrapper').appendChild(clone_group);
-
-                        default_field = document.createElement('input');
-                        default_field.type = 'text';
-                        default_field.name = 'display_template_field';
-                        default_field.classList.add('form-control');
-                        label = document.createElement('label');
-                        label.innerText = `Display twig template for this field`;
-                        clone_group = div_group.cloneNode(true);
-                        clone_group.appendChild(label);
-                        clone_group.appendChild(default_field);
-
-                        modal.querySelector('div > form > .wrapper').appendChild(clone_group);
-
-                        default_field = document.createElement('input');
                         default_field.type = 'hidden';
                         default_field.name = 'target';
                         default_field.value = 'fields|'+ display.content_type+ '|' + display.field;
@@ -187,6 +177,7 @@ function init() {
                     }
 
                     else if (display.type === 'filter_criteria') {
+
                         const title_modal = (field_all ? field_all.name : display.field);
                         modal.querySelector('div > .modal-header').textContent = 'Filter Setting ' + title_modal;
 
@@ -306,6 +297,7 @@ function init() {
                 const split = target.split('|');
 
                 if (split[0] === 'filter_criteria') {
+
                     data.settings = {
                         conjunction: form_data.get('conjunction'),
                         param_name: form_data.get('param_name'),
@@ -360,3 +352,4 @@ function init() {
     }
 
 }
+

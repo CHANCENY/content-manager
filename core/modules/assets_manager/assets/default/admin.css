@@ -626,8 +626,10 @@ button {
 button.cancel {
     background: #6c757d;
 }
-.display {
-    width: 50%;
+.pagination .page-item.active .page-link {
+    background-color: #c8102e; /* red style like in your image */
+    border-color: #c8102e;
+    color: white;
 }
 .display .list-item {
     display: inline-flex;

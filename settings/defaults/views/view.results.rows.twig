@@ -68,6 +68,15 @@
             </div>
         </div>
         {% endif %}
+
+        {% if display.isPaginated() %}
+        <div class="pagination-wrapper">
+
+            {% set pagination_data = display.pagination(request.http) %}
+            {% include 'default.view.pagination' with pagination_data %}
+
+        </div>
+        {% endif %}
     </div>
 
 {% endblock %}

@@ -1,23 +1,6 @@
-views_view_article_listing_listing_articles:
+views_view_prashant_view_listing_articles:
     title: 'Listing Articles'
     path: /articles
-    method:
-        - GET
-        - POST
-        - PUT
-        - OPTIONS
-        - DELETE
-    controller:
-        class: Simp\Core\lib\controllers\ViewsController
-        method: views_entry_controller
-    access:
-        - administrator
-        - content_creator
-        - manager
-        - authenticated
-views_view_article_article:
-    title: Article
-    path: '/article/[id:int]'
     method:
         - GET
         - POST

@@ -566,3 +566,15 @@ system.structure.views.display:
     class: Simp\Core\lib\controllers\SystemController
     method: content_views_view_display_controller
 
+system.structure.views.display.edit:
+  title: "Display Edit"
+  path: '/admin/structure/views/view/[view_name:string]/display/[display:string]/edit'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_views_view_display_edit_controller
+

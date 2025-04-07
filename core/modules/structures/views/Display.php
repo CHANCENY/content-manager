@@ -66,7 +66,6 @@ class Display
         {
             $selectFields = [];
             $fromTables = [];
-            $joins = [];
             $default_filters = [];
 
             foreach ($fields as $key => $details) {
@@ -145,6 +144,15 @@ class Display
                 $join_statement_line .= " {$sort_criteria}";
             }
 
+            // Other settings
+            if (!empty($this->display['settings']['limit'])) {
+                $limit = (int) $this->display['settings']['limit'] ?? 20;
+                $page = (int) max(1, $request->get('page', 1));
+                $offset = ($page - 1) * $limit;
+                $limit_line = "LIMIT {$limit} OFFSET {$offset}";
+                $join_statement_line .= " {$limit_line}";
+            }
+
             return $join_statement_line;
 
         };
@@ -157,6 +165,7 @@ class Display
 
     public function runDisplayQuery(): void
     {
+        dump($this->view_display_query);
         if (!empty($this->view_display_query)) {
             $statement = Database::database()->con()->prepare($this->view_display_query);
             if (!empty($this->placeholders)) {
@@ -213,6 +222,11 @@ class Display
         return $this->placeholders;
     }
 
+    public function getDisplayParams(): array
+    {
+        return $this->display['params'] ?? [];
+    }
+
     public function getViewDisplayQuery(): string
     {
         return $this->view_display_query;
@@ -232,4 +246,39 @@ class Display
     {
         return json_encode($this->raw_results);
     }
+
+    public function pagination(Request $request): array
+    {
+        if (!empty($this->display['settings']['pagination'])) {
+
+            $limit = (int) ($this->display['settings']['limit'] ?? 20);
+            $page = (int) max(1, $request->get('page', 1));
+            $offset = ($page - 1) * $limit;
+
+            $totalRows = count($this->view_display_results);
+            $totalPages = (int) ceil($totalRows / $limit);
+
+            return [
+                'pagination' => [
+                    'current_page' => $page,
+                    'per_page' => $limit,
+                    'total_rows' => $totalRows,
+                    'total_pages' => $totalPages,
+                    'offset' => $offset,
+                    'has_previous' => $page > 1,
+                    'has_next' => $page < $totalPages
+                ]
+            ];
+        }
+
+        return [];
+    }
+
+
+    public function isPaginated(): bool
+    {
+        return $this->display['settings']['pagination'] === 'on';
+    }
+
+
 }

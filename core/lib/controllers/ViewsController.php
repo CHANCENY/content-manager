@@ -88,7 +88,8 @@ class ViewsController
                     'content'=> $display->getViewDisplayResults(),
                     'fields' => $view_rows,
                     'is_admin' => CurrentUser::currentUser()?->isIsAdmin(),
-                    'query' => $display->getViewDisplayQuery()
+                    'query' => $display->getViewDisplayQuery(),
+                    'display' => $display
                 ]
             )
             );

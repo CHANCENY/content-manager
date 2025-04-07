@@ -3,6 +3,7 @@
 namespace Simp\Core\lib\controllers;
 
 use Simp\Core\lib\forms\ContentTypeInnerFieldEditForm;
+use Simp\Core\lib\forms\DisplayEditForm;
 use Simp\Core\lib\forms\ViewAddForm;
 use Simp\Core\modules\assets_manager\AssetsManager;
 use Simp\Core\modules\logger\ErrorLogger;
@@ -898,11 +899,28 @@ class SystemController
         if (!empty($content_field['reorder'])) {
             $data = $content_field['reorder'];
             $fields = $data['fields'] ?? [];
+            $sort_fields = $data['sort_criteria'] ?? [];
+            $filter_fields = $data['filter_criteria'] ?? [];
+
             $view_fields = ViewsManager::viewsManager()->getDisplay($content_field['display']);
 
             uksort($view_fields['fields'], function ($a, $b) use ($fields) {
                 return array_search($a, $fields) - array_search($b, $fields);
             });
+            uksort($view_fields['sort_criteria'], function ($a, $b) use ($sort_fields) {
+                return array_search($a, $sort_fields) - array_search($b, $sort_fields);
+            });
+            uksort($view_fields['filter_criteria'], function ($a, $b) use ($filter_fields) {
+                return array_search($a, $filter_fields) - array_search($b, $filter_fields);
+            });
+
+            $content_field['more_display_settings']['custom_params'] = explode(',', $content_field['more_display_settings']['custom_params'] ?? '');
+            $content_field['more_display_settings']['custom_params'] = array_map('trim', $content_field['more_display_settings']['custom_params'] ?? []);
+            $content_field['more_display_settings']['custom_params'] = array_values($content_field['more_display_settings']['custom_params']);
+            $view_fields['settings'] = $content_field['more_display_settings'] ?? [];
+            $view_fields['params'] = [...$view_fields['params'] ?? [], ...$content_field['more_display_settings']['custom_params']];
+            $view_fields['params'] = array_unique($view_fields['params']);
+
             $result = ViewsManager::viewsManager()->addFieldDisplay($content_field['display'], $view_fields);
             return new JsonResponse(['result'=>$result]);
         }
@@ -987,6 +1005,15 @@ class SystemController
 
         return new Response(View::view('default.view.content_views_view_display_controller',
             ['view'=>$view, 'types'=>$types, 'contents'=>$contents, 'fields'=> $fields]));
+    }
+
+    public function content_views_view_display_edit_controller(...$args): Response|RedirectResponse
+    {
+        extract($args);
+        $form_base = new FormBuilder(new DisplayEditForm());
+        $form_base->getFormBase()->setFormMethod('POST');
+        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
+        return new Response(View::view('default.view.content_views_view_display_edit_view', ['_form'=>$form_base]));
     }
 
 }

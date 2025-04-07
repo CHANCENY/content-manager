@@ -1,0 +1,18 @@
+name: 'Listing Articles'
+display_name: views_view_prashant_view_listing_articles
+response_type: text/html
+content_type: all
+view: view_prashant_view
+template: ''
+params: {  }
+permission:
+    - administrator
+fields:
+    node|title:
+        field: title
+        type: fields
+        view: view_prashant_view
+        display: views_view_prashant_view_listing_articles
+        content_type: node
+filter_criteria: {  }
+sort_criteria: {  }

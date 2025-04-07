@@ -114,6 +114,7 @@ class ViewsManager extends SystemDirectory
             $routes[$route_id] = $route;
             file_put_contents($route_path, Yaml::dump($routes,Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
             unset($display['display_url']);
+            $display['view'] = $view_name;
             file_put_contents($display_path .DIRECTORY_SEPARATOR. $display_name. '.yml', Yaml::dump($display,Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
             $view = $this->getView($view_name);
             $old = array_map(function ($display) { return $display['display_name'] ?? null; },$view['displays']);
@@ -142,6 +143,12 @@ class ViewsManager extends SystemDirectory
             foreach ($view['displays'] as $key=>$display) {
                 if ($display['display_name'] === $name) {
                     unset($view['displays'][$key]);
+                    $routes = $this->setting_dir . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR.'views'.DIRECTORY_SEPARATOR . 'views-routes.yml';
+                    if (file_exists($routes)) {
+                        $routes_data = Yaml::parseFile($routes) ?? [];
+                        unset($routes_data[$name]);
+                        file_put_contents($routes, Yaml::dump($routes_data,Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
+                    }
                 }
             }
             $this->addView($view_name, $view);
