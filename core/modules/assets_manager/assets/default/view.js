@@ -116,6 +116,7 @@ function init() {
                         pagination: active_display.querySelector('#pagination').value,
                         custom_params: active_display.querySelector('#custom_params').value,
                         template_id: active_display.querySelector('#template_id').value,
+                        display_style: active_display.querySelector('#display_style').value,
                     }
                 };
 

@@ -148,6 +148,14 @@
                                            <input {{ display.settings.pagination == 'on' ? 'checked' : '' }} type="checkbox" name="pagination" id="pagination" class="form-check">
                                        </div>
                                        <div class="form-group">
+                                           <label>Display Styles</label>
+                                           <select name="display_styles" id="display_style"
+                                                   class="form-control">
+                                               <option value="table">Table</option>
+                                               <option value="grid_rows">Grid Rows</option>
+                                           </select>
+                                       </div>
+                                       <div class="form-group">
                                            <label>Empty result response</label>
                                            <textarea name="empty_default" id="empty_default" class="form-control">{{ display.settings.default_empty }}</textarea>
                                        </div>
@@ -283,8 +291,21 @@
                                             <input value="{{ display.settings.limit }}" type="number" name="limit" id="limit" class="form-control">
                                         </div>
                                         <div class="form-group">
+                                            <label>Custom twig template ID</label>
+                                            <input value="{{ display.settings.template_id }}" type="text" name="template_id" id="template_id" class="form-control">
+                                            <span class="field-description">this is usually found with theme.view.name of twig file without .twig</span>
+                                        </div>
+                                        <div class="form-group">
                                             <label>Pagination</label>
                                             <input {{ display.settings.pagination == 'on' ? 'checked' : '' }} type="checkbox" name="pagination" id="pagination" class="form-check">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Display Styles</label>
+                                            <select name="display_styles" id="display_style"
+                                                    class="form-control">
+                                                <option value="table">Table</option>
+                                                <option value="grid_rows">Grid Rows</option>
+                                            </select>
                                         </div>
                                         <div class="form-group">
                                             <label>Empty result response</label>

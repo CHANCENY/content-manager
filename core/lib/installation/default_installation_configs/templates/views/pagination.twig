@@ -1,7 +1,6 @@
 <div class="d-flex justify-content-center mt-5">
     <nav>
         <ul class="pagination">
-
             {% if pagination_data.pagination.has_previous %}
                 {% set values = {} %}
                 {% if display.getDisplayParams() %}
@@ -10,7 +9,8 @@
                         {% set values = _ %}
                     {% endfor %}
                 {% endif %}
-                <li class="page-item"><a class="page-link" href="{{ url('views_view_article_article', values) }}">« First</a></li>
+
+                <li class="page-item"><a class="page-link" href="{{ url(route_key, values) }}">« First</a></li>
                 <li class="page-item"><a class="page-link" href="?page={{ pagination_data.pagination.current_page - 1 }}">‹ Previous</a></li>
             {% endif %}
 

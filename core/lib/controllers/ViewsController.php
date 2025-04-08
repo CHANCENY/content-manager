@@ -71,6 +71,9 @@ class ViewsController
                 'name' => $field['name'] ?? $field['field'],
                 'label' => $field['label'] ?? ucfirst($field['field']),
                 'content_type' => $type,
+                'is_label' => !empty($content_type['display_setting'][$field['name']]['display_label']),
+                'display_as' => !empty($content_type['display_setting'][$field['name']]['display_as'])
+                 ? $content_type['display_setting'][$field['name']]['display_as'] : 'p',
             ];
         }
 
@@ -113,7 +116,9 @@ class ViewsController
                         'DEFAULT: default.view.view.results.rows',
                         'DISPLAY_NAME: '.$display_settings['view'] .'_'. $display_settings['display_name'],
                         'CUSTOM: theme_name.view.%'
-                    ]
+                    ],
+                    'route_key' => $route_key,
+                    'display_settings' => $display_settings,
                 ]
             )
             );

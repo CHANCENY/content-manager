@@ -264,7 +264,22 @@ class Display
             $page = (int) max(1, $request->get('page', 1));
             $offset = ($page - 1) * $limit;
 
-            $totalRows = count($this->view_display_results);
+            $pagination = function () {
+                $content_types = $this->display['content_type'] === 'all' ?
+                    array_keys(ContentDefinitionManager::contentDefinitionManager()->getContentTypes()) :
+                    [$this->display['content_type']];
+
+                $list = array_map(function ($content_type) {
+                    return "'$content_type'";
+                }, $content_types);
+
+                return "SELECT COUNT(nid) FROM node_data WHERE bundle IN (" . implode(', ', $list) . ")";
+            };
+
+            $query = $pagination();
+            $query = Database::database()->con()->prepare($query);
+            $query->execute();
+            $totalRows = $query->fetchColumn();
             if ($totalRows === 0 || $limit === 0) {
                 return [
                     'pagination' => [

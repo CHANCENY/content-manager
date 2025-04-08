@@ -39,12 +39,12 @@ fields:
             multple: multiple
 display_setting:
     content_articles_field_content_body:
-        display_label: null
-        display_as: p
+        display_label: '1'
+        display_as: h2
         display_enabled: '1'
     content_articles_field_article_image:
-        display_label: null
-        display_as: link
+        display_label: '1'
+        display_as: image
         display_enabled: '1'
 permission:
     - administrator

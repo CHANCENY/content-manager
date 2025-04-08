@@ -45,3 +45,4 @@ settings:
     custom_params:
         - ''
     template_id: ''
+    display_style: grid_rows
