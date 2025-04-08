@@ -127,6 +127,34 @@ user.account.form.page.route:
   controller:
     class: Simp\Core\lib\controllers\UserAccountFormController
     method: user_account_form_controller
+user.account.password.forgot:
+  title: "Forgot Password"
+  path: '/user/forgot-password'
+  method:
+    - GET
+    - POST
+  access:
+    - anonymous
+    - administrator
+    - content_creator
+    - manager
+  controller:
+    class: Simp\Core\lib\controllers\UserAccountFormController
+    method: user_account_password_form_controller
+user.account.password.reset:
+  title: "New Password"
+  path: '/user/password/reset/[hash:string]'
+  method:
+    - GET
+    - POST
+  access:
+    - anonymous
+    - administrator
+    - content_creator
+    - manager
+  controller:
+    class: Simp\Core\lib\controllers\UserAccountFormController
+    method: user_account_password_reset_form_controller
 
 system.messager.toastify:
   title: "Messages"

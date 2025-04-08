@@ -115,6 +115,7 @@ function init() {
                         limit: active_display.querySelector('#limit').value,
                         pagination: active_display.querySelector('#pagination').value,
                         custom_params: active_display.querySelector('#custom_params').value,
+                        template_id: active_display.querySelector('#template_id').value,
                     }
                 };
 

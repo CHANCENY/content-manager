@@ -8,7 +8,10 @@ use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
+use Simp\Core\lib\forms\ForgotPasswordForm;
+use Simp\Core\lib\forms\ForgotPasswordResetForm;
 use Simp\Core\lib\forms\UserAccountForm;
+use Simp\Core\lib\memory\cache\Caching;
 use Simp\Core\lib\themes\View;
 use Simp\Core\modules\config\ConfigManager;
 use Simp\Core\modules\messager\Messager;
@@ -50,5 +53,27 @@ class UserAccountFormController
         $form_base->getFormBase()->setFormMethod('POST');
         $form_base->getFormBase()->setFormEnctype('multipart/form-data');
         return new Response(View::view('default.view.user_account_form',['_form'=>$form_base]),200);
+    }
+
+    public function user_account_password_form_controller(...$args): Response
+    {
+        $form_base = new FormBuilder(new ForgotPasswordForm());
+        $form_base->getFormBase()->setFormMethod('POST');
+        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
+        return new Response(View::view('default.view.user_account_password_form',['_form'=>$form_base]),200);
+    }
+
+    public function user_account_password_reset_form_controller(...$args): Response|RedirectResponse
+    {
+        extract($args);
+        $hash = $request->get("hash");
+        if (!Caching::init()->has($hash)) {
+            Messager::toast()->addError("Invalid hash");
+            return new RedirectResponse('/');
+        }
+        $form_base = new FormBuilder(new ForgotPasswordResetForm());
+        $form_base->getFormBase()->setFormMethod('POST');
+        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
+        return new Response(View::view('default.view.user_account_password_reset_form_controller',['_form'=>$form_base]),200);
     }
 }

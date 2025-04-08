@@ -14,8 +14,8 @@
                 <li class="page-item"><a class="page-link" href="?page={{ pagination_data.pagination.current_page - 1 }}">‹ Previous</a></li>
             {% endif %}
 
-            {% if (pagination_data.pagination.total_pages - pagination_data.pagination.current_page) > 6 %}
-                {% for number in range((pagination_data.pagination.current_page < 3 ? 3 : pagination_data.pagination.current_page - 3), pagination_data.pagination.current_page + 3) %}
+            {% if (pagination_data.pagination.total_pages - pagination_data.pagination.current_page) > 1 %}
+                {% for number in range((pagination_data.pagination.current_page < 1 ? 1 : pagination_data.pagination.current_page - 1), pagination_data.pagination.current_page + 1) %}
 
                     {% if pagination_data.pagination.current_page == number %}
                         <li class="page-item active"><a class="page-link" href="?page={{ number }}">{{ number }}</a></li>

@@ -66,6 +66,21 @@
                 <h5>View query</h5>
                 <pre>{{ query|raw }}</pre>
             </div>
+            <div class="view-templates">
+                <h5>View templates</h5>
+                <div>
+                    <div class="active-template">
+                       <strong>Active template:</strong>
+                      <p>{{ template }}</p>
+                    </div>
+                    <div class="possible-templates">
+                        <strong>Possible Overrides</strong>
+                        {% for template in possible_templates %}
+                             <p>{{ template }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         </div>
         {% endif %}
 

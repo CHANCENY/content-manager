@@ -139,6 +139,11 @@
                                            <input value="{{ display.settings.limit }}" type="number" name="limit" id="limit" class="form-control">
                                        </div>
                                        <div class="form-group">
+                                           <label>Custom twig template ID</label>
+                                           <input value="{{ display.settings.template_id }}" type="text" name="template_id" id="template_id" class="form-control">
+                                           <span class="field-description">this is usually found with theme.view.name of twig file without .twig</span>
+                                       </div>
+                                       <div class="form-group">
                                            <label>Pagination</label>
                                            <input {{ display.settings.pagination == 'on' ? 'checked' : '' }} type="checkbox" name="pagination" id="pagination" class="form-check">
                                        </div>

@@ -7,6 +7,7 @@ use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\modules\database\Database;
+use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
 use Simp\Core\modules\user\current_user\CurrentUser;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -62,11 +63,11 @@ class Display
 
     public function prepareQuery(Request $request): void
     {
-        $generateMySQLQuery = function(Request $request, $fields, $sortCriteria = [], $filterCriteria = []): string
+        $generateMySQLQuery = function(Request $request, $fields,array $content_types, $sortCriteria = [], $filterCriteria = []): string
         {
             $selectFields = [];
             $fromTables = [];
-            $default_filters = [];
+            $default_filters['node_data.bundle'] = $content_types;
 
             foreach ($fields as $key => $details) {
                $field_name = $details['field'];
@@ -156,8 +157,17 @@ class Display
             return $join_statement_line;
 
         };
+
+        $content_types = [];
+        if ($this->display['content_type'] === 'all') {
+            $content_types = ContentDefinitionManager::contentDefinitionManager()->getContentTypes();
+            $content_types = array_keys($content_types);
+        }else {
+            $content_types = [$this->display['content_type']];
+        }
         $this->view_display_query = $generateMySQLQuery($request,
             $this->display['fields'],
+            $content_types,
             $this->display['sort_criteria'],
             $this->display['filter_criteria']
         );
@@ -165,7 +175,6 @@ class Display
 
     public function runDisplayQuery(): void
     {
-        dump($this->view_display_query);
         if (!empty($this->view_display_query)) {
             $statement = Database::database()->con()->prepare($this->view_display_query);
             if (!empty($this->placeholders)) {
@@ -256,6 +265,19 @@ class Display
             $offset = ($page - 1) * $limit;
 
             $totalRows = count($this->view_display_results);
+            if ($totalRows === 0 || $limit === 0) {
+                return [
+                    'pagination' => [
+                        'current_page' => $page,
+                        'per_page' => $limit,
+                        'total_rows' => $totalRows,
+                        'total_pages' => 0,
+                        'offset' => $offset,
+                        'has_previous' => false,
+                        'has_next' => false
+                    ]
+                ];
+            }
             $totalPages = (int) ceil($totalRows / $limit);
 
             return [
@@ -277,7 +299,7 @@ class Display
 
     public function isPaginated(): bool
     {
-        return $this->display['settings']['pagination'] === 'on';
+        return !empty($this->display['settings']['pagination']) && $this->display['settings']['pagination'] === 'on';
     }
 
 

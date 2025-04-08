@@ -20,7 +20,7 @@ class Caching implements MemoryInterface
 
     public function __construct()
     {
-        $this->caching_object = $GLOBALS["caching"];
+        $this->caching_object = $GLOBALS["caching"] ?? '';
     }
 
     /**

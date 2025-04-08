@@ -76,20 +76,44 @@ class ViewsController
 
         rsort($view_rows);
 
+        $empty_default = null;
+        if (empty($display->getRawResults())) {
+            $empty_default = !empty($display_settings['settings']['default_empty']) ? $display_settings['settings']['default_empty'] : 'No results found';
+        }
+
         $response_type = $display_settings['response_type'] ?? 'application/json';
         if ($response_type === 'text/html') {
 
-            $view_template = $display_settings['view'] .'_'. $display_settings['display_name'];
-            if (Caching::init()->has($view_template)) {
-                return new Response(View::view($view_template,['content'=> $display->getViewDisplayResults()]));
+            if (!empty($empty_default)) {
+                return new Response(View::view('default.view.view.empty.result',['result'=>$empty_default]),404);
             }
-            return new Response(View::view('default.view.view.results.rows',
+
+            $view_template = null;
+            if (Caching::init()->has($display_settings['view'] .'_'. $display_settings['display_name'])) {
+
+                // todo: add theme name.
+                $view_template =  $display_settings['view'] .'_'. $display_settings['display_name'];
+            }
+            elseif (!empty($display_settings['settings']['template_id']) && Caching::init()->has($display_settings['settings']['template_id'])) {
+                $view_template = $display_settings['settings']['template_id'];
+            }
+            else {
+                $view_template = "default.view.view.results.rows";
+            }
+
+            return new Response(View::view($view_template,
                 [
                     'content'=> $display->getViewDisplayResults(),
                     'fields' => $view_rows,
                     'is_admin' => CurrentUser::currentUser()?->isIsAdmin(),
                     'query' => $display->getViewDisplayQuery(),
-                    'display' => $display
+                    'display' => $display,
+                    'template' => $view_template,
+                    'possible_templates' => [
+                        'DEFAULT: default.view.view.results.rows',
+                        'DISPLAY_NAME: '.$display_settings['view'] .'_'. $display_settings['display_name'],
+                        'CUSTOM: theme_name.view.%'
+                    ]
                 ]
             )
             );
@@ -97,6 +121,10 @@ class ViewsController
         }
 
         elseif ($response_type === 'application/json') {
+            if (!empty($empty_default)) {
+                return new JsonResponse($empty_default,404);
+            }
+
             return new JsonResponse($display->getRawResults());
         }
 

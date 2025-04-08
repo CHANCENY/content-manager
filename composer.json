@@ -18,7 +18,8 @@
         "simp/mail": "^1.0",
         "catfan/medoo": "^2.1",
       "ext-fileinfo": "*",
-      "ext-readline": "*"
+      "ext-readline": "*",
+        "fakerphp/faker": "^1.24"
     },
     "autoload": {
         "psr-4": {

@@ -1,6 +1,6 @@
-smtp_host: smtp.hostinger.com
-smtp_username: test@articlepulsehub.com
-smtp_password: Chance@5090.
+smtp_host: smtp.gmail.com
+smtp_username: chance.svinfotech@gmail.com
+smtp_password: 'cebf qbxf iywz rlbl'
 smtp_port: '465'
 smtp_secure: ssl
 submit: Submit

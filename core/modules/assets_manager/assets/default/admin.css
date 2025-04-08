@@ -662,3 +662,30 @@ button.cancel {
 .mysql-query pre .comment {
     color: #75715e; /* Gray for comments */
 }
+
+/* View Templates Block */
+.view-templates {
+    background-color: #f9fafa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.view-templates h5 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #222;
+}
+
+.view-templates strong {
+    display: block;
+    margin-top: 10px;
+    color: #333;
+}
+
+.view-templates p {
+    margin: 4px 0 6px 20px;
+    font-family: monospace;
+    color: #444;
+    font-size: 14px;
+}

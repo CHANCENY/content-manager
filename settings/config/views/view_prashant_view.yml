@@ -1,9 +1,0 @@
-name: 'Prashant view'
-description: 'this is prashant view'
-content_type: all
-permission:
-    - administrator
-displays:
-    - views_view_prashant_view_listing_articles
-machine_name: view_prashant_view
-view: view_prashant_view

@@ -1,4 +1,4 @@
-views_view_prashant_view_listing_articles:
+views_view_prashant_listing_articles:
     title: 'Listing Articles'
     path: /articles
     method:

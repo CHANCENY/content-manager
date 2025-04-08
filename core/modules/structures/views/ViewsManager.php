@@ -66,7 +66,15 @@ class ViewsManager extends SystemDirectory
         $view = $this->getView($name);
         if ($view['displays']) {
             foreach ($view['displays'] as $display) {
-                $full_path = $this->view . DIRECTORY_SEPARATOR . 'view-display' . DIRECTORY_SEPARATOR . $display . '.yml';
+                $full_path = $this->view . DIRECTORY_SEPARATOR . 'view-display' . DIRECTORY_SEPARATOR . $display['display_name'] . '.yml';
+                $routes = $this->setting_dir . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR. 'views'. DIRECTORY_SEPARATOR . 'views-routes.yml';
+                if (file_exists($routes)) {
+                    $route_data = Yaml::parseFile($routes);
+                    if (isset($route_data[$display['display_name']])) {
+                        unset($route_data[$display['display_name']]);
+                        file_put_contents($routes, Yaml::dump($route_data));
+                    }
+                }
                 if (file_exists($full_path)) {
                     unlink($full_path);
                 }

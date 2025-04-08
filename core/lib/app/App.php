@@ -190,4 +190,40 @@ class App
         }
     }
 
+    /**
+     * @throws PhpfastcacheExtensionNotInstalledException
+     * @throws PhpfastcacheDriverCheckException
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheInvalidTypeException
+     * @throws PhpfastcacheDriverNotFoundException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     * @throws PhpfastcacheInvalidConfigurationException
+     * @throws PhpfastcacheLogicException
+     */
+    public static function consoleApp(): void
+    {
+        $set_up_wizard = new InstallerValidator();
+
+        /**
+         * Check for filesystem and set up required areas.
+         */
+        if (!$set_up_wizard->validateFileSystem()) {
+            $set_up_wizard->setUpFileSystem();
+        }
+
+        // check for session setting and start sessions.
+        if (!$set_up_wizard->validateSession()) {
+            $set_up_wizard->setUpSession();
+        }
+
+        if (!$set_up_wizard->validateCaching()) {
+            $set_up_wizard->setUpCaching();
+        }
+
+        if(!$set_up_wizard->validateProject()) {
+            $set_up_wizard->setUpProject();
+        }
+    }
+
 }
