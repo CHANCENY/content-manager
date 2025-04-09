@@ -7,18 +7,19 @@ if (!file_exists($vendor)) {
 
 require_once $vendor;
 
+use Symfony\Component\Yaml\Yaml;
+use Simp\Core\modules\user\entity\User;
+use Simp\Core\lib\installation\SystemDirectory;
+use Simp\Core\lib\installation\InstallerValidator;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
-use Phpfastcache\Exceptions\PhpfastcacheDriverCheckException;
+use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
+use Phpfastcache\Exceptions\PhpfastcacheDriverCheckException;
+use Phpfastcache\Exceptions\PhpfastcacheInvalidTypeException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverNotFoundException;
-use Phpfastcache\Exceptions\PhpfastcacheExtensionNotInstalledException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidConfigurationException;
-use Phpfastcache\Exceptions\PhpfastcacheInvalidTypeException;
-use Phpfastcache\Exceptions\PhpfastcacheLogicException;
-use Simp\Core\lib\installation\InstallerValidator;
-use Simp\Core\lib\installation\SystemDirectory;
-use Symfony\Component\Yaml\Yaml;
+use Phpfastcache\Exceptions\PhpfastcacheExtensionNotInstalledException;
 
 global $system;
 global $terminal_colors;
@@ -154,16 +155,145 @@ function user(array $options): void
         return;
     }
 
-     function search_user (): void {
+    function search_user (): void {
         global $system;
         global $terminal_colors;
 
         while (true) {
-            echo "You can search using email, uid, name".PHP_EOL;
-            $input = readline("\nSearch User: ");
+            echo "You can search using email, uid, name".PHP_EOL. PHP_EOL;
+            $input = trim(readline("Search User: "));
+
+            if (is_numeric($input)) {
+                $user = User::load($input);
+                echo PHP_EOL;
+                echo $user;
+                echo PHP_EOL . PHP_EOL;
+            }
+            else {
+                $users = User::filter($input);
+                echo PHP_EOL;
+                foreach($users as $user) {
+                    echo PHP_EOL;
+                    echo User::load($user['uid']);
+                }
+                echo PHP_EOL . PHP_EOL;
+            }
+            
         }
 
         return;
+    };
+
+    function create_user (): void {
+        global $system;
+        global $terminal_colors;
+
+        echo PHP_EOL . PHP_EOL;
+        $username = trim(readline("Enter username: "));
+        $email = trim(readline("Enter email: "));
+        $status = trim(readline("Enter status (1 or 0): "));
+        $password = trim(readline("Enter password: "));
+        $timezone = trim(readline("Enter timezone: "));
+        $roles = trim(readline("Enter roles (commas separated): "));
+
+        if (!empty($username) && !empty($email) && !empty($password)) {
+
+            $result = User::create([
+                'mail' => $email,
+                'name' => $username,
+                'status' => $status,
+                'password' => $password,
+                'time_zone' => $timezone,
+                'roles' => strpos($roles, ',') ? explode(',', $roles) : [$roles]
+            ]);
+
+            if ($result) {
+                echo PHP_EOL;
+                echo "\033[" . $terminal_colors['green'] . "m created user successfully!\033[0m\n";
+                return;
+            }
+            echo PHP_EOL;
+            echo "\033[" . $terminal_colors['red'] . "m failed to create user!\033[0m\n";
+            return;    
+        }
+        
+        echo PHP_EOL;
+        echo "\033[" . $terminal_colors['red'] . "m username, password, email are required!\033[0m\n";
+        return;
+    };
+
+    function update_user (): void {
+        global $system;
+        global $terminal_colors;
+
+        echo PHP_EOL . PHP_EOL;
+        $uid = trim(readline("Enter user id: "));
+        $username = trim(readline("Enter username: "));
+        $email = trim(readline("Enter email: "));
+        $password = trim(readline("Enter password: "));
+        
+        if (!empty($uid) && is_numeric($uid)) {
+
+            $user = User::load($uid);
+            if(!empty($username)) {
+                $user->setName($username);
+            }
+            if(!empty($email)) {
+                $user->setMail($email);
+            }
+            if(!empty($password)) {
+                $user->setPassword(password_hash($password, PASSWORD_BCRYPT));
+            }
+            
+            if ($user->update()) {
+                echo PHP_EOL;
+                echo "\033[" . $terminal_colors['green'] . "m update user successfully!\033[0m\n";
+                return;
+            }
+            echo PHP_EOL;
+            echo "\033[" . $terminal_colors['red'] . "m failed to update user!\033[0m\n";
+            return;    
+        }
+    };
+
+    function block_user (): void {
+        global $system;
+        global $terminal_colors;
+
+        if (!empty($uid) && is_numeric($uid)) {
+
+            $user = User::load($uid);
+            $user->setStatus(true);
+
+            if ($user->update()) {
+                echo PHP_EOL;
+                echo "\033[" . $terminal_colors['green'] . "m user blocked successfully!\033[0m\n";
+                return;
+            }
+            echo PHP_EOL;
+            echo "\033[" . $terminal_colors['red'] . "m failed to block user!\033[0m\n";
+            return;    
+        }
+    };
+
+    function delete_user (): void {
+        global $system;
+        global $terminal_colors;
+
+        $uid = trim(readline('Enter user id:'));
+
+        if (!empty($uid) && is_numeric($uid)) {
+
+            $user = User::load($uid);
+            if ($user->delete()) {
+                echo PHP_EOL;
+                echo "\033[" . $terminal_colors['green'] . "m user deleted successfully!\033[0m\n";
+                return;
+            }
+            echo PHP_EOL;
+            echo "\033[" . $terminal_colors['red'] . "m failed to delete user!\033[0m\n";
+            return;    
+        }
     };
 
     $found();

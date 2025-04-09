@@ -1,9 +1,0 @@
-site:
-    site_name: 'Simple CMS'
-    site_slogan: 'this is chance cms'
-    site_email: test@articlepulsehub.com
-front_page:
-    front_page_url: ''
-error_pages:
-    not_found_page: ''
-    access_denied_page: ''

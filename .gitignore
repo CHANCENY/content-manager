@@ -1,4 +1,6 @@
 .idea
 vendor
 var
-setting
+settings
+schema/manifest.yml
+public/sites

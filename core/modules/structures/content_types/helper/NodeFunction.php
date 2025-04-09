@@ -47,6 +47,10 @@ trait NodeFunction
         foreach ($fid as $f) {
             if (!empty($f)) {
                 $file = File::load($f);
+
+                if(!$file) {
+                    return [];
+                }
                 $content[] = [
                     'name' => $file->getName(),
                     'size' => $file->getSize(),

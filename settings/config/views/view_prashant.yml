@@ -1,9 +1,0 @@
-name: Prashant
-description: 'Site section links'
-content_type: all
-permission:
-    - administrator
-displays:
-    - views_view_prashant_listing_articles
-machine_name: view_prashant
-view: view_prashant

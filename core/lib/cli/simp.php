@@ -21,8 +21,7 @@ if (!file_exists($vendor)) {
 
 require_once $vendor;
 
-@system("cls");
-@system('clear');
+PHP_OS === 'Windows' ? @system('cls') : @system('clear');
 
 /**
  * @return void

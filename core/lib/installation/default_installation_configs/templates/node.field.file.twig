@@ -23,7 +23,15 @@
             </div>
 
         {%  else %}
-            {{ dump(content) }}
+            <div class='row'>
+                {% if display.display_as == 'image' %}
+                        <div class="col-md-6">
+                            <img src="{{ content.uri }}" alt="{{ content.name }}" class="node-image field-image field--file-image field-view-{{ definition.name|replace({'_':'-'}) }}"/>
+                        </div>
+                {% else %}
+                        <a href="{{ content.uri }}" target="_blank" class="field-file-link field-view-{{ definition.name|replace({'_':'-'}) }}">{{ content.name  }}</a>
+                {% endif %}
+            </div>
         {% endif %}
     </div>
            {% endif %}
