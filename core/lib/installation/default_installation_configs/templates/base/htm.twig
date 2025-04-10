@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    <meta name="description" content="{{ page_description }}">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="keywords" content="{{ page_keywords }}">
+
+   {% if request.user is not null and request.user.isIsAdmin %}
+    <style>
+        {{ assets.getAssetsFile('ckeditor5.css')|raw }}
+    </style>
+    {#  TODO: settings for toastify  #}
+    <style>
+        {{ assets.getAssetsFile('admin.css')|raw }}
+    </style>
+    <script>
+        {{ assets.getAssetsFile('modal.js')|raw }}
+    </script>
+    <script>
+        {{ assets.getAssetsFile('Sortable.min.js')|raw }}
+    </script>
+    {% endif %}
+</head>
+<body>
+
+
+<!-- Top Black Admin Bar -->
+<div class="admin-bar">
+    <div>
+        {% if request.user is not null and request.user.isIsAdmin %}
+            <a href="#"><i class="fa fa-bars"></i> Manage</a>
+            <a href="#"><i class="fa fa-star"></i> Shortcuts</a>
+        {% endif %}
+
+        {% if request.user %}
+        <a href="/user/{{ request.user.getUser.uid }}"><i class="fa fa-user"></i> {{  request.user.getUser.name  }}</a>
+        {% endif %}
+    </div>
+    <input type="text" placeholder="Admin Toolbar quick search">
+    <div>
+        {% if request.user is not null %}
+            <a href="#"><i class="fa fa-bell"></i> Announcements</a>
+            {% if request.user.isIsAdmin %}
+                <a href="#"><i class="fa fa-pencil"></i> Edit</a>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+{% if request.user is not null and request.user.isIsAdmin %}
+    <!-- Main Navigation Menu -->
+    <div class="main-menu">
+        <a href="/admin/content"><i class="fa fa-file"></i> Content</a>
+        <a href="/admin/structure"><i class="fa fa-sitemap"></i> Structure</a>
+{#        <a href="#"><i class="fa fa-paint-brush"></i> Appearance</a>#}
+{#        <a href="#"><i class="fa fa-wrench"></i> Extend</a>#}
+        <a href="/admin/config"><i class="fa fa-cogs"></i> Configuration</a>
+        <a href="/admin/people"><i class="fa fa-users"></i> People</a>
+        <a href="/admin/reports"><i class="fa fa-chart-bar"></i> Reports</a>
+        <a href="/user/logout"><i class="fa fa-sign-out"></i> Logout</a>
+    </div>
+{% elseif request.user is not null and request.user.isIsManager %}
+
+    <div class="main-menu">
+        <a href="/admin/content"><i class="fa fa-file"></i> Content</a>
+        <a href="/admin/people"><i class="fa fa-users"></i> People</a>
+        <a href="/user/logout"><i class="fa fa-sign-out"></i> Logout</a>
+    </div>
+
+{% elseif request.user is not null and request.user.isIsAuthenticated %}
+
+    <div class="main-menu">
+        <a href="#"><i class="fa fa-home"></i> Home</a>
+        <a href="/admin/people"><i class="fa fa-info"></i> About</a>
+        <a href="#"><i class="fa fa-contact-card"></i> Contact</a>
+        <a href="/user/logout"><i class="fa fa-sign-out"></i> Logout</a>
+    </div>
+
+{% else %}
+
+    <div class="main-menu justify-content-end">
+        <a href="/user/register"><i class="fa fa-user"></i> Register</a>
+        <a href="/user/login"><i class="fa fa-sign-in"></i> Login</a>
+    </div>
+
+{% endif %}
+
+<div class="main-content mt-lg-5">
+    {% block body %}{% endblock %}
+</div>
+
+<script>
+    {{ assets.getAssetsFile('bootstrap.js')|raw }}
+</script>
+
+{# TODO: add setting to enable message. #}
+<script>
+    {{ assets.getAssetsFile('toastfy.js')|raw }}
+</script>
+
+<script>
+    {{ assets.getAssetsFile('toast-messager.js')|raw }}
+</script>
+
+<script>
+    {{ assets.getAssetsFile('tabs.js')|raw }}
+</script>
+
+<script type="importmap">
+    {
+        "imports": {
+            "ckeditor5": "/system/assets/file?name=ckeditor5.js",
+            "ckeditor5/": "./ckeditor5/"
+        }
+    }
+</script>
+
+<script type="module">
+    {{ assets.getAssetsFile('ck-editor.js')|raw }}
+</script>
+
+</body>
+</html>

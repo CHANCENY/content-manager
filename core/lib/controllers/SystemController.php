@@ -1016,4 +1016,9 @@ class SystemController
         return new Response(View::view('default.view.content_views_view_display_edit_view', ['_form'=>$form_base]));
     }
 
+    public function admin_search_settings(...$args): Response
+    {
+        return new Response(View::view('default.view.admin_search_settings'));
+    }
+
 }

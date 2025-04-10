@@ -34,5 +34,13 @@
             "name": "CHANCENY",
             "email": "nyasuluchance6@gmail.com"
         }
+    ],
+    "scripts": {
+    "post-install-cmd": [
+        "@php core/lib/installation/composer.php"
+    ],
+    "post-update-cmd": [
+        "@php core/lib/installation/composer.php"
     ]
+}
 }

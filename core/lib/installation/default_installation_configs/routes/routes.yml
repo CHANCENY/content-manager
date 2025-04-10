@@ -606,3 +606,14 @@ system.structure.views.display.edit:
     class: Simp\Core\lib\controllers\SystemController
     method: content_views_view_display_edit_controller
 
+system.search.settings:
+  title: "Search Settings"
+  path: '/admin/search/settings'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: admin_search_settings
