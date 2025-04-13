@@ -1,0 +1,4 @@
+name: Chance Nyasulu Theme
+version: 1.x
+default: true
+home_template: chance.view.googling

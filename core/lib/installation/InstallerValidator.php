@@ -19,6 +19,7 @@ use Simp\Core\lib\memory\cache\Caching;
 use Simp\Core\lib\routes\Route;
 use Simp\Core\lib\themes\TwigResolver;
 use Simp\Core\modules\database\Database;
+use Simp\Core\modules\theme\ThemeManager;
 use Simp\StreamWrapper\WrapperRegister\WrapperRegister;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Yaml\Yaml;
@@ -323,14 +324,10 @@ class InstallerValidator extends SystemDirectory {
                     $this->recursive_caching_defaults($full_path, $default_keys);
                 }
             }
-            $theme_list = array_diff(scandir($this->theme_dir) ?? [], ['..', '.']);
-            foreach ($theme_list as $theme) {
-                $theme_path = $this->theme_dir . DIRECTORY_SEPARATOR . $theme;
-                if (is_dir($theme_path)) {
-                    $this->recursive_theme_caching($theme_path, $theme, $default_keys);
-                }
-            }
+
             Caching::init()->set('system.theme.keys', $default_keys);
+
+            new ThemeManager();
 
             $default_route = Caching::init()->get('default.admin.routes');
             $routes = [];

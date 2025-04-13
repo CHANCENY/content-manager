@@ -3,7 +3,10 @@
 namespace Simp\Core\lib\controllers;
 
 use Exception;
+use Simp\Core\components\site\SiteManager;
 use Simp\Core\lib\themes\View;
+use Simp\Core\modules\theme\ThemeManager;
+use Simp\Core\modules\user\current_user\CurrentUser;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -19,6 +22,23 @@ class HomeController
      */
     public function home_controller(...$args): Response
     {
-        return new Response(View::view('default.view.home'),200);
+        $site = SiteManager::factory();
+        $home_controller = $site->get('front_page_url',null);
+        $theme = ThemeManager::manager();
+        $home_template = 'default.view.home';
+
+        if ($home_controller !== null) {
+
+            // TODO: load controller here.
+        }
+
+        if (!CurrentUser::currentUser()?->isIsAdmin()) {
+            if($theme->getCurrentTheme() !== null) {
+                $home_template = $theme->getCurrentThemeHomeTemplate() ?? $home_template;
+            }
+        }
+
+
+        return new Response(View::view($home_template),200);
     }
 }
