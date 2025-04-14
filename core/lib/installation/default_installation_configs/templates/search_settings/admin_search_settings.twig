@@ -3,13 +3,48 @@
 {% block body %}
 
     <div class="db-form-container">
-       
-       <div class='table-responsive'>
-       
-           <table class='table table-stripped'>
-             thead
-           </table>
 
+        <div class="action-container">
+            <a href="/admin/search/setting/new">+Add new Search Configuration</a>
+        </div>
+       <div class='table-responsive'>
+           <table class='table table-stripped'>
+            <thead>
+               <tr>
+                   <th>Search Name</th>
+                   <th>Search Type</th>
+                   <th>Search URL</th>
+                   <th>Search Render</th>
+                   <th></th>
+               </tr>
+            </thead>
+               <tbody>
+                  {% if not search_settings %}
+                      <tr>
+                          <td colspan="5">
+                             <p class="text-center mt-4">No configuration found</p>
+                          </td>
+                      </tr>
+                  {% else %}
+                      {% for index, setting in search_settings %}
+
+                          <tr>
+                              <td>
+                                  <a href="/admin/search/settings/{{ index }}/configure">{{ setting.name }}</a>
+                              </td>
+                              <td>{{ setting.type }}</td>
+                              <td>/search/{{ index }}</td>
+                              <td>{{ setting.template }}</td>
+                              <td>
+                                  <a href="/admin/search/settings/{{ index }}/delete">Delete</a>
+                                  <a href="/admin/search/settings/{{ index }}/edit">Edit</a>
+                              </td>
+                          </tr>
+
+                      {% endfor %}
+                  {%  endif %}
+               </tbody>
+           </table>
        </div>
 
 

@@ -32,9 +32,15 @@ class Theme extends SystemDirectory
     public function __construct()
     {
         parent::__construct();
+        $default_twig_function = Caching::init()->get('default.admin.functions');
+        $default_twig_function_array = [];
+        if (!empty($default_twig_function) && file_exists($default_twig_function)) {
+            $default_twig_function_array = require_once $default_twig_function;
+        }
         $this->twig_function_definition_file = $this->setting_dir .DIRECTORY_SEPARATOR . 'twig'.DIRECTORY_SEPARATOR.'functions.php';
 
-        $this->twig_functions =file_exists($this->twig_function_definition_file) ? require_once $this->twig_function_definition_file : [];
+        $custom_functions = file_exists($this->twig_function_definition_file) ? require_once $this->twig_function_definition_file : [];
+        $this->twig_functions = [...$default_twig_function_array, ...$custom_functions];
         $site = ConfigManager::config()->getConfigFile('basic.site.setting');
         $this->options = [
             'page_title' => $site?->get('site_name'),

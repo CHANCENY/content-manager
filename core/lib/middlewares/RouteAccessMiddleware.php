@@ -16,7 +16,7 @@ class RouteAccessMiddleware implements Middleware
         $current_user = CurrentUser::currentUser();
         $access_roles = $access_interface->options['options']['access'] ?? [];
         $redirect = new RedirectResponse('/error/page/access-denied');
-        
+
         // Check if access roles are set if not redirect to access denied.
         if(empty($access_roles)) {
             $access_interface->redirect = $redirect;
@@ -24,7 +24,7 @@ class RouteAccessMiddleware implements Middleware
             return $next($request, $access_interface);
         }
 
-        // Check if current user not exist if yes check if access roles have anonymouns.
+        // Check if current user not exist if yes check if access roles have anonymous.
         if(is_null($current_user) && in_array('anonymous',$access_roles)) {
             $access_interface->redirect = $redirect;
             $access_interface->access_granted = true;

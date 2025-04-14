@@ -7,6 +7,8 @@ if (!file_exists($vendor)) {
 
 require_once $vendor;
 
+use Simp\Core\lib\memory\cache\Caching;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Yaml\Yaml;
 use Simp\Core\modules\user\entity\User;
 use Simp\Core\lib\installation\SystemDirectory;
@@ -517,8 +519,96 @@ function faker(array $options): void
     $found();
 }
 
+function set_up_database(array $options)
+{
+    global $terminal_colors;
+    echo "\nSetting up database\n";
+
+    if (count($options) !== 1) {
+
+        echo "\033[" . $terminal_colors['red'] . "m exact one option is required" . PHP_EOL;
+        echo PHP_EOL;
+        echo "--option first expected values eg 
+        --setup,
+        --status,
+        --info,
+        " .PHP_EOL.PHP_EOL;
+        echo "\033[0m";
+        return;
+    }
+
+    $supported = [
+        '--setup' => 'setup',
+        '--status' => 'status',
+        '--info' => 'info',
+    ];
+
+    $found = $supported[$options[0]] ?? null;
+    if (empty($found)) {
+        echo "\033[" . $terminal_colors['red'] . "m option not supported.\033[0m\n";
+        return;
+    }
+
+    function setup(): void
+    {
+        global $terminal_colors;
+        $host = readline("Database host: ");
+        if (empty($host)) {
+            echo "Host can't be empty".PHP_EOL.PHP_EOL;
+            return;
+        }
+        $username = readline("Database username: ");
+        if (empty($username)) {
+            echo "Username can't be empty".PHP_EOL.PHP_EOL;
+            return;
+        }
+        $password = readline("Database password: ");
+        if (empty($password)) {
+            echo "Password can't be empty".PHP_EOL.PHP_EOL;
+            return;
+        }
+        $database_name = readline("Database name: ");
+        if (empty($database_name)) {
+            echo "Database name can't be empty".PHP_EOL.PHP_EOL;
+            return;
+        }
+        $port = readline("Database port: ");
+        if (empty($port)) {
+            $port = 3306;
+        }
+
+        $database = [
+            "hostname" => $host,
+            "username" => $username,
+            "password" => $password,
+            "port" => $port,
+            'dbname' => $database_name,
+        ];
+
+        $schema = Caching::init()->get('default.admin.database');
+        if (file_exists($schema)) {
+            $schema_data = Yaml::parseFile($schema);
+            $schema_data = array_merge($schema_data, $database);
+            $system = new SystemDirectory();
+            $setting_data = $system->setting_dir . DIRECTORY_SEPARATOR . 'database' .
+                DIRECTORY_SEPARATOR . 'database.yml';
+            if (file_put_contents($setting_data, Yaml::dump($schema_data))) {
+                echo "\033[" . $terminal_colors['green'] . "m Database setting done successfully.\033[0m\n";
+                return;
+            }
+            echo "\033[" . $terminal_colors['red'] . "m Database setting failed.\033[0m\n";
+            return;
+        }
+        echo "\033[" . $terminal_colors['yellow'] . "m sorry failed to locate database schema file.\033[0m\n";
+    }
+
+    $found();
+
+}
+
 return [
     'cleaner' => "cache_clear",
     'user' => "user",
     'faker' => "faker",
+    'database' => "set_up_database",
 ];

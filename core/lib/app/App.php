@@ -14,12 +14,13 @@ use Phpfastcache\Exceptions\PhpfastcacheInvalidTypeException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\lib\installation\InstallerValidator;
 use Simp\Core\lib\installation\SystemDirectory;
+use Simp\Core\lib\memory\cache\Caching;
 use Simp\Core\lib\routes\Route;
 use Simp\Core\modules\config\ConfigManager;
 use Simp\Core\modules\logger\ErrorLogger;
-use Simp\Core\modules\user\current_user\CurrentUser;
 use Symfony\Component\HttpFoundation\Request;
 use Simp\Router\Route as Router;
+use Symfony\Component\Yaml\Yaml;
 use Throwable;
 
 class App
@@ -38,7 +39,6 @@ class App
     public function __construct()
     {
         // Prepare default timezone
-        //TODO: give current user prefer timezone
         $set_up_wizard = new InstallerValidator();
 
         /**
@@ -66,6 +66,7 @@ class App
         $current_uri = $request->getRequestUri();
         $database_form_route = $GLOBALS['caching']->getItem('route.database.form.route');
         $database_form_route = $database_form_route->isHit() ? $database_form_route->get() : null;
+
 
         /**@var Route $database_form_route **/
         if ((!empty($database_form_route) && $database_form_route?->route_path != $current_uri) || $current_uri !== '/admin/configure/database') {
@@ -128,6 +129,13 @@ class App
       
         $middleware_file = $system->setting_dir . DIRECTORY_SEPARATOR . 'middleware' . DIRECTORY_SEPARATOR
         . 'middleware.yml';
+        if (!file_exists($middleware_file)) {
+            $file = Caching::init()->get('default.admin.middleware');
+            if (!empty($file) && file_exists($file)) {
+                @mkdir($system->setting_dir . DIRECTORY_SEPARATOR . 'middleware');
+                @copy($file,$middleware_file);
+            }
+        }
 
         $router = new Router($middleware_file);
 

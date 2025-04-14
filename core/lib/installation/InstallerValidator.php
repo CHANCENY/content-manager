@@ -318,6 +318,7 @@ class InstallerValidator extends SystemDirectory {
             $setting_root = $this->setting_dir . DIRECTORY_SEPARATOR . 'defaults';
             $files = array_diff(scandir($setting_root) ?? [], ['..', '.']);
             $default_keys = [];
+
             foreach ($files as $file) {
                 $full_path = $setting_root . DIRECTORY_SEPARATOR . $file;
                 if (is_dir($full_path)) {

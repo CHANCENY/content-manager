@@ -689,3 +689,112 @@ button.cancel {
     color: #444;
     font-size: 14px;
 }
+
+
+/* General layout */
+.content-type-search {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
+
+    /* Fieldset and legend */
+    fieldset {
+        border: 1px solid #dee2e6;
+        padding: 1.5rem;
+        border-radius: 8px;
+        background-color: #fdfdfe;
+    }
+
+    legend {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+
+    /* Form Groups */
+    .form-group {
+        margin-bottom: 1.2rem;
+    }
+
+    label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #343a40;
+    }
+
+    select {
+        width: 100%;
+        padding: 0.4rem 0.6rem;
+        font-size: 1rem;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        background-color: #ffffff;
+    }
+
+    /* Tables */
+    .table-responsive {
+        margin-top: 2rem;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #ffffff;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.9rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .table th {
+        background-color: #f1f3f5;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    /* Buttons */
+    a.remove,
+    a.button.remove {
+        display: inline-block;
+        padding: 0.4rem 0.7rem;
+        background-color: #007bff;
+        color: #fff;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: background-color 0.3s ease;
+    }
+
+    a.remove:hover,
+    a.button.remove:hover {
+        background-color: #0056b3;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 768px) {
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        select {
+            font-size: 0.95rem;
+        }
+
+        .table th,
+        .table td {
+            font-size: 0.95rem;
+            padding: 0.7rem;
+        }
+    }
+
+}

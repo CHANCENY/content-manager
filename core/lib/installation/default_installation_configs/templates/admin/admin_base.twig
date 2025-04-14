@@ -35,7 +35,7 @@
         <a href="/user/{{ request.user.getUser.uid }}"><i class="fa fa-user"></i> {{  request.user.getUser.name  }}</a>
         {% endif %}
     </div>
-    <input type="text" placeholder="Admin Toolbar quick search">
+    <input id="default-admin-search" type="text" placeholder="Admin Toolbar quick search">
     <div>
         {% if request.user is not null %}
             <a href="#"><i class="fa fa-bell"></i> Announcements</a>
@@ -87,6 +87,12 @@
 <div class="main-content mt-lg-5">
     {% block body %}{% endblock %}
 </div>
+
+<script>
+    {{ assets.getAssetsFile('admin.js')|raw }}
+    window.search('content_type');
+</script>
+
 
 <script>
     {{ assets.getAssetsFile('bootstrap.js')|raw }}

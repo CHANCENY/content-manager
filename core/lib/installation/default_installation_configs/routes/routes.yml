@@ -617,3 +617,68 @@ system.search.settings:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: admin_search_settings
+
+system.search.setting.add:
+  title: "Search Settings"
+  path: '/admin/search/setting/new'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: admin_search_settings_new
+
+system.search.setting.edit:
+  title: "Search Settings"
+  path: '/admin/search/settings/[key:string]/edit'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: admin_search_settings_edit
+
+system.search.setting.delete:
+  title: "Search Settings"
+  path: '/admin/search/settings/[key:string]/delete'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: admin_search_settings_delete
+
+system.search.setting.configure:
+  title: "Search Settings"
+  path: '/admin/search/settings/[key:string]/configure'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: admin_search_settings_configure
+
+
+system.search.setting.search:
+  title: "Search Settings"
+  path: '/search/[key:string]'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+    - authenticated
+    - anonymous
+    - content_creator
+    - manager
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: admin_search_settings_search_page

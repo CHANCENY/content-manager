@@ -4,10 +4,12 @@ namespace Simp\Core\lib\controllers;
 
 use Simp\Core\lib\forms\ContentTypeInnerFieldEditForm;
 use Simp\Core\lib\forms\DisplayEditForm;
+use Simp\Core\lib\forms\SearchFormConfiguration;
 use Simp\Core\lib\forms\ViewAddForm;
 use Simp\Core\modules\assets_manager\AssetsManager;
 use Simp\Core\modules\logger\ErrorLogger;
 use Simp\Core\modules\logger\ServerLogger;
+use Simp\Core\modules\search\SearchManager;
 use Simp\Core\modules\structures\content_types\form\ContentTypeDefinitionEditForm;
 use Simp\Core\modules\structures\views\ViewsManager;
 use Throwable;
@@ -1018,7 +1020,115 @@ class SystemController
 
     public function admin_search_settings(...$args): Response
     {
-        return new Response(View::view('default.view.admin_search_settings'));
+        extract($args);
+        $search = SearchManager::searchManager()->getSettings();
+        return new Response(View::view('default.view.admin_search_settings',['search_settings'=>$search]));
+    }
+
+    public function admin_search_settings_new(...$args): Response
+    {
+        extract($args);
+        $form_base = new FormBuilder(new SearchFormConfiguration());
+        $form_base->getFormBase()->setFormMethod('POST');
+        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
+        return new Response(View::view('default.view.admin_search_settings_new', ['_form'=>$form_base]));
+    }
+
+    public function admin_search_settings_edit(...$args): Response
+    {
+        extract($args);
+        $form_base = new FormBuilder(new SearchFormConfiguration());
+        $form_base->getFormBase()->setFormMethod('POST');
+        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
+        return new Response(View::view('default.view.admin_search_settings_new', ['_form'=>$form_base]));
+    }
+
+    public function admin_search_settings_delete(...$args): RedirectResponse
+    {
+        extract($args);
+        $key = $request->get('key');
+        if (SearchManager::searchManager()->removeSetting($key)) {
+            Messager::toast()->addMessage("Search settings successfully removed.");
+            return new RedirectResponse("/admin/search/settings");
+        }
+        Messager::toast()->addMessage("Search settings was not removed.");
+        return new RedirectResponse("/admin/search/settings");
+    }
+
+    public function admin_search_settings_configure(...$args): Response|JsonResponse
+    {
+        extract($args);
+        $key = $request->get('key');
+
+        if ($request->getMethod() === 'POST') {
+            $data = json_decode($request->getContent(), true);
+
+            if (isset($data['action']) && $data['action'] === 'content_type_new') {
+                $content_type = $data['data'] ?? null;
+                if ($content_type) {
+                    $search_setting = SearchManager::searchManager()->getSetting($key);
+                    if ($search_setting) {
+                        $search_setting['sources'][] = $content_type;
+                        return new JsonResponse(['success' => SearchManager::searchManager()->addSetting($key, $search_setting)]);
+                    }
+                }
+            }
+
+            elseif (isset($data['action']) && $data['action'] === 'content_type_field_new') {
+                $content_type = $data['data'] ?? null;
+                if ($content_type) {
+                    $search_setting = SearchManager::searchManager()->getSetting($key);
+                    if ($search_setting) {
+                        $search_setting['fields'][] = $content_type;
+                        return new JsonResponse(['success' => SearchManager::searchManager()->addSetting($key, $search_setting)]);
+                    }
+                }
+            }
+
+            elseif (isset($data['action']) && $data['action'] === 'filter_type') {
+                $value = $data['value'] ?? null;
+                $for = $data['data_for'] ?? null;
+                if ($for && $value) {
+                    $search_setting = SearchManager::searchManager()->getSetting($key);
+                    if ($search_setting) {
+                        $search_setting['filter_definitions'][$for] = $value;
+                        return new JsonResponse(['success' => SearchManager::searchManager()->addSetting($key, $search_setting)]);
+                    }
+                }
+            }
+        }
+
+        $search = SearchManager::searchManager()->getSetting($key);
+        $columns = [];
+        if (!empty($search['type']) && $search['type'] === 'database_type' && !empty($search['sources'])) {
+
+            foreach ($search['sources'] as $source) {
+                $columns = SearchManager::searchManager()->getDatabaseSearchableColumns($source);
+            }
+
+        }
+        $content_types = array_keys(ContentDefinitionManager::contentDefinitionManager()->getContentTypes());
+        $searchable_fields = SearchManager::searchManager()->getSourceSearchableField($key);
+        return new Response(View::view('default.view.admin_search_settings_configure', [
+            'search_setting'=>$search,
+            'key'=>$key,
+            'content_types' => $content_types,
+            'searchable_fields'=>$searchable_fields,
+            'tables' => $searchable_fields,
+        ]
+        ));
+    }
+
+
+    public function admin_search_settings_search_page(...$args): Response|RedirectResponse
+    {
+        extract($args);
+        $search_key = $request->get('key');
+        if (empty($search_key)) {
+            return new RedirectResponse("/");
+        }
+        $search_settings = SearchManager::searchManager()->buildSearchQuery($search_key);
+        return new Response(View::view('default.view.admin_search_settings_search_page'));
     }
 
 }
