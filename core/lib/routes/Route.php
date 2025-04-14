@@ -2,6 +2,18 @@
 
 namespace Simp\Core\lib\routes;
 
+use Phpfastcache\Exceptions\PhpfastcacheCoreException;
+use Phpfastcache\Exceptions\PhpfastcacheDriverException;
+use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
+use Phpfastcache\Exceptions\PhpfastcacheLogicException;
+use ReflectionClass;
+use ReflectionException;
+use Simp\Core\lib\memory\cache\Caching;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
 class Route
 {
     public string $route_id;
@@ -70,6 +82,44 @@ class Route
             'route_path', 'path' => $this->route_path,
             default => null,
         };
+    }
+
+    /**
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
+    public static function fromRouteUrl(string $url): ?Route
+    {
+        $routes = Caching::init()->get('system.routes.keys');
+        $found = array_filter( $routes, function ($item) use ($url) {
+            $route = Caching::init()?->get($item);
+            return $route?->route_path === $url ? $route : null;
+        });
+        $key = reset($found);
+        return $key ? Caching::init()?->get($key) : null;
+    }
+
+    /**
+     * @param Route $route
+     * @param array $controller_method_arguments
+     * @return Response|JsonResponse|RedirectResponse
+     * @throws ReflectionException
+     *
+     */
+    public static function getControllerResponse(Route $route, array $controller_method_arguments = []): Response|JsonResponse|RedirectResponse
+    {
+        $controller = new ReflectionClass($route->getController());
+        $controller = $controller->newInstance();
+        $method = $route->getControllerMethod();
+        $options = [
+            'request'=>Request::createFromGlobals(),
+            'route_name' => $route->route_id,
+            'options' => $controller_method_arguments
+
+        ];
+        return $controller->$method(...$options);
     }
 
 }

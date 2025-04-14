@@ -23,6 +23,11 @@
     <script>
         {{ assets.getAssetsFile('Sortable.min.js')|raw }}
     </script>
+
+       <script>
+           {{ assets.getAssetsFile('search_api.js')|raw }}
+           window.search_api('content_type');
+       </script>
     {% endif %}
 </head>
 <body>

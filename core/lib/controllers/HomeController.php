@@ -4,6 +4,7 @@ namespace Simp\Core\lib\controllers;
 
 use Exception;
 use Simp\Core\components\site\SiteManager;
+use Simp\Core\lib\routes\Route;
 use Simp\Core\lib\themes\View;
 use Simp\Core\modules\theme\ThemeManager;
 use Simp\Core\modules\user\current_user\CurrentUser;
@@ -28,8 +29,10 @@ class HomeController
         $home_template = 'default.view.home';
 
         if ($home_controller !== null) {
-
-            // TODO: load controller here.
+            $route = Route::fromRouteUrl($home_controller);
+            if ($route !== null) {
+                return Route::getControllerResponse($route);
+            }
         }
 
         if (!CurrentUser::currentUser()?->isIsAdmin()) {

@@ -20,6 +20,11 @@
     <script>
         {{ assets.getAssetsFile('Sortable.min.js')|raw }}
     </script>
+
+    <script>
+        {{ assets.getAssetsFile('search_api.js')|raw }}
+        window.search_api('content_type');
+    </script>
 </head>
 <body>
 
@@ -87,12 +92,6 @@
 <div class="main-content mt-lg-5">
     {% block body %}{% endblock %}
 </div>
-
-<script>
-    {{ assets.getAssetsFile('admin.js')|raw }}
-    window.search('content_type');
-</script>
-
 
 <script>
     {{ assets.getAssetsFile('bootstrap.js')|raw }}

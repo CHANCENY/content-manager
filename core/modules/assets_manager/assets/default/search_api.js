@@ -10,5 +10,7 @@
        }
    }
 
-   window.search = search;
+   window.search_api = search;
 })();
+
+console.log('hehehe')
