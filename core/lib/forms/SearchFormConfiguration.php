@@ -117,16 +117,26 @@ class SearchFormConfiguration extends FormBase
     public function submitForm(array &$form): void
     {
         if ($this->validated) {
+            $search_key = Request::createFromGlobals()->get('key');
+
             $data = array_map(fn($field)=> $field->getValue(), $form);
             $data = $data['search_wrapper'];
+
             if (!empty($data['search_name'])) {
                 $name = strtolower(str_replace(' ', '-', $data['search_name']));
+                $name = !empty($search_key) ? $search_key : $name;
                 $new_data['name'] = $data['search_name'];
+
                 if (!empty($data['search_type'])) {
                     $new_data['type'] = $data['search_type'];
                 }
                 if (!empty($data['search_result_template'])) {
                     $new_data['template'] = $data['search_result_template'];
+                }
+
+                if(!empty($search_key)){
+                    $setting = SearchManager::searchManager()->getSetting($search_key);
+                    $new_data = array_merge($setting, $new_data);
                 }
                 if (SearchManager::searchManager()->addSetting($name, $new_data)) {
                     Messager::toast()->addMessage("Added search setting");

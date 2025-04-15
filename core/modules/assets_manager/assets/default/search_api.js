@@ -1,16 +1,20 @@
 (function (){
+    function setupSearch(search_key) {
+        const input = document.querySelector('#default-admin-search');
 
-    alert('hh')
-   function search(search_key) {
-       console.log(search_key);
-       if (document.querySelector('#default-admin-search')) {
-           document.querySelector('#default-admin-search').addEventListener('keydown', (e) => {
-               console.log(e.type, e.key, e.keyCode);
-           })
-       }
-   }
+        if (input) {
+            input.addEventListener('keydown',(e) =>{
+                if (e.key === 'Enter') {
+                    const value = e.target.value.trim();
+                    if (value.length > 1) {
+                        const url = `/search/${search_key}?q=${encodeURIComponent(value)}`;
+                        history.pushState(null, '', url);
+                        location.replace(url);
+                    }
+                }
+            });
+        }
+    }
 
-   window.search_api = search;
+    window.search_api = setupSearch;
 })();
-
-console.log('hehehe')

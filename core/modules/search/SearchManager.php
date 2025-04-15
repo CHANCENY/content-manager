@@ -6,6 +6,7 @@ use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\lib\memory\cache\Caching;
 use Simp\Core\modules\database\Database;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Yaml\Yaml;
 
 class SearchManager
@@ -13,6 +14,10 @@ class SearchManager
 
     protected array $settings = [];
     protected string $location = '';
+    private string $search_query;
+    private array $placeholders = [];
+    private array $results;
+
     public function __construct()
     {
         $system = new SystemDirectory();
@@ -82,7 +87,7 @@ class SearchManager
                 $fields = array_combine(array_values($fields), array_values($fields));
                 return [
                     'node_data:title' => 'Title',
-                    'node_data:author' => 'Author',
+                    'node_data:uid' => 'Author',
                     'node_data:created' => 'Authored on',
                     'node_data:updated' => 'Updated on',
                     'node_data:nid' => 'Node ID',
@@ -92,6 +97,7 @@ class SearchManager
             }
             elseif (isset($setting['type']) && $setting['type'] == 'user_type') {
                 return [
+                    'users:uid' => 'User ID',
                     'users:name' => 'Username',
                     'users:created' => 'Created on',
                     'users:updated' => 'Updated on',
@@ -136,13 +142,140 @@ class SearchManager
         },$storages);
     }
 
-    public function buildSearchQuery(string $key): ?string
+    public function buildSearchQuery(string $key, Request $request): ?string
     {
         $definition = $this->getSetting($key);
         if ($definition) {
-            dump($definition);
+            if (isset($definition['type']) && $definition['type'] == 'content_type') {
+
+                $select_part = array_map(function ($field) {
+                    $list = explode(':', $field);
+                    return $list[0] !== 'node_data' ? "node__{$list[1]}.{$list[1]}__value AS {$list[1]}" : "node_data.{$list[1]} AS {$list[1]}";
+                }, $definition['fields']);
+
+                $tables = array_map(function ($field) {
+                    $list = explode(':', $field);
+                    return $list[0] !== 'node_data' ? "node__{$list[1]}" : $list[0];
+                },$definition['fields']);
+
+                $tables = array_unique($tables);
+                $tables = array_merge(['node_data'], $tables);
+                $tables = array_unique($tables);
+
+                // SELECT part of query
+                $join_statement = "SELECT ".implode(", ", $select_part);
+
+                // Join tables
+                $tables_part = null;
+                $others = [];
+                foreach ($tables as $key=>$table) {
+                    if ($key === 0) {
+                        $tables_part = "`$table` ";
+                    }
+                    else {
+                        $others[] = "`$table` ON {$table}.nid = node_data.nid";
+                    }
+                }
+
+                if (count($others) >= 1) {
+                    $join_statement .= " FROM ". $tables_part ." INNER JOIN" . implode(" INNER JOIN ", $others);
+                }else {
+                    $join_statement .= " FROM ". $tables_part;
+                }
+
+                // Where part
+                $bundles = array_map(function ($source) {
+                    return "'{$source}'";
+                },$definition['sources']);
+
+                $join_statement .= " WHERE node_data.bundle IN (" . implode(", ", $bundles) . ")";
+                $search_fields = [];
+
+                foreach ($definition['filter_definitions'] as $key => $value) {
+
+                    if (array_key_exists($key, $definition['exposed'] ?? []) && $definition['exposed'][$key] === true) {
+                        $list = explode(':', $key);
+                        $table = $list[0] !== 'node_data' ? "node__{$list[1]}" : $list[0];
+                        $placeholder = $list[1];
+                        $this->placeholders[] = $key;
+
+                        if ($value === 'contains' || $value === 'starts_with' || $value === 'ends_with') {
+                            $search_fields[] = "$table.{$list[1]} LIKE :{$placeholder}";
+                        }
+                        elseif ($value === 'equals') {
+                            $search_fields[] = "$table.{$list[1]} = :{$placeholder}";
+                        }
+                        elseif ($value === 'not_equals') {
+                            $search_fields[] = "$table.{$list[1]} != :{$placeholder}";
+                        }
+                    }
+                }
+                $search_fields = implode(" OR ", $search_fields);
+                if (!empty($search_fields)) {
+                    $join_statement .= " AND ({$search_fields})";
+                }
+
+
+                $join_statement .= " GROUP BY node_data.nid";
+
+                $limit = $definition['limit'] ?? 50;
+                $offset = $definition['offset'] ?? 0;
+                $page = (int) max(1, $request->get('page', 1));
+                $offset = ($page - 1) * $limit;
+                $limit_line = "LIMIT {$limit} OFFSET {$offset}";
+                $join_statement .= " {$limit_line}";
+                $this->search_query = $join_statement;
+                return $join_statement;
+            }
         }
         return null;
+    }
+
+    public function runQuery(string $key, Request $request): void
+    {
+        $definition = $this->getSetting($key);
+        $place_holders_values = [];
+        foreach ($this->placeholders as $placeholder) {
+            $list = explode(':', $placeholder);
+            $name  = end($list);
+            $place_holders_values[$placeholder] = $request->get($name);
+        }
+        $query = Database::database()->con()->prepare($this->search_query);
+        foreach ($place_holders_values as $key => $value) {
+
+            $list = explode(':', $key);
+            $name  = end($list);
+            $filter = $definition['filter_definitions'][$key] ?? "equals";
+            if ($filter === 'contains') {
+                $query->bindValue(":{$name}", "%{$value}%");
+            }
+            elseif ($filter === 'starts_with') {
+                $query->bindValue(":{$name}", "%{$value}");
+            }
+            elseif ($filter === 'ends_with') {
+                $query->bindValue(":{$name}", "{$value}%");
+            }
+            elseif ($filter === 'equals' || $filter === 'not_equals') {
+                $query->bindParam(":{$name}", $value);
+            }
+        }
+        $query->execute();
+        $this->results = $query->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function getSearchQuery(): string
+    {
+        return $this->search_query;
+    }
+
+    public function getPlaceholders(): array
+    {
+        return $this->placeholders;
+    }
+
+    public function getResults(): array
+    {
+        return $this->results;
     }
 
     public static function searchManager(): self

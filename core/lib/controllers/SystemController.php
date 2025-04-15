@@ -1096,6 +1096,13 @@ class SystemController
                     }
                 }
             }
+
+            elseif (isset($data['action']) && $data['action'] === 'exposed') {
+                $value = $data['value'] ?? false;
+                $search_setting = SearchManager::searchManager()->getSetting($key);
+                $search_setting['exposed'][$value] = empty($search_setting['exposed'][$value]);
+                return new JsonResponse(['success' => SearchManager::searchManager()->addSetting($key, $search_setting)]);
+            }
         }
 
         $search = SearchManager::searchManager()->getSetting($key);
@@ -1120,6 +1127,11 @@ class SystemController
     }
 
 
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
     public function admin_search_settings_search_page(...$args): Response|RedirectResponse
     {
         extract($args);
@@ -1127,8 +1139,12 @@ class SystemController
         if (empty($search_key)) {
             return new RedirectResponse("/");
         }
-        $search_settings = SearchManager::searchManager()->buildSearchQuery($search_key);
-        return new Response(View::view('default.view.admin_search_settings_search_page'));
+        $search_handler = SearchManager::searchManager();
+        $search_handler->buildSearchQuery($search_key,$request);
+        $search_handler->runQuery($search_key, $request);
+        $settings = $search_handler->getSetting($search_key);
+        $template = $settings['template'] ?? 'default.view.admin_search_settings_search_page';
+        return new Response(View::view($template, ['settings'=>$settings, 'results'=>$search_handler->getResults()]));
     }
 
 }
