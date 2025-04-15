@@ -296,6 +296,16 @@ class InstallerValidator extends SystemDirectory {
     {
         $views_routes = $this->setting_dir . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'views-routes.yml';
         $general_routes = $this->setting_dir . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'general'.DIRECTORY_SEPARATOR.'general-routes.yml';
+
+        if (!is_dir($this->setting_dir . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'views')) {
+            @mkdir($this->setting_dir . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'views', 0777, true);
+            @touch($views_routes);
+        }
+        if (!is_dir($this->setting_dir . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'general')) {
+            @mkdir($this->setting_dir . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'general', 0777, true);
+            @touch($general_routes);
+        }
+
         //TODO: read all modules routes.
         if (file_exists($views_routes)) {
             return Yaml::parseFile($views_routes) ?? [];

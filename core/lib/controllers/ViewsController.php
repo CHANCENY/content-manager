@@ -77,8 +77,6 @@ class ViewsController
             ];
         }
 
-        rsort($view_rows);
-
         $empty_default = null;
         if (empty($display->getRawResults())) {
             $empty_default = !empty($display_settings['settings']['default_empty']) ? $display_settings['settings']['default_empty'] : 'No results found';

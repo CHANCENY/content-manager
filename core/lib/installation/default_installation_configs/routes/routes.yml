@@ -617,7 +617,6 @@ system.search.settings:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: admin_search_settings
-
 system.search.setting.add:
   title: "Search Settings"
   path: '/admin/search/setting/new'
@@ -629,7 +628,6 @@ system.search.setting.add:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: admin_search_settings_new
-
 system.search.setting.edit:
   title: "Search Settings"
   path: '/admin/search/settings/[key:string]/edit'
@@ -641,7 +639,6 @@ system.search.setting.edit:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: admin_search_settings_edit
-
 system.search.setting.delete:
   title: "Search Settings"
   path: '/admin/search/settings/[key:string]/delete'
@@ -653,7 +650,6 @@ system.search.setting.delete:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: admin_search_settings_delete
-
 system.search.setting.configure:
   title: "Search Settings"
   path: '/admin/search/settings/[key:string]/configure'
@@ -665,8 +661,6 @@ system.search.setting.configure:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: admin_search_settings_configure
-
-
 system.search.setting.search:
   title: "Search Settings"
   path: '/search/[key:string]'
