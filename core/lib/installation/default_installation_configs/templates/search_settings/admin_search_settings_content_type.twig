@@ -7,6 +7,7 @@
                     <label class="content_type">Content Type</label>
                     <select name="content_type" id="content_type">
                         <option value="">None</option>
+                        <option value="all">All</option>
                         {% for item in content_types %}
                             <option value="{{ item }}">{{ item }}</option>
                         {% endfor %}

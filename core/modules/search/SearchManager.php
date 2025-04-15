@@ -4,10 +4,15 @@ namespace Simp\Core\modules\search;
 
 use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\lib\memory\cache\Caching;
+use Simp\Core\lib\themes\View;
 use Simp\Core\modules\database\Database;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
+use Simp\Core\modules\structures\content_types\helper\NodeFunction;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Yaml\Yaml;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 class SearchManager
 {
@@ -281,5 +286,54 @@ class SearchManager
     public static function searchManager(): self
     {
         return new self();
+    }
+
+    /**
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws LoaderError
+     */
+    public static function buildForm(string $search_key, $wrapper = false): ?string
+    {
+        $definition = SearchManager::searchManager()->getSetting($search_key);
+        if (empty($definition['exposed'])) {
+            return null;
+        }
+
+        $anonymous = new class () {use NodeFunction;
+           public static function find(string $content_type, $field_name) {
+               $content_type_d = ContentDefinitionManager::contentDefinitionManager()->getContentType($content_type);
+               $fields = $content_type_d['fields'];
+               return self::findField($fields, $field_name);
+           }
+        };
+
+        $field_names = [];
+        foreach ($definition['exposed'] as $key => $value) {
+
+            if ($value === true) {
+                $list = explode(':', $key);
+
+                if ($list[0] !== 'node_data') {
+                    $field = $anonymous::find($list[0], $list[1]);
+                    if ($field) {
+                        $field_names[$list[1]] = [
+                            'type' => $field['type'],
+                            'name' => end($list),
+                            'label' => $field['label'],
+                        ];
+                    }
+                }
+                else {
+                    $field_names[$list[1]] = [
+                        'type' => 'text',
+                        'name' => end($list),
+                        'label' => ucfirst(end($list)),
+                    ];
+                }
+            }
+
+        }
+        return View::view('default.view.search_form_build', ['exposed_fields' => $field_names, 'search_key' => $search_key]);
     }
 }

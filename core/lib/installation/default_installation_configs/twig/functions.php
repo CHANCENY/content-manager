@@ -2,6 +2,7 @@
 
 use Simp\Core\lib\memory\cache\Caching;
 use Simp\Core\modules\files\helpers\FileFunction;
+use Simp\Core\modules\search\SearchManager;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
 
 function getContentType(?string $content_name): ?array
@@ -115,13 +116,48 @@ function url(string $id, array $options, array $params = []): string
     return '';
 }
 
+/**
+ * @throws \Twig\Error\RuntimeError
+ * @throws \Twig\Error\SyntaxError
+ * @throws \Twig\Error\LoaderError
+ */
+function search_api(string $search_key): ?string
+{
+    return SearchManager::buildForm($search_key);
+}
 
-return array(
-    new \Twig\TwigFunction('get_content_type', function ($content_name) { return getContentType($content_name); }),
-    new \Twig\TwigFunction('get_content_type_field', function ($content_name, $field_name) { return getContentTypeField($content_name, $field_name); }),
-    new \Twig\TwigFunction('route_by_name', function ($route_name) { return routeByName($route_name); }),
-    new \Twig\TwigFunction('file_uri', function ($fid) { return FileFunction::resolve_fid($fid); }),
-    new \Twig\TwigFunction('file', function ($fid) { return FileFunction::file($fid); }),
-    new \Twig\TwigFunction('br', function ($text) { return breakLineToHtml($text); }),
-    new \Twig\TwigFunction('url', function ($url,$options = [], $params = []) { return url($url, $options, $params); }),
-);
+
+/**
+ * @return array
+ */
+function getArr(): array
+{
+    return array(
+        new \Twig\TwigFunction('get_content_type', function ($content_name) {
+            return getContentType($content_name);
+        }),
+        new \Twig\TwigFunction('get_content_type_field', function ($content_name, $field_name) {
+            return getContentTypeField($content_name, $field_name);
+        }),
+        new \Twig\TwigFunction('route_by_name', function ($route_name) {
+            return routeByName($route_name);
+        }),
+        new \Twig\TwigFunction('file_uri', function ($fid) {
+            return FileFunction::resolve_fid($fid);
+        }),
+        new \Twig\TwigFunction('file', function ($fid) {
+            return FileFunction::file($fid);
+        }),
+        new \Twig\TwigFunction('br', function ($text) {
+            return breakLineToHtml($text);
+        }),
+        new \Twig\TwigFunction('url', function ($url, $options = [], $params = []) {
+            return url($url, $options, $params);
+        }),
+        new \Twig\TwigFunction('search_form', function ($search_key, $wrapper = false) {
+            return search_api($search_key,$wrapper);
+        }),
+    );
+}
+
+return getArr();

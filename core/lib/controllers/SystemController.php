@@ -1068,7 +1068,10 @@ class SystemController
                 if ($content_type) {
                     $search_setting = SearchManager::searchManager()->getSetting($key);
                     if ($search_setting) {
-                        $search_setting['sources'][] = $content_type;
+                        $content_types = $content_type === 'all' ? array_keys(ContentDefinitionManager::contentDefinitionManager()->getContentTypes()):
+                            [$content_type];
+
+                        $search_setting['sources'] = $content_types;
                         return new JsonResponse(['success' => SearchManager::searchManager()->addSetting($key, $search_setting)]);
                     }
                 }
