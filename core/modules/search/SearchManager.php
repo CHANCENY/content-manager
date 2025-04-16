@@ -22,6 +22,7 @@ class SearchManager
     private string $search_query;
     private array $placeholders = [];
     private array $results;
+    private array $database_queries = [];
 
     public function __construct()
     {
@@ -132,7 +133,7 @@ class SearchManager
         $query = Database::database()->con()->prepare("SHOW COLUMNS FROM $source");
         $query->execute();
         $rows = $query->fetchAll(\PDO::FETCH_COLUMN);
-        $new_rows = array_filter($rows, function ($row) use ($source) {
+        $new_rows = array_map(function ($row) use ($source) {
             return "$source:$row";
         },$rows);
         return array_combine(array_values($new_rows), array_values($new_rows));
@@ -147,10 +148,11 @@ class SearchManager
         },$storages);
     }
 
-    public function buildSearchQuery(string $key, Request $request): ?string
+    public function buildSearchQuery(string $key, Request $request): string|array|null
     {
         $definition = $this->getSetting($key);
         if ($definition) {
+
             if (isset($definition['type']) && $definition['type'] == 'content_type') {
 
                 $select_part = array_map(function ($field) {
@@ -232,6 +234,62 @@ class SearchManager
                 $this->search_query = $join_statement;
                 return $join_statement;
             }
+
+            elseif (isset($definition['type']) && $definition['type'] == 'user_type') {
+
+                $select_part = array_map(function ($field) {
+                    $list = explode(':', $field);
+                    return  "{$list[0]}.{$list[1]} AS {$list[1]}";
+                }, $definition['fields']);
+
+                $tables = array_map(function ($field) {
+                    $list = explode(':', $field);
+                    return $list[0];
+                },$definition['fields']);
+
+                $tables = array_unique($tables);
+                $tables = array_merge(['users'], $tables);
+                $tables = array_unique($tables);
+                // SELECT part of query
+                $join_statement = "SELECT ".implode(", ", $select_part) . " FROM users INNER JOIN user_profile ON users.uid = user_profile.uid";
+
+                $search_fields = [];
+
+                foreach ($definition['filter_definitions'] as $key => $value) {
+
+                    if (array_key_exists($key, $definition['exposed'] ?? []) && $definition['exposed'][$key] === true) {
+                        $list = explode(':', $key);
+                        $table = $list[0];
+                        $placeholder = $list[1];
+                        $this->placeholders[] = $key;
+
+                        if ($value === 'contains' || $value === 'starts_with' || $value === 'ends_with') {
+                            $search_fields[] = "$table.{$list[1]} LIKE :{$placeholder}";
+                        }
+                        elseif ($value === 'equals') {
+                            $search_fields[] = "$table.{$list[1]} = :{$placeholder}";
+                        }
+                        elseif ($value === 'not_equals') {
+                            $search_fields[] = "$table.{$list[1]} != :{$placeholder}";
+                        }
+                    }
+                }
+                $search_fields = implode(" OR ", $search_fields);
+                if (!empty($search_fields)) {
+                    $join_statement .= " WHERE {$search_fields}";
+                }
+                $join_statement .= " GROUP BY users.uid";
+
+                $limit = $definition['limit'] ?? 50;
+                $offset = $definition['offset'] ?? 0;
+                $page = (int) max(1, $request->get('page', 1));
+                $offset = ($page - 1) * $limit;
+                $limit_line = "LIMIT {$limit} OFFSET {$offset}";
+                $join_statement .= " {$limit_line}";
+                $this->search_query = $join_statement;
+                return $join_statement;
+            }
+
         }
         return null;
     }
@@ -314,7 +372,7 @@ class SearchManager
             if ($value === true) {
                 $list = explode(':', $key);
 
-                if ($list[0] !== 'node_data') {
+                if ($definition['type'] === 'content_type' && $list[0] !== 'node_data') {
                     $field = $anonymous::find($list[0], $list[1]);
                     if ($field) {
                         $field_names[$list[1]] = [
@@ -328,7 +386,7 @@ class SearchManager
                     $field_names[$list[1]] = [
                         'type' => 'text',
                         'name' => end($list),
-                        'label' => ucfirst(end($list)),
+                        'label' => ucfirst(str_replace('_', ' ', $list[1])),
                     ];
                 }
             }

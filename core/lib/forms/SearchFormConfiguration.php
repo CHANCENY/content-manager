@@ -58,7 +58,6 @@ class SearchFormConfiguration extends FormBase
                     'option_values' => [
                         'content_type' => 'Content Type',
                         'user_type' => 'User Type',
-                        'database_type' => 'Database Type',
                     ],
                     'handler' => SelectField::class,
                     'default_value' => $search['type'] ?? null,

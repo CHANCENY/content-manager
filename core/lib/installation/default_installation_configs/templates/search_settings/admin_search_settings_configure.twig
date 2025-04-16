@@ -9,8 +9,6 @@
            {{ include ('default.view.admin_search_settings_content_type', {}, with_context: true) }}
         {% elseif search_setting.type == 'user_type' %}
             {{ include ('default.view.admin_search_settings_user_type', {}, with_context: true) }}
-        {% elseif search_setting.type == 'database_type' %}
-            {{ include ('default.view.admin_search_settings_database_type', {}, with_context: true) }}
         {% endif %}
     </div>
 

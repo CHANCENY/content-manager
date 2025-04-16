@@ -43,19 +43,22 @@
             <table class="table table-stripped">
                 <thead>
                 <tr>
-                    <th colspan="3">Searchable Fields</th>
+                    <th colspan="4">Searchable Fields</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for item in search_setting.fields %}
                     <tr>
                         <td>{{ item }}</td>
+                        <td><a href="#" class="exposed" data-expose="{{ item }}"><em>{{ search_setting.exposed[item] == true ? 'Exposed' : 'Not Exposed' }}</em></a></td>
                         <td>
                             <select data-type="{{ item }}" name="field-search-type-setting" class="field-search-type-setting">
                                 <option value="">None</option>
                                 <option {{ search_setting.filter_definitions[item] == 'contains' ? 'selected' : '' }} value="contains">Contains</option>
-                                <option {{ search_setting.filter_definitions[item] == 'start_with' ? 'selected' : '' }} value="start_with">Start With</option>
-                                <option {{ search_setting.filter_definitions[item] == 'end_with' ? 'selected' : '' }} value="end_with">End With</option>
+                                <option {{ search_setting.filter_definitions[item] == 'starts_with' ? 'selected' : '' }} value="start_with">Start With</option>
+                                <option {{ search_setting.filter_definitions[item] == 'ends_with' ? 'selected' : '' }} value="end_with">End With</option>
+                                <option {{ search_setting.filter_definitions[item] == 'equals' ? 'selected' : '' }} value="equals">Equal</option>
+                                <option {{ search_setting.filter_definitions[item] == 'not_equals' ? 'selected' : '' }} value="not_equals">Not Equal</option>
                             </select>
                         </td>
                         <td>
@@ -86,6 +89,7 @@
                 }
             })
         }
+
         const content_type_fields = document.getElementById('content_type_fields');
         if (content_type_fields) {
             content_type_fields.addEventListener('change',(e)=>{
@@ -113,6 +117,19 @@
                     }
                     sendChanges(data);
                 });
+            })
+        }
+
+        const exposed = document.querySelectorAll('.exposed');
+        if (exposed) {
+            Array.from(exposed).forEach((item) => {
+                item.addEventListener('click',(e)=>{
+                    const value = item.dataset.expose;
+                    sendChanges({
+                        action: 'exposed',
+                        value: value,
+                    })
+                })
             })
         }
 

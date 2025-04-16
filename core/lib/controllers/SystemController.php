@@ -1071,7 +1071,7 @@ class SystemController
                         $content_types = $content_type === 'all' ? array_keys(ContentDefinitionManager::contentDefinitionManager()->getContentTypes()):
                             [$content_type];
 
-                        $search_setting['sources'] = $content_types;
+                        $search_setting['sources'] = array_merge($search_setting['sources'] ?? [], $content_types);
                         return new JsonResponse(['success' => SearchManager::searchManager()->addSetting($key, $search_setting)]);
                     }
                 }
@@ -1113,20 +1113,24 @@ class SystemController
         if (!empty($search['type']) && $search['type'] === 'database_type' && !empty($search['sources'])) {
 
             foreach ($search['sources'] as $source) {
-                $columns = SearchManager::searchManager()->getDatabaseSearchableColumns($source);
+                $columns_old = SearchManager::searchManager()->getDatabaseSearchableColumns($source);
+                $columns = array_merge($columns, $columns_old);
             }
 
         }
         $content_types = array_keys(ContentDefinitionManager::contentDefinitionManager()->getContentTypes());
         $searchable_fields = SearchManager::searchManager()->getSourceSearchableField($key);
+
         return new Response(View::view('default.view.admin_search_settings_configure', [
             'search_setting'=>$search,
             'key'=>$key,
             'content_types' => $content_types,
             'searchable_fields'=>$searchable_fields,
             'tables' => $searchable_fields,
+            'columns'=>$columns
         ]
         ));
+
     }
 
 
@@ -1147,6 +1151,7 @@ class SystemController
         $search_handler->runQuery($search_key, $request);
         $settings = $search_handler->getSetting($search_key);
         $template = $settings['template'] ?? 'default.view.admin_search_settings_search_page';
+        dump($search_handler);
         return new Response(View::view($template, ['settings'=>$settings, 'results'=>$search_handler->getResults()]));
     }
 

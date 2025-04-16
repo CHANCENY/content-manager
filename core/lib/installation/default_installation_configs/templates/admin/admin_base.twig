@@ -39,7 +39,7 @@
             <a href="/user/{{ request.user.getUser.uid }}"><i class="fa fa-user"></i> {{  request.user.getUser.name  }}</a>
         {% endif %}
     </div>
-    <input id="default-admin-search" type="text" placeholder="Admin Toolbar quick search">
+    {{ search_form('admin-content')|raw }}
     <div>
         {% if request.user is not null %}
             <a href="#"><i class="fa fa-bell"></i> Announcements</a>
@@ -121,12 +121,6 @@
 <script type="module">
     {{ assets.getAssetsFile('ck-editor.js')|raw }}
 </script>
-
-{% if request.user is not null and request.user.isIsAdmin  %}
-    <script>
-        window.search_api('admin-content');
-    </script>
-{% endif %}
 
 </body>
 </html>

@@ -16,6 +16,9 @@ body {
     top: 0;
     width: 100%;
     z-index: 1040;}
+.admin-bar input[type="submit"] {
+    display: none;
+}
 .admin-bar a {
     color: white;
     text-decoration: none;
