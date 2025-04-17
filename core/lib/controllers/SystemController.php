@@ -7,6 +7,7 @@ use Simp\Core\lib\forms\DisplayEditForm;
 use Simp\Core\lib\forms\SearchFormConfiguration;
 use Simp\Core\lib\forms\ViewAddForm;
 use Simp\Core\modules\assets_manager\AssetsManager;
+use Simp\Core\modules\integration\rest\JsonRestManager;
 use Simp\Core\modules\logger\ErrorLogger;
 use Simp\Core\modules\logger\ServerLogger;
 use Simp\Core\modules\search\SearchManager;
@@ -1106,6 +1107,31 @@ class SystemController
                 $search_setting['exposed'][$value] = empty($search_setting['exposed'][$value]);
                 return new JsonResponse(['success' => SearchManager::searchManager()->addSetting($key, $search_setting)]);
             }
+
+            elseif (isset($data['action']) && $data['action'] === 'remove') {
+                $value = $data['value'] ?? false;
+                $search_setting = SearchManager::searchManager()->getSetting($key);
+
+                if ($search_setting) {
+                    foreach ($search_setting['fields'] ?? [] as $key => $field) {
+                        if ($field === $value) {
+                            unset($search_setting['fields'][$key]);
+                        }
+                    }
+                    foreach ($search_setting['filter_definitions'] ?? [] as $key => $field) {
+                        if ($key === $value) {
+                            unset($search_setting['filter_definitions'][$key]);
+                        }
+                    }
+                    foreach ($search_setting['exposed'] ?? [] as $key => $field) {
+                        if ($key === $value) {
+                            unset($search_setting['exposed'][$key]);
+                        }
+                    }
+                }
+                $key = $request->get('key');
+                return new JsonResponse(['success' => SearchManager::searchManager()->addSetting($key, $search_setting)]);
+            }
         }
 
         $search = SearchManager::searchManager()->getSetting($key);
@@ -1133,7 +1159,6 @@ class SystemController
 
     }
 
-
     /**
      * @throws SyntaxError
      * @throws RuntimeError
@@ -1150,9 +1175,132 @@ class SystemController
         $search_handler->buildSearchQuery($search_key,$request);
         $search_handler->runQuery($search_key, $request);
         $settings = $search_handler->getSetting($search_key);
+
+        $fields = array_map(function ($field) {
+            $list = explode(':', $field);
+            return end($list);
+        }, $settings['fields']);
+
         $template = $settings['template'] ?? 'default.view.admin_search_settings_search_page';
-        dump($search_handler);
-        return new Response(View::view($template, ['settings'=>$settings, 'results'=>$search_handler->getResults()]));
+        return new Response(View::view($template, ['search_settings'=>$settings, 'fields'=>$fields, 'results'=>$search_handler->getResults()]));
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    public function integration_configure_rest(...$args): Response|RedirectResponse
+    {
+        extract($args);
+        if ($request->getMethod() === 'POST') {
+            $version = $request->request->get('version');
+            if (JsonRestManager::factory()->addVersion($version, str_replace(' ', '_', $version))) {
+                return new RedirectResponse('/admin/integration/rest');
+            }
+        }
+        $versions = JsonRestManager::factory()->getVersions();
+        return new Response(View::view('default.view.integration_configure_rest',['versions'=>$versions]));
+    }
+
+    /**
+     * @throws RuntimeError
+     * @throws LoaderError
+     * @throws SyntaxError
+     * @throws PhpfastcacheIOException
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
+    public function integration_configure_rest_version(...$args): Response
+    {
+        extract($args);
+
+        /**@var Request $request**/
+        $version = $request->get('version_id');
+        $version = JsonRestManager::factory()->getVersion($version);
+
+        if ($request->getMethod() === 'POST' && !$request->request->has('new-post-key')) {
+            $data = [];
+            $data['route_type'] = 'rest_'.$version['version_key'];
+            $data['title'] = $request->request->get('route_title');
+            $data['path'] = "/{$version['version_key']}/". trim($request->request->get('route_path'), '/');
+            $data['method']  = [$request->request->get('route_method')];
+            $data['access'] = $request->request->all('permission');
+            $data['controller'] = [
+              'class' => JsonRestController::class,
+              'method' => 'handle_api_request',
+            ];
+            $key = "{$version['version_key']}.".strtolower(str_replace(' ', '.', $data['title']));
+            if(JsonRestManager::factory()->addVersionRoute($key, $data)) {
+                Messager::toast()->addMessage("Route successfully added.");
+                return new RedirectResponse('/admin/integration/rest/version/'.$version['version_key']);
+            }
+            Messager::toast()->addError("Route was not added.");
+            return new RedirectResponse('/admin/integration/rest/version/'.$version['version_key']);
+        }
+
+        elseif ($request->getMethod() === 'DELETE') {
+            $data = json_decode($request->getContent(), true);
+            if (!empty($data['route'])) {
+                JsonRestManager::factory()->removeVersionRoute($data['route']);
+                return new JsonResponse(['success'=>true]);
+            }
+        }
+
+        elseif ($request->getMethod() === 'POST' && $request->request->has('new-post-key')) {
+            $data = $request->request->all();
+            $route = $data['route'];
+            $post_keys = [];
+            foreach ($data['post_keys'] as $index=>$key) {
+                if (!empty($key)) {
+                    $post_keys[$key] = [
+                        'post_keys' => $key,
+                        'post_keys_type' => $data['post_keys_type'][$index],
+                        'post_keys_required' => $data['post_keys_required'][$index]
+                    ];
+                }
+            }
+            if (JsonRestManager::factory()->addVersionRoutePostSetting($route, $post_keys)) {
+                Messager::toast()->addMessage("Post keys successfully added.");
+                return new RedirectResponse('/admin/integration/rest/version/'.$version['version_key']);
+            }
+            Messager::toast()->addError("Post keys was not added.");
+            return new RedirectResponse('/admin/integration/rest/version/'.$version['version_key']);
+        }
+
+        $version_routes = JsonRestManager::factory()->getVersionRoute($version['version_key']);
+
+        $post_settings = [];
+        foreach ($version_routes as $key=>$route) {
+
+            $post_settings[$key] = JsonRestManager::factory()->getVersionRoutePostSetting($key);
+        }
+
+        return new Response(View::view('default.view.integration_configure_rest_version',
+            ['version'=>$version,
+                'version_routes'=>$version_routes,
+                'post_settings'=>$post_settings
+            ]));
+
+    }
+
+    /**
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheIOException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
+    public function integration_configure_rest_version_delete(...$args): RedirectResponse
+    {
+        extract($args);
+        $version = $request->get('version_id');
+        if (JsonRestManager::factory()->deleteVersion($version)) {
+            Messager::toast()->addMessage("Version $version was successfully deleted.");
+        }
+        return new RedirectResponse('/admin/integration/rest');
     }
 
 }

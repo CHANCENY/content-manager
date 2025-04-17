@@ -23,6 +23,7 @@ class Route
     public string $controller;
     public string $controller_method;
     public array $access;
+    public string $route_type;
 
     public function __construct(string $route_id, array $route_data)
     {
@@ -33,6 +34,7 @@ class Route
         $this->controller = $route_data['controller']['class'];
         $this->controller_method = $route_data['controller']['method'];
         $this->access = $route_data['access'] ?? [];
+        $this->route_type = $route_data['route_type'] ?? 'default';
     }
 
     public function getRouteId(): string
@@ -121,5 +123,11 @@ class Route
         ];
         return $controller->$method(...$options);
     }
+
+    public function getRouteType(): string
+    {
+        return $this->route_type;
+    }
+
 
 }

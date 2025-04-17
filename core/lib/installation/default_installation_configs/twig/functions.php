@@ -4,6 +4,10 @@ use Simp\Core\lib\memory\cache\Caching;
 use Simp\Core\modules\files\helpers\FileFunction;
 use Simp\Core\modules\search\SearchManager;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
+use Simp\Core\modules\user\entity\User;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 function getContentType(?string $content_name): ?array
 {
@@ -116,10 +120,14 @@ function url(string $id, array $options, array $params = []): string
     return '';
 }
 
+function author(int $uid): ?User {
+    return User::load($uid);
+}
+
 /**
- * @throws \Twig\Error\RuntimeError
- * @throws \Twig\Error\SyntaxError
- * @throws \Twig\Error\LoaderError
+ * @throws RuntimeError
+ * @throws SyntaxError
+ * @throws LoaderError
  */
 function search_api(string $search_key): ?string
 {
@@ -157,6 +165,9 @@ function getArr(): array
         new \Twig\TwigFunction('search_form', function ($search_key, $wrapper = false) {
             return search_api($search_key,$wrapper);
         }),
+        new \Twig\TwigFunction('author', function ($uid) {
+            return author($uid);
+        })
     );
 }
 

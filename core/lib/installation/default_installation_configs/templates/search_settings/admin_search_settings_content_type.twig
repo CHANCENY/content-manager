@@ -137,6 +137,19 @@
             })
         }
 
+        const remove = document.querySelectorAll('.remove');
+        if (remove) {
+            Array.from(remove).forEach((item) => {
+                item.addEventListener('click',(e)=>{
+                    const value = item.dataset.type;
+                    sendChanges({
+                        action: 'remove',
+                        value: value,
+                    })
+                })
+            })
+        }
+
         const sendChanges = async (data)=>{
             const requestOptions = {
                 method: 'POST',

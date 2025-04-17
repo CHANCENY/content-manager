@@ -102,6 +102,7 @@ class ViewsManager extends SystemDirectory
         $route = [
             'title' => $display['name'],
             'path' => $display['display_url'],
+            'route_type' => 'views',
             'method' => [
                 'GET',
                 'POST',

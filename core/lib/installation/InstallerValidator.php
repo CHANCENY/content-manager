@@ -407,6 +407,7 @@ class InstallerValidator extends SystemDirectory {
         if (!is_dir($settings)) {
             mkdir($settings);
         }
+
         $list = array_diff(scandir($directory), ['..', '.']);
         foreach ($list as $file) {
             $file_full = $directory . DIRECTORY_SEPARATOR . $file;

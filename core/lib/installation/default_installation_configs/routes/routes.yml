@@ -676,3 +676,39 @@ system.search.setting.search:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: admin_search_settings_search_page
+
+#integration routes
+system.integration.configure.rest:
+  title: "REST"
+  path: '/admin/integration/rest'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: integration_configure_rest
+system.integration.configure.rest.version:
+  title: "REST"
+  path: '/admin/integration/rest/version/[version_id:string]'
+  method:
+    - GET
+    - POST
+    - DELETE
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: integration_configure_rest_version
+system.integration.configure.rest.version.delete:
+  title: "REST"
+  path: '/admin/integration/rest/version/[version_id:string]/delete'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: integration_configure_rest_version_delete

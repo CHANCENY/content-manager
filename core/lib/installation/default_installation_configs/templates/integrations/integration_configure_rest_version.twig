@@ -1,0 +1,228 @@
+{% extends 'default.view.admin_base' %}
+
+{% block body %}
+
+    <div class="db-form-container">
+        <h2>REST <em>{{ version.title }}</em></h2>
+
+        <div class="action-buttons">
+            <a href="#" id="version-create" class="">+create route</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-stripped">
+                <thead>
+                   <tr>
+                       <th>Title</th>
+                       <th>Method</th>
+                       <th>URI</th>
+                       <th>Permission</th>
+                       <th>Actions</th>
+                   </tr>
+                </thead>
+                <tbody>
+                   {% for index, version_route in version_routes %}
+
+                       <tr>
+                           <td>{{ version_route.getRouteTitle() }}</td>
+                           <td>{{ version_route.getMethod()|join(',') }}</td>
+                           <td>{{ version_route.getRoutePath() }}</td>
+                           <td>{{ version_route.getAccess()|join(',') }}</td>
+                           <td>
+                               {% if 'POST' in version_route.getMethod() %}
+                                  <a href="#"
+                                     data-route="{{ index }}"
+                                     class="post-configure"
+                                     data-post_settings="{{ post_settings[index]|json_encode }}"
+                                  >post data configure</a>
+                               {% endif %}
+                               <a class="remove" data-route="{{ index }}" data-version="{{ version.version_key }}">Delete</a>
+                           </td>
+                       </tr>
+
+                   {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <div id="route-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-field" class="close float-end">&times;</span>
+            <div class="modal-header">Create Version</div>
+            <div>
+                <form method="post" class="form">
+                    <div class="form-group">
+                        <label for="version">Route Title</label>
+                        <input type="text" name="route_title" placeholder="Title" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="method">Route Method</label>
+                        <select id="method" name="route_method" class="form-control">
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                            <option value="PUT">PUT</option>
+                            <option value="DELETE">DELETE</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="permission">Permission</label>
+                        <select name="permission[]" multiple id="permission" class="form-control">
+                            <option value="authenticated">Authenticated</option>
+                            <option value="anonymous">Anonymous</option>
+                            <option value="administrator">Admin</option>
+                            <option value="content_creator">Content Creator</option>
+                            <option value="manager">Manager</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="route">Path</label>
+                        <input id="route" type="text" name="route_path" placeholder="URI" class="form-control">
+                        <span class="field-description">always start with '/' and to add placeholder for GET [name:string] or [id:int]</span>
+                    </div>
+                    <div class="form-group">
+                        <input id="settings-field-btn" type="submit" class="btn btn-primary" name="settings-field-btn" value="Create Version">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="post-configure-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-field" class="close float-end">&times;</span>
+            <div class="modal-header">Post Keys Expected Settings</div>
+            <div>
+                <form method="post" class="form">
+
+                    <div class="form-wrapper d-none">
+                       <details class="form-group">
+                           <summary>Add new post-key</summary>
+                           <div class="form-group">
+                               <label for="post_keys">Post Keys</label>
+                               <input id="post_keys" type="text" name="post_keys[]" placeholder="keys" class="form-control">
+                           </div>
+                           <div class="form-group">
+                               <label for="post_keys_type">Post Keys Type</label>
+                               <select id="post_keys_type" name="post_keys_type[]" class="form-control">
+                                   <option value="string">string</option>
+                                   <option value="int">int</option>
+                                   <option value="float">float</option>
+                                   <option value="bool">bool</option>
+                                   <option value="array">array</option>
+                               </select>
+                           </div>
+                           <div class="form-group">
+                               <label for="post_keys_required">Post Keys Required</label>
+                               <select id="post_keys_required" name="post_keys_required[]" class="form-control">
+                                   <option value="yes">Yes</option>
+                                   <option value="no">No</option>
+                               </select>
+                           </div>
+                       </details>
+                    </div>
+                    <div class="fields-wrapper">
+
+                    </div>
+
+                    <div class="form-group">
+                        <button type="button" id="button-more">+ more</button>
+                    </div>
+                    <div class="form-group">
+                        <input id="settings-field-btn" type="submit" class="btn btn-primary" name="new-post-key" value="Save Settings">
+                    </div>
+                    <input type="hidden" name="route_version" value="{{ version.version_key }}">
+                    <input type="hidden" name="route" value="">
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+
+            const versionCreate = document.querySelector('#version-create');
+            if (versionCreate) {
+                versionCreate.addEventListener('click',(e)=>{
+                    e.preventDefault();
+                    window.modal(document.querySelector('#route-modal'),
+                        versionCreate,
+                        document.querySelector('#route-modal').querySelector('#close-field')
+                    );
+                });
+            }
+
+            const remove = document.querySelectorAll('.remove');
+            if (remove) {
+                remove.forEach((item)=>{
+                    item.addEventListener('click',(e)=>{
+                        e.preventDefault();
+                        const version = e.target.dataset.version;
+                        const route = e.target.dataset.route;
+                        const data = {
+                            version: version,
+                            route: route,
+                        };
+                        send(data);
+                    })
+                })
+            }
+
+            const postConfigure = document.querySelectorAll('.post-configure');
+            if (postConfigure) {
+                postConfigure.forEach((item)=>{
+                    item.addEventListener('click',(e)=>{
+                        e.preventDefault();
+                        document.querySelector('#post-configure-modal').querySelector("input[name='route']").value = item.dataset.route;
+                        document.querySelector('#post-configure-modal').querySelector('.fields-wrapper').innerHTML = '';
+
+                        const post_settings = JSON.parse(item.dataset.post_settings);
+                        Object.entries(post_settings).forEach(([key, value])=>{
+                            const clone = document.querySelector('#post-configure-modal').querySelector('.form-wrapper').cloneNode(true);
+                            clone.classList.remove('d-none');
+                            clone.querySelector('input[name="post_keys[]"]').value = key;
+                            clone.querySelector('select[name="post_keys_type[]"]').value = value.post_keys_type;
+                            clone.querySelector('select[name="post_keys_required[]"]').value = value.post_keys_required;
+                            clone.querySelector('summary').textContent = "Edit post-key " + key;
+
+                            document.querySelector('#post-configure-modal').querySelector('.fields-wrapper').appendChild(clone);
+                        });
+
+                        window.modal(document.querySelector('#post-configure-modal'),
+                            item,
+                            document.querySelector('#post-configure-modal').querySelector('#close-field')
+                        );
+                    })
+                })
+            }
+
+            const buttonMore = document.querySelector('#button-more');
+            if (buttonMore) {
+                buttonMore.addEventListener('click',(e)=>{
+                    e.preventDefault();
+                    const clone = document.querySelector('#post-configure-modal').querySelector('.form-wrapper').cloneNode(true);
+                    clone.classList.remove('d-none');
+                    document.querySelector('#post-configure-modal').querySelector('.fields-wrapper').appendChild(clone);
+                })
+            }
+
+            const send = async (data) => {
+                const requestOptions = {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data),
+                };
+                const response = await fetch(window.location.href,requestOptions);
+                const result = await response.json();
+                if (result.hasOwnProperty('success') && result.success === true) {
+                    window.location.reload();
+                }
+            }
+
+        })();
+    </script>
+
+{% endblock %}
