@@ -306,14 +306,14 @@ class InstallerValidator extends SystemDirectory {
             @touch($general_routes);
         }
 
-        //TODO: read all modules routes.
+        $routes = [];
         if (file_exists($views_routes)) {
-            return Yaml::parseFile($views_routes) ?? [];
+            $routes = Yaml::parseFile($views_routes) ?? [];
         }
         if (file_exists($general_routes)) {
-            return Yaml::parseFile($general_routes) ?? [];
+            $routes = array_merge($routes, Yaml::parseFile($general_routes) ?? []);
         }
-        return [];
+        return $routes;
     }
 
     /**
