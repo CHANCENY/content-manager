@@ -4,6 +4,7 @@ namespace Simp\Core\modules\integration\rest;
 
 use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\lib\routes\Route;
+use Simp\Core\modules\database\Database;
 use Symfony\Component\Yaml\Yaml;
 
 class JsonRestManager
@@ -110,6 +111,11 @@ class JsonRestManager
             @touch($this->version_storage);
         }
         $post_settings = Yaml::parseFile($this->version_storage) ?? [];
+        $table = str_replace('.', '_', $route_key);
+        $data['data_source'] = $table;
+        if (!$this->createTable($route_key, $data)){
+            return false;
+        }
         $post_settings[$route_key] = $data;
         return !empty(file_put_contents($this->version_storage, Yaml::dump($post_settings, Yaml::DUMP_OBJECT_AS_MAP)));
     }
@@ -127,6 +133,34 @@ class JsonRestManager
         }
         $post_settings = Yaml::parseFile($this->version_storage) ?? [];
         return $post_settings[$route_key] ?? [];
+    }
+
+    public function createTable(string $table, array $post_settings): bool {
+
+        $query = [];
+        foreach ($post_settings as $key=>$post_setting) {
+            if (isset($post_setting['post_keys_type']) && $post_setting['post_keys_type'] === 'float') {
+                $query[] = "`{$key}` DOUBLE ".(!isset($post_setting['post_keys_required']) && $post_setting['post_keys_required'] === 'yes' ? 'NOT NULL' : 'NULL');
+            }
+            elseif (isset($post_setting['post_keys_type']) && $post_setting['post_keys_type'] === 'string') {
+                $query[] = "`{$key}` TEXT ".(!isset($post_setting['post_keys_required']) && $post_setting['post_keys_required'] === 'yes' ? 'NOT NULL' : 'NULL');
+            }
+            elseif (isset($post_setting['post_keys_type']) && $post_setting['post_keys_type'] === 'int') {
+                $query[] = "`{$key}` INT ".(!isset($post_setting['post_keys_required']) && $post_setting['post_keys_required'] === 'yes' ? 'NOT NULL' : 'NULL');
+            }
+
+            elseif (isset($post_setting['post_keys_type']) && $post_setting['post_keys_type'] === 'array') {
+                $query[] = "`{$key}` LONGBLOB ".(!isset($post_setting['post_keys_required']) && $post_setting['post_keys_required'] === 'yes' ? 'NOT NULL' : 'NULL');
+            }
+        }
+        $line = implode(',',$query);
+        $query = "CREATE TABLE IF NOT EXISTS `{$table}` ( {$line} )";
+        try{
+            $query = Database::database()->con()->prepare($query);
+            return $query->execute();
+        }catch (\Throwable $exception){
+            return false;
+        }
     }
 
     public static function factory(): JsonRestManager {

@@ -18,15 +18,13 @@ class JsonRestController
 
         /**@var $request Request**/
         if ($route !== null) {
-
-
-            $setting = JsonRestManager::factory()->getVersionRoutePostSetting($route->route_id);
+            
             if ($request->getMethod() === 'POST') {
                 return new JsonResponse($setting);
             }
 
             return new JsonResponse(['status'=>true]);
         }
-        return new JsonResponse(['error' => 'endpoint not found']);
+        return new JsonResponse(['error' => 'Endpoint not found']);
     }
 }
