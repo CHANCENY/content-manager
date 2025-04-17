@@ -38,6 +38,11 @@ class App
      */
     public function __construct()
     {
+
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            $this->optionRequestHandler();
+        }
+
         // Prepare default timezone
         $set_up_wizard = new InstallerValidator();
 
@@ -233,5 +238,34 @@ class App
             $set_up_wizard->setUpProject();
         }
     }
+
+    protected function optionRequestHandler(): void
+    {
+        // Only handle OPTIONS requests
+        if ($_SERVER['REQUEST_METHOD'] !== 'OPTIONS') {
+            return;
+        }
+
+        $origin = $_SERVER['HTTP_ORIGIN'] ?? null;
+        if ($origin) {
+            header("Access-Control-Allow-Origin: $origin");
+            header("Vary: Origin");
+        }
+
+        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+
+        // Dynamically reflect back requested headers
+        $requestedHeaders = $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'] ?? '';
+        if ($requestedHeaders) {
+            header("Access-Control-Allow-Headers: $requestedHeaders");
+        }
+
+        // Optional: Cache preflight for 1 day
+        header("Access-Control-Max-Age: 86400");
+
+        http_response_code(204);
+        exit();
+    }
+
 
 }

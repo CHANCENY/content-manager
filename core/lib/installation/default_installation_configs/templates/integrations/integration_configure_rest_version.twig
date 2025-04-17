@@ -34,8 +34,16 @@
                                      data-route="{{ index }}"
                                      class="post-configure"
                                      data-post_settings="{{ post_settings[index]|json_encode }}"
-                                  >post data configure</a>
+                                  >Configure</a>
                                {% endif %}
+                               {% if 'PUT' in version_route.getMethod() %}
+                                   <a href="#"
+                                      data-route="{{ index }}"
+                                      class="put-configure"
+                                      data-post_settings="{{ post_settings[index]|json_encode }}"
+                                   >Configure</a>
+                               {% endif %}
+                               <a href="#" class="data-source" data-route="{{ index }}">Data Source</a>
                                <a class="remove" data-route="{{ index }}" data-version="{{ version.version_key }}">Delete</a>
                            </td>
                        </tr>
