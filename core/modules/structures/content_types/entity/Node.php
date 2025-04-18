@@ -53,6 +53,34 @@ class Node
         }catch(\Throwable){}
     }
 
+    public static function filter(string $title, string $content_type): array
+    {
+        if (!empty($title) || !empty($content_type)) {
+            $query = "SELECT nid FROM node_data WHERE bundle = :bundle AND title LIKE :title";
+            $query = Database::database()->con()->prepare($query);
+            $query->bindValue(':title', "%$title%");
+            $query->bindValue(':bundle', $content_type);
+            $query->execute();
+            $result = $query->fetchAll(PDO::FETCH_ASSOC);
+            return array_map(fn($value) => Node::load($value['nid']), $result);
+        }
+        return [];
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'nid' => $this->nid,
+            'title' => $this->title,
+            'bundle' => $this->bundle,
+            'status' => $this->status,
+            'created' => $this->created,
+            'updated' => $this->updated,
+            ...$this->getValues()
+        ];
+
+    }
+
     public function getEntityArray(): ?array
     {
         return $this->entity_types;

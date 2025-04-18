@@ -801,3 +801,31 @@ button.cancel {
     }
 
 }
+
+form {
+    .filter-append {
+        margin-top: 5px;
+        background-color: #f8f9fa; /* light background */
+        border-radius: 4px;
+        max-height: 200px; /* optional scroll limit */
+        overflow-y: auto;
+    }
+
+    .filter-append .list-item {
+        padding: 10px 15px;
+        border: 1px solid #dee2e6;
+        border-top: none;
+        cursor: pointer;
+        background-color: white;
+        transition: background-color 0.2s;
+    }
+
+    .filter-append .list-item:first-child {
+        border-top: 1px solid #dee2e6; /* only first has top border */
+    }
+
+    .filter-append .list-item:hover {
+        background-color: #e9ecef;
+    }
+
+}

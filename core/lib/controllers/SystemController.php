@@ -111,6 +111,32 @@ class SystemController
         return new JsonResponse(['user'=>1],200);
     }
 
+    public function system_reference_filter(...$args): JsonResponse
+    {
+        extract($args);
+        $content = json_decode($request->getContent());
+        if ($content->value && $content->settings) {
+
+            if(isset($content->settings->type) && $content->settings->type === 'user') {
+                $users = User::filter($content->value);
+                foreach ($users as $key => $user) {
+                    unset($users[$key]['password']);
+                    if ($user['status'] === 0) {
+                        unset($users[$key]);
+                    }
+                }
+                return new JsonResponse(['result'=> array_values($users)], 200);
+            }
+            elseif(isset($content->settings->type) && !empty($content->settings->reference_entity) && $content->settings->type === 'node') {
+                $content_type = $content->settings->reference_entity;
+                $nodes = Node::filter($content->value, $content_type);
+                $nodes = array_map(function ($node) { return $node->toArray(); }, $nodes);
+                return new JsonResponse(['result'=> array_values($nodes)], 200);
+            }
+        }
+        return new JsonResponse(['result'=>'ok']);
+    }
+
     /**
      * @throws SyntaxError
      * @throws RuntimeError

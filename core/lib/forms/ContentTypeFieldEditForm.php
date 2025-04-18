@@ -2,12 +2,12 @@
 
 namespace Simp\Core\lib\forms;
 
-use Google\Service\Batch\Message;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheIOException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
+use Simp\Core\components\reference_field\ReferenceField;
 use Simp\Default\FileField;
 use Simp\Default\BasicField;
 use Simp\Default\SelectField;
@@ -80,7 +80,8 @@ class ContentTypeFieldEditForm extends ContentTypeFieldForm
                     'textarea' => 'TextArea',
                     'fieldset' => 'FieldSet',
                     'details' => 'Details',
-                    'conditional' => 'Conditional fieldset'
+                    'conditional' => 'Conditional fieldset',
+                    'reference' => 'Reference'
                 ],
                 'name' => 'name',
                 'default_value' => $field['type'] ?? null,
@@ -213,6 +214,38 @@ class ContentTypeFieldEditForm extends ContentTypeFieldForm
                     ]
                 ]
             ];
+            $form['reference_settings'] = [
+                'type' => 'details',
+                'label' => 'Reference Field Settings',
+                'id' => 'reference_settings',
+                'class' => ['form-control'],
+                'handler' => DetailWrapperField::class,
+                'name' => 'reference_settings',
+                'inner_field' => [
+                    'type' => [
+                        'type' => 'select',
+                        'label' => 'Reference Type',
+                        'id' => 'type',
+                        'class' => ['form-control'],
+                        'name' => 'type',
+                        'default_value' => $field['reference']['type'] ?? 'node',
+                        'option_values' => [
+                            'node' => 'Node Entity',
+                            'user'=> 'User Entity',
+                        ],
+                        'handler' => SelectField::class,
+                    ],
+                    'reference_entity' => [
+                        'type' => 'text',
+                        'label' => 'Content Type machine name if type is node entity, d name if type is user entity',
+                        'id' => 'reference_entity',
+                        'class' => ['form-control'],
+                        'name' => 'reference_entity',
+                        'description' => 'optional for user entity',
+                        'default_value' => $field['reference']['reference_entity'] ?? null,
+                    ]
+                ]
+            ];
             $form['submit'] = [
                 'type' => 'submit',
                 'default_value' => 'Save field',
@@ -268,6 +301,7 @@ class ContentTypeFieldEditForm extends ContentTypeFieldForm
                 'fieldset' => FieldSetField::class,
                 'details' => DetailWrapperField::class,
                 'conditional' => ConditionalField::class,
+                'reference' => ReferenceField::class,
                 default => BasicField::class,
             };
 
@@ -317,6 +351,13 @@ class ContentTypeFieldEditForm extends ContentTypeFieldForm
                 'allowed_file_size' => $data['file_field_settings']['allowed_file_size'],
             ];
             $field['settings'] = $file_options;
+
+            if($data['type'] === 'reference'){
+                $field['reference'] = [
+                    'type' => $data['reference_settings']['type'],
+                    'reference_entity' => $data['reference_settings']['reference_entity'],
+                ];
+            }
 
             $field = array_merge($original_field,$field);
 

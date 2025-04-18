@@ -7,6 +7,7 @@ use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheIOException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
+use Simp\Core\components\reference_field\ReferenceField;
 use Simp\Core\modules\messager\Messager;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
 use Simp\Default\BasicField;
@@ -69,7 +70,8 @@ class ContentTypeFieldForm extends FormBase
                 'textarea' => 'TextArea',
                 'fieldset' => 'FieldSet',
                 'details' => 'Details',
-                'conditional' => 'Conditional fieldset'
+                'conditional' => 'Conditional fieldset',
+                'reference' => 'Reference'
             ],
             'name' => 'name'
         ];
@@ -184,6 +186,37 @@ class ContentTypeFieldForm extends FormBase
                 ]
             ]
         ];
+        $form['reference_settings'] = [
+            'type' => 'details',
+            'label' => 'Reference Field Settings',
+            'id' => 'reference_settings',
+            'class' => ['form-control'],
+            'handler' => DetailWrapperField::class,
+            'name' => 'reference_settings',
+            'inner_field' => [
+                'type' => [
+                    'type' => 'select',
+                    'label' => 'Reference Type',
+                    'id' => 'type',
+                    'class' => ['form-control'],
+                    'name' => 'type',
+                    'default_value' => 'node',
+                    'option_values' => [
+                        'node' => 'Node Entity',
+                        'user'=> 'User Entity',
+                    ],
+                    'handler' => SelectField::class,
+                ],
+                'reference_entity' => [
+                    'type' => 'text',
+                    'label' => 'Content Type machine name if type is node entity, d name if type is user entity',
+                    'id' => 'reference_entity',
+                    'class' => ['form-control'],
+                    'name' => 'reference_entity',
+                    'description' => 'optional for user entity',
+                ]
+            ]
+        ];
         $form['submit'] = [
             'type' => 'submit',
             'default_value' => 'Save field',
@@ -258,11 +291,19 @@ class ContentTypeFieldForm extends FormBase
                'fieldset' => FieldSetField::class,
                'details' => DetailWrapperField::class,
                'conditional' => ConditionalField::class,
+               'reference' => ReferenceField::class,
                default => BasicField::class,
            };
 
            if ($data['type'] === 'textarea') {
                $field['class'][] = "textarea-editor";
+           }
+
+           if ($data['type'] === 'reference') {
+               $field['reference'] = [
+                   'type' => $data['reference_settings']['type'],
+                   'reference_entity' => $data['reference_settings']['reference_entity'],
+               ];
            }
 
            $persist = true;

@@ -7,6 +7,7 @@ use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheIOException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
+use Simp\Core\components\reference_field\ReferenceField;
 use Simp\Core\modules\files\entity\File;
 use Simp\Core\modules\files\uploads\FormUpload;
 use Simp\Core\modules\messager\Messager;
@@ -101,14 +102,18 @@ class ContentTypeDefinitionForm extends FormBase
             'name' => 'entity_name'
         ];
         $form['owner'] = [
-            'type' => 'user',
+            'type' => 'reference',
             'label' => "Author",
             'required' => true,
             'class' => ['form-control'],
             'id' => 'owner',
             'name' => 'owner',
-            'handler' => UserReferenceField::class ,
-            'default_value' => CurrentUser::currentUser()->getUser()->getName() ?? User::load(1)->getName()
+            'handler' => ReferenceField::class,
+            'default_value' => CurrentUser::currentUser()->getUser()->getName() ?? User::load(1)->getName(),
+            'reference' => [
+                'type' => 'user',
+                'reference_entity' => 'users',
+            ]
         ];
         $form['submit'] = [
             'type' => 'submit',
@@ -237,7 +242,7 @@ class ContentTypeDefinitionForm extends FormBase
                 return $value->getValue();
             }, $form);
 
-            $user = User::loadByName($data_all['owner'] ?? '');
+            $user = User::loadByName($data_all['owner'] ?? '') ?? User::load($data_all['owner'] ?? 1);
             if ($user instanceof User) {
                 $node_data = [
                     'title' => $data_all['title'] ?? null,

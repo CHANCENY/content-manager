@@ -65,6 +65,20 @@ system.user.filter.page:
     class: Simp\Core\lib\controllers\SystemController
     method: system_user_filter_auto_page
 
+system.reference.filter.page:
+  title: "Reference Filter"
+  path: '/reference/field/filter'
+  method:
+    - POST
+  access:
+    - authenticated
+    - administrator
+    - content_creator
+    - manager
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: system_reference_filter
+
 # Account routes.
 user.account.login.form.route:
   title: "Login"
