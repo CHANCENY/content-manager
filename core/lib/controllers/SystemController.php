@@ -1266,7 +1266,6 @@ class SystemController
         return new Response(View::view('default.view.integration_configure_rest_version',
             ['version'=>$version,
                 'version_routes'=>$version_routes,
-                'post_settings'=>$post_settings,
                 'data_sources'=>$data_sources,
             ])
         );

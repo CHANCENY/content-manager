@@ -10,6 +10,5 @@ class ProductDataSource extends RestDataSource
     public function __construct(Route $route, array $options)
     {
         parent::__construct($route, $options);
-        dump($this);
     }
 }
