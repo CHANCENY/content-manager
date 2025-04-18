@@ -25,15 +25,18 @@ class Caching implements MemoryInterface
 
     /**
      * Save data to cache.
+     * @param string $key
+     * @param $value
+     * @param int $duration
      * @throws PhpfastcacheCoreException
      * @throws PhpfastcacheLogicException
      * @throws PhpfastcacheDriverException
      * @throws PhpfastcacheInvalidArgumentException
      */
-    public function set(string $key, $value): bool
+    public function set(string $key, $value, int $duration = 3600): bool
     {
         $instance = $this->caching_object->getItem($key);
-        $instance->set($value)->expiresAfter(3600);
+        $instance->set($value)->expiresAfter($duration);
         return $this->caching_object->save($instance);
     }
 

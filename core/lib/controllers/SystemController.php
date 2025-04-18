@@ -2,6 +2,7 @@
 
 namespace Simp\Core\lib\controllers;
 
+use Simp\Core\components\rest_data_source\DefaultDataSource;
 use Simp\Core\lib\forms\ContentTypeInnerFieldEditForm;
 use Simp\Core\lib\forms\DisplayEditForm;
 use Simp\Core\lib\forms\SearchFormConfiguration;
@@ -1221,7 +1222,7 @@ class SystemController
         $version = $request->get('version_id');
         $version = JsonRestManager::factory()->getVersion($version);
 
-        if ($request->getMethod() === 'POST' && !$request->request->has('new-post-key')) {
+        if ($request->getMethod() === 'POST' && !$request->request->has('source-data')) {
             $data = [];
             $data['route_type'] = 'rest_'.$version['version_key'];
             $data['title'] = $request->request->get('route_title');
@@ -1249,40 +1250,26 @@ class SystemController
             }
         }
 
-        elseif ($request->getMethod() === 'POST' && $request->request->has('new-post-key')) {
+        elseif ($request->getMethod() === 'POST' && $request->request->has('source-data') ) {
             $data = $request->request->all();
-            $route = $data['route'];
-            $post_keys = [];
-            foreach ($data['post_keys'] as $index=>$key) {
-                if (!empty($key)) {
-                    $post_keys[$key] = [
-                        'post_keys' => $key,
-                        'post_keys_type' => $data['post_keys_type'][$index],
-                        'post_keys_required' => $data['post_keys_required'][$index]
-                    ];
-                }
+            $data_providers = JsonRestManager::factory()->getDataProviders();
+            if (JsonRestManager::factory()->addVersionRouteDataSourceSetting($data['route'], $data_providers[$data['data_source']]['handler'])) {
+                Messager::toast()->addMessage("Route data source successfully added.");
+            }else {
+                Messager::toast()->addError("Route data source was not added.");
             }
-            if (JsonRestManager::factory()->addVersionRoutePostSetting($route, $post_keys)) {
-                Messager::toast()->addMessage("Post keys successfully added.");
-                return new RedirectResponse('/admin/integration/rest/version/'.$version['version_key']);
-            }
-            Messager::toast()->addError("Post keys was not added.");
             return new RedirectResponse('/admin/integration/rest/version/'.$version['version_key']);
         }
 
         $version_routes = JsonRestManager::factory()->getVersionRoute($version['version_key']);
-
-        $post_settings = [];
-        foreach ($version_routes as $key=>$route) {
-
-            $post_settings[$key] = JsonRestManager::factory()->getVersionRoutePostSetting($key);
-        }
-
+        $data_sources = JsonRestManager::factory()->getDataProviders();
         return new Response(View::view('default.view.integration_configure_rest_version',
             ['version'=>$version,
                 'version_routes'=>$version_routes,
-                'post_settings'=>$post_settings
-            ]));
+                'post_settings'=>$post_settings,
+                'data_sources'=>$data_sources,
+            ])
+        );
 
     }
 

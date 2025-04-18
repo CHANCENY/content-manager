@@ -36,18 +36,21 @@ class Session implements MemoryInterface
     }
 
     /**
+     * @param string $key
+     * @param $value
+     * @param int $duration
      * @throws PhpfastcacheIOException
      * @throws PhpfastcacheCoreException
      * @throws PhpfastcacheLogicException
      * @throws PhpfastcacheDriverException
      * @throws PhpfastcacheInvalidArgumentException
      */
-    public function set(string $key, $value): bool
+    public function set(string $key, $value, int $duration = 3600): bool
     {
         $key = $key.".". $this->session_id;
        if ($this->session_object instanceof Driver) {
            $instance = $this->session_object->getItem($key);
-           $instance->set($value)->expiresAfter(3600);
+           $instance->set($value)->expiresAfter($duration);
            return $this->session_object->save($instance);
        }
        $this->session_object[$key] = $value;

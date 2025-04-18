@@ -3,8 +3,8 @@
 namespace Simp\Core\modules\integration\rest;
 
 use Simp\Core\lib\installation\SystemDirectory;
+use Simp\Core\lib\memory\cache\Caching;
 use Simp\Core\lib\routes\Route;
-use Simp\Core\modules\database\Database;
 use Symfony\Component\Yaml\Yaml;
 
 class JsonRestManager
@@ -13,6 +13,7 @@ class JsonRestManager
     protected string $version_storage = '';
     protected array $version_routes = [];
     protected string $version_routes_storage = '';
+    protected array $data_providers = [];
     public function __construct() {
         $system_directory = new SystemDirectory();
         $this->version_storage = $system_directory->setting_dir . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'rest' . DIRECTORY_SEPARATOR . 'json';
@@ -33,6 +34,22 @@ class JsonRestManager
         if (!file_exists($this->version_routes_storage)) {
             @touch($this->version_routes_storage);
         }
+
+        $dataSource = Caching::init()->get('default.admin.data-source');
+        $custom_data_providers = $system_directory->setting_dir . DIRECTORY_SEPARATOR . 'integration' . DIRECTORY_SEPARATOR . 'data-source';
+        if (!is_dir($custom_data_providers)) {
+            @mkdir($custom_data_providers, recursive: true);
+        }
+        $custom_data_providers .= DIRECTORY_SEPARATOR . 'data-source.yml';
+        if (!file_exists($custom_data_providers)) {
+            @touch($custom_data_providers);
+        }
+
+        if (filesize($custom_data_providers) <= 0) {
+            @copy($dataSource, $custom_data_providers);
+        }
+
+        $this->data_providers = Yaml::parseFile($custom_data_providers) ?? [];
 
         $this->version_routes = Yaml::parseFile($this->version_routes_storage) ?? [];
         $this->rest_versions = Yaml::parseFile($this->version_storage) ?? [];
@@ -65,7 +82,6 @@ class JsonRestManager
         }
         return false;
     }
-
     public function deleteVersion(string $version_key): bool
     {
         if (isset($this->rest_versions[$version_key])) {
@@ -74,13 +90,11 @@ class JsonRestManager
         }
         return false;
     }
-
     public function addVersionRoute(string $key, array $data): bool
     {
         $this->version_routes[$key] = $data;
-        return !empty(file_put_contents($this->version_routes_storage, Yaml::dump($this->version_routes,Yaml::DUMP_OBJECT_AS_MAP)));;
+        return !empty(file_put_contents($this->version_routes_storage, Yaml::dump($this->version_routes,Yaml::DUMP_OBJECT_AS_MAP)));
     }
-
     public function getVersionRoute(string $version_key): ?array {
 
         $found = array_filter($this->version_routes, function ($item) use ($version_key) {
@@ -91,7 +105,6 @@ class JsonRestManager
         }
         return $found;
     }
-
     public function removeVersionRoute(string $route_key): bool
     {
         if (isset($this->version_routes[$route_key])) {
@@ -101,66 +114,58 @@ class JsonRestManager
         return false;
     }
 
-    public function addVersionRoutePostSetting(string $route_key, array $data): bool
+    public function addVersionRouteDataSourceSetting(string $route_key, string $handler): bool
     {
         $system_directory = new SystemDirectory();
         @mkdir($this->version_storage = $system_directory->setting_dir . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'rest' . DIRECTORY_SEPARATOR . 'json',recursive: true);
 
-        $this->version_storage .= DIRECTORY_SEPARATOR . 'post-settings.yml';
+        $this->version_storage .= DIRECTORY_SEPARATOR . 'data-source-settings.yml';
         if (!file_exists($this->version_storage)) {
             @touch($this->version_storage);
         }
         $post_settings = Yaml::parseFile($this->version_storage) ?? [];
-        $table = str_replace('.', '_', $route_key);
-        $data['data_source'] = $table;
-        if (!$this->createTable($route_key, $data)){
-            return false;
-        }
-        $post_settings[$route_key] = $data;
+        $post_settings[$route_key] = $handler;
         return !empty(file_put_contents($this->version_storage, Yaml::dump($post_settings, Yaml::DUMP_OBJECT_AS_MAP)));
     }
 
-    public function getVersionRoutePostSetting(string $route_key): array
+    public function getVersionRouteDataSourceSetting(string $route_key): ?string
     {
         $system_directory = new SystemDirectory();
         $this->version_storage = $system_directory->setting_dir . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'rest' . DIRECTORY_SEPARATOR . 'json';
         if (!is_dir($this->version_storage)) {
             @mkdir($this->version_storage, recursive: true);
         }
-        $this->version_storage .= DIRECTORY_SEPARATOR . 'post-settings.yml';
+        $this->version_storage .= DIRECTORY_SEPARATOR . 'data-source-settings.yml';
         if (!file_exists($this->version_storage)) {
             @touch($this->version_storage);
         }
         $post_settings = Yaml::parseFile($this->version_storage) ?? [];
-        return $post_settings[$route_key] ?? [];
+        return $post_settings[$route_key] ?? null;
     }
 
-    public function createTable(string $table, array $post_settings): bool {
+    public function getRestVersions(): array
+    {
+        return $this->rest_versions;
+    }
 
-        $query = [];
-        foreach ($post_settings as $key=>$post_setting) {
-            if (isset($post_setting['post_keys_type']) && $post_setting['post_keys_type'] === 'float') {
-                $query[] = "`{$key}` DOUBLE ".(!isset($post_setting['post_keys_required']) && $post_setting['post_keys_required'] === 'yes' ? 'NOT NULL' : 'NULL');
-            }
-            elseif (isset($post_setting['post_keys_type']) && $post_setting['post_keys_type'] === 'string') {
-                $query[] = "`{$key}` TEXT ".(!isset($post_setting['post_keys_required']) && $post_setting['post_keys_required'] === 'yes' ? 'NOT NULL' : 'NULL');
-            }
-            elseif (isset($post_setting['post_keys_type']) && $post_setting['post_keys_type'] === 'int') {
-                $query[] = "`{$key}` INT ".(!isset($post_setting['post_keys_required']) && $post_setting['post_keys_required'] === 'yes' ? 'NOT NULL' : 'NULL');
-            }
+    public function getVersionStorage(): string
+    {
+        return $this->version_storage;
+    }
 
-            elseif (isset($post_setting['post_keys_type']) && $post_setting['post_keys_type'] === 'array') {
-                $query[] = "`{$key}` LONGBLOB ".(!isset($post_setting['post_keys_required']) && $post_setting['post_keys_required'] === 'yes' ? 'NOT NULL' : 'NULL');
-            }
-        }
-        $line = implode(',',$query);
-        $query = "CREATE TABLE IF NOT EXISTS `{$table}` ( {$line} )";
-        try{
-            $query = Database::database()->con()->prepare($query);
-            return $query->execute();
-        }catch (\Throwable $exception){
-            return false;
-        }
+    public function getVersionRoutes(): array
+    {
+        return $this->version_routes;
+    }
+
+    public function getVersionRoutesStorage(): string
+    {
+        return $this->version_routes_storage;
+    }
+
+    public function getDataProviders(): array
+    {
+        return $this->data_providers;
     }
 
     public static function factory(): JsonRestManager {

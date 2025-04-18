@@ -4,7 +4,7 @@ namespace Simp\Core\lib\memory;
 
 interface MemoryInterface
 {
-    public function set(string $key, $value): bool;
+    public function set(string $key, $value, int $duration = 3600): bool;
 
     public function get(string $key);
 

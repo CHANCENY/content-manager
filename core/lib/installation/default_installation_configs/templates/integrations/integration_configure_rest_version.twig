@@ -29,20 +29,6 @@
                            <td>{{ version_route.getRoutePath() }}</td>
                            <td>{{ version_route.getAccess()|join(',') }}</td>
                            <td>
-                               {% if 'POST' in version_route.getMethod() %}
-                                  <a href="#"
-                                     data-route="{{ index }}"
-                                     class="post-configure"
-                                     data-post_settings="{{ post_settings[index]|json_encode }}"
-                                  >Configure</a>
-                               {% endif %}
-                               {% if 'PUT' in version_route.getMethod() %}
-                                   <a href="#"
-                                      data-route="{{ index }}"
-                                      class="put-configure"
-                                      data-post_settings="{{ post_settings[index]|json_encode }}"
-                                   >Configure</a>
-                               {% endif %}
                                <a href="#" class="data-source" data-route="{{ index }}">Data Source</a>
                                <a class="remove" data-route="{{ index }}" data-version="{{ version.version_key }}">Delete</a>
                            </td>
@@ -147,6 +133,30 @@
         </div>
     </div>
 
+    <div id="data-source-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-field" class="close float-end">&times;</span>
+            <div class="modal-header">Data Source Settings</div>
+            <div>
+                <form method="post" class="form">
+
+                    <div class="form-group">
+                        <label for="data-source">Data Sources Providers</label>
+                        <select id="data-source" name="data_source" class="form-control">
+                            {% for index, data_source in data_sources %}
+                                <option value="{{ index }}">{{ data_source.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <input type="hidden" name="route"> 
+                    <div class="form-group">
+                        <input id="settings-field-btn" type="submit" class="btn btn-primary" name="source-data" value="Save Settings">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
         (function () {
 
@@ -161,6 +171,21 @@
                 });
             }
 
+            const dataSource = document.querySelectorAll('.data-source');
+            if (dataSource) {
+                dataSource.forEach((item)=>{
+                    item.addEventListener('click',(e)=>{
+                        e.preventDefault();
+                        document.querySelector('#data-source-modal').querySelector('form').
+                        querySelector('input[name="route"]').value = e.target.dataset.route;
+                        
+                       window.modal(document.querySelector('#data-source-modal'),
+                           item,
+                           document.querySelector('#data-source-modal').querySelector('#close-field'));
+                    })
+                })
+            }
+
             const remove = document.querySelectorAll('.remove');
             if (remove) {
                 remove.forEach((item)=>{
@@ -173,34 +198,6 @@
                             route: route,
                         };
                         send(data);
-                    })
-                })
-            }
-
-            const postConfigure = document.querySelectorAll('.post-configure');
-            if (postConfigure) {
-                postConfigure.forEach((item)=>{
-                    item.addEventListener('click',(e)=>{
-                        e.preventDefault();
-                        document.querySelector('#post-configure-modal').querySelector("input[name='route']").value = item.dataset.route;
-                        document.querySelector('#post-configure-modal').querySelector('.fields-wrapper').innerHTML = '';
-
-                        const post_settings = JSON.parse(item.dataset.post_settings);
-                        Object.entries(post_settings).forEach(([key, value])=>{
-                            const clone = document.querySelector('#post-configure-modal').querySelector('.form-wrapper').cloneNode(true);
-                            clone.classList.remove('d-none');
-                            clone.querySelector('input[name="post_keys[]"]').value = key;
-                            clone.querySelector('select[name="post_keys_type[]"]').value = value.post_keys_type;
-                            clone.querySelector('select[name="post_keys_required[]"]').value = value.post_keys_required;
-                            clone.querySelector('summary').textContent = "Edit post-key " + key;
-
-                            document.querySelector('#post-configure-modal').querySelector('.fields-wrapper').appendChild(clone);
-                        });
-
-                        window.modal(document.querySelector('#post-configure-modal'),
-                            item,
-                            document.querySelector('#post-configure-modal').querySelector('#close-field')
-                        );
                     })
                 })
             }
