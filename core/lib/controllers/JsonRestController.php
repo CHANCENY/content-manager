@@ -21,6 +21,7 @@ class JsonRestController
         /**@var $request Request**/
         if ($route !== null) {
             try {
+                $handler = JsonRestManager::factory()->getVersionRouteDataSourceSetting($route->route_id);
                 $handler = new $handler($route, $args);
                 if ($handler instanceof RestDataSourceInterface) {
                     return new JsonResponse($handler->getResponse(), $handler->getStatusCode());
