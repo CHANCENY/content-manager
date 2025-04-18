@@ -124,7 +124,7 @@ class BasicSettingForm extends FormBase
 
     public function validateForm(array $form): void
     {
-        foreach ($form as $key => $value) {
+        foreach ($form as $value) {
             if ($value instanceof FieldBase && $value->getRequired() === 'required' && empty($value->getValue())) {
                 $this->validated = false;
             }

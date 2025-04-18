@@ -49,7 +49,7 @@ class TimeZone extends SystemDirectory
     public function getSimplifiedTimezone(): array
     {
         $timezone = [];
-        foreach ($this->timezones as $timezone_name => $timezone_info) {
+        foreach ($this->timezones as $timezone_info) {
             $timezone[$timezone_info['tzCode']] = $timezone_info['label'] ?? $timezone_info['name'];
         }
         return $timezone;

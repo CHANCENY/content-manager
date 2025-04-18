@@ -7,10 +7,10 @@ normal:
 google:
   types:
     - google
-  default: google
+  default: null
   credential:
-    client_id: 679445788233-vflhr0onfejqiqes3sn09n6o9e6qph0j.apps.googleusercontent.com
-    client_secret: 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
+    client_id: null
+    client_secret: null
     redirect: /user/oauth/google/access
     scope:
       - email
@@ -19,10 +19,10 @@ google:
 github:
   types:
     - github
-  default: github
+  default: null
   credential:
-    client_id: Iv23liwheS9IWJ3Mcxd4
-    client_secret: d3e417bf0c28975ab0369f41af8b9e5725d113d0
+    client_id: null
+    client_secret: null
     redirect: /user/oauth/github/access
 
 active: normal

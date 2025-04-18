@@ -69,7 +69,7 @@ class FakerManager
     public function save(): void
     {
         if (isset($this->populated_data[0]) && is_array($this->populated_data[0])) {
-            foreach ($this->populated_data as $key => $value) {
+            foreach ($this->populated_data as $value) {
                 Node::create($value);
             }
         }else {

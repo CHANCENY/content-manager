@@ -40,7 +40,7 @@ class Node
             $data = $query->fetchAll();
             $rows = [];
 
-            foreach ($data as $key => $value) {
+            foreach ($data as $value) {
                 if (is_array($value)) {
                     foreach ($value as $k => $v) {
                         $rows[$k]['value'][] = $v;

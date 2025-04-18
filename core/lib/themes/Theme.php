@@ -82,10 +82,10 @@ class Theme extends SystemDirectory
             }
         }
 
-        $this->twig_functions[] = new TwigFunction('dump', function ($var) {
+        $this->twig_functions[] = new TwigFunction('dump', function ($var): void {
             dump($var);
         });
-        $this->twig_functions[] = new TwigFunction('dd', function ($asset) {
+        $this->twig_functions[] = new TwigFunction('dd', function ($asset): void {
             dd($asset);
         });
 

@@ -28,15 +28,12 @@ database_installed_steps:
         die: false
 filesystem_installed_steps:
     directories:
-        - 'var://services'
         - 'var://sessions'
         - 'var://cache'
         - 'var://twig/cache'
         - 'setting://database'
         - 'setting://logs'
-        - 'module://custom'
-        - 'module://forms'
-        - 'module://content-types'
+        - 'module://'
         - 'theme://'
         - 'global://'
         - 'public://'
@@ -57,8 +54,6 @@ filesystem_installed_steps:
         -
             theme: Simp\Core\lib\file\file_system\stream_wrapper\ThemeStreamWrapper
     files:
-        - 'var://routing/route-patterns.yml'
-        - 'var://services/services-list.yml'
 session_installed_steps:
     file_based: true
     default: false
@@ -73,8 +68,8 @@ finished:
 closed: false
 
 twig_setting:
-    debug: true
-    cache: false
+    debug: false  # set true to enable twig debug
+    cache: true   # false to disable twig caching.
     strict_variables: false
     optimizations: -1
     charset: utf-8

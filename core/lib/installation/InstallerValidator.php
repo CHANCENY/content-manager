@@ -44,7 +44,7 @@ class InstallerValidator extends SystemDirectory {
 
         // Run
         $globals = $this->installer_schema->run->globals;
-        foreach ($globals as $key => $value) {
+        foreach ($globals as $value) {
             $GLOBALS[$value] = null;
         }
         $GLOBALS['system_store'] = $this;

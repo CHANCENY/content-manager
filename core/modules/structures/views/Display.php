@@ -110,7 +110,7 @@ class Display
 
             // TODO: add custom filters
             $custom_filters = [];
-            foreach ($filterCriteria as $key => $details) {
+            foreach ($filterCriteria as $details) {
                 $field_name = $details['field'];
                 $table = $details['content_type'] !== 'node' ?"node__$field_name" : 'node_data';
                 $conjunction = $details['settings']['conjunction'] ?? 'AND';
@@ -136,7 +136,7 @@ class Display
             // add sort criteria
             if (!empty($sortCriteria)) {
                 $sort_criteria = " ORDER BY ";
-                foreach ($sortCriteria as $key => $details) {
+                foreach ($sortCriteria as $details) {
                     $field_name = $details['field'];
                     $table = $details['content_type'] !== 'node' ?"node__$field_name" : 'node_data';
                     $action = $details['settings']['order_in'] ?? 'ASC';

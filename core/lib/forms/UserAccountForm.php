@@ -66,7 +66,7 @@ class UserAccountForm extends FormBase
 
     public function validateForm(array $form): void
     {
-        foreach ($form as $key=>$field) {
+        foreach ($form as $field) {
             if ($field instanceof FieldBase) {
                 if ($field->getRequired() === 'required' && empty($field->getValue())) {
                     $this->validated = false;

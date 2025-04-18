@@ -94,7 +94,7 @@ function cache_clear(array $options): void
 
         $list = array_diff(scandir($location)?? [], ['.', '..']);
 
-        $recursive = function($dir) use (&$recursive) {
+        $recursive = function($dir) use (&$recursive): void {
             $list_inner = array_diff(scandir($dir) ?? [], ['.', '..']);
             foreach ($list_inner as $item) {
                 $full_inner_path = $dir . DIRECTORY_SEPARATOR . $item;
