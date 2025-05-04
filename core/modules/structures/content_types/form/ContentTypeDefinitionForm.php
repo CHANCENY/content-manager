@@ -262,7 +262,7 @@ class ContentTypeDefinitionForm extends FormBase
                     if (isset($field) && $field['type'] === 'file') {
                         $files = $data_all[$key] ?? [];
                         $processed_files = [];
-                        if (isset($files['name']) && is_array($files['name'])) {
+                        if ( !empty($files['name']) && is_array($files['name'])) {
                             $count = count($files['name']);
                             for ($i = 0; $i < $count; $i++) {
                                 $processed_files[] = [
@@ -275,7 +275,7 @@ class ContentTypeDefinitionForm extends FormBase
                                 ];
                             }
                         }
-                        elseif (isset($files['name']) && is_string($files['name'])) {
+                        elseif (!empty( $files['name']) && is_string($files['name'])) {
                             $processed_files[] = $files;
                         }
 

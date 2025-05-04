@@ -22,7 +22,7 @@ class AuthUser
 
     protected User $user;
     private bool $validated = false;
-    private bool $rememberMe = false;
+    private int $rememberMe = 3600;
     private bool $is_authenticated  = false;
     private bool $is_admin = false;
     private bool $is_login = false;
@@ -78,7 +78,7 @@ class AuthUser
      * @throws PhpfastcacheDriverException
      * @throws PhpfastcacheInvalidArgumentException
      */
-    public function finalizeAuthenticate(bool $to_remember = false): void
+    public function finalizeAuthenticate(int $to_remember = 3600): void
     {
         if ($this->validated) {
             $remember_key = hash('sha512', $this->user->getPassword());
@@ -107,7 +107,7 @@ class AuthUser
             if ($this->user->update()) {
                 $this->is_login = true;
             }
-            Session::init()->set("private.current.user", $this);
+            Session::init()->set("private.current.user", $this, $to_remember);
         }
     }
 
@@ -196,7 +196,7 @@ class AuthUser
         return $this->validated;
     }
 
-    public function isRememberMe(): bool
+    public function isRememberMe(): int
     {
         return $this->rememberMe;
     }

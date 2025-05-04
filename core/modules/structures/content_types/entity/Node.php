@@ -294,6 +294,38 @@ class Node
         return new Node(...$result);
     }
 
+    public static function loadByType(string $type): array
+    {
+        $connection = Database::database()->con();
+        $query = "SELECT * FROM node_data WHERE bundle = :bundle ORDER BY updated";
+        $query = $connection->prepare($query);
+        $query->bindValue(':bundle', $type);
+        $query->execute();
+        $result = $query->fetchAll();
+        if (empty($result)) {
+            return [];
+        }
+        return array_map(fn($value) => new Node(...$value), $result);
+    }
+
+    public static function loadByTypes(array $types): array
+    {
+        $placeholders = implode(',', array_fill(0, count($types), '?'));
+        $connection = Database::database()->con();
+        $query = "SELECT * FROM node_data WHERE bundle IN ($placeholders) ORDER BY created DESC";
+        $statement = $connection->prepare($query);
+        foreach ($types as $key => $value) {
+            $statement->bindValue($key + 1, $value);
+        }
+        $statement->execute();
+
+        $result = $statement->fetchAll();
+        if (empty($result)) {
+            return [];
+        }
+        return array_map(fn($value) => new Node(...$value), $result);
+    }
+
     public function __toString(): string
     {
         $top_table = [

@@ -24,7 +24,22 @@ class JsonRestController
                 $handler = JsonRestManager::factory()->getVersionRouteDataSourceSetting($route->route_id);
                 $handler = new $handler($route, $args);
                 if ($handler instanceof RestDataSourceInterface) {
-                    return new JsonResponse($handler->getResponse(), $handler->getStatusCode());
+
+                    $response = new JsonResponse($handler->getResponse(), $handler->getStatusCode());
+
+                    $response->headers->set('Access-Control-Allow-Origin',  $origin = $_SERVER['HTTP_ORIGIN'] ?? null);
+                    $response->headers->set('Vary', 'Origin');
+                    $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+
+                    // If the request had custom headers, reflect them back:
+                    if (!empty($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) {
+                        $response->headers->set('Access-Control-Allow-Headers', $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']);
+                    }
+
+                    // Optional: support credentials
+                    $response->headers->set('Access-Control-Allow-Credentials', 'true');
+
+                    return $response;
                 }
                 throw new \Exception('Handler not found  or handle has not implemented RestDataSourceInterface');
             }catch (\Throwable $exception) {

@@ -40,12 +40,11 @@ class Theme extends SystemDirectory
                 $default_twig_function_array = [];
             }
         }
+
         $this->twig_function_definition_file = $this->setting_dir .DIRECTORY_SEPARATOR . 'twig'.DIRECTORY_SEPARATOR.'functions.php';
-
         $custom_functions = file_exists($this->twig_function_definition_file) ? require_once $this->twig_function_definition_file : [];
-
-        $this->twig_functions = [...$default_twig_function_array, ...$custom_functions];
-
+        $this->twig_functions = [...(is_array($default_twig_function_array) ? $default_twig_function_array : []),
+            ...(is_array($custom_functions) ? $custom_functions : [])];
         $site = ConfigManager::config()->getConfigFile('basic.site.setting');
         $this->options = [
             'page_title' => $site?->get('site_name'),

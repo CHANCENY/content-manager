@@ -67,7 +67,6 @@ class ThemeManager
                                 $this->recursive_dir_iterator($full_twig_path);
                             }
                             elseif (file_exists($full_twig_path) && pathinfo($full_twig_path, PATHINFO_EXTENSION) === 'twig') {
-
                                 $key = $file. '.view.'. pathinfo($twig_file, PATHINFO_FILENAME);
                                 $this->current_theme_files[$key] = new TwigResolver($full_twig_path);
                             }
@@ -100,7 +99,8 @@ class ThemeManager
                 $this->recursive_dir_iterator($full_path);
             }
             elseif (file_exists($full_path) && pathinfo($full_path, PATHINFO_EXTENSION) === 'twig') {
-                $this->current_theme_files[$file] = new TwigResolver($file);
+                $key = $this->currentTheme. '.view.'. pathinfo($full_path, PATHINFO_FILENAME);
+                $this->current_theme_files[$key] = new TwigResolver($full_path);
             }
         }
     }

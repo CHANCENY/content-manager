@@ -95,7 +95,6 @@ class App
             $this->mapRouteListeners();
         }
 
-
         // Log some executions
         $start_time = $GLOBALS['request_start_time'];
         $end_time = microtime(true);
@@ -261,9 +260,9 @@ class App
         }
 
         // Optional: Cache preflight for 1 day
-        header("Access-Control-Max-Age: 86400");
+       // header("Access-Control-Max-Age: 86400");
 
-        http_response_code(204);
+        http_response_code(201);
         exit();
     }
 
