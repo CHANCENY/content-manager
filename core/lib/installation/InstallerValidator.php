@@ -141,6 +141,21 @@ class InstallerValidator extends SystemDirectory {
                 $redirect = new RedirectResponse('/admin/configure/database');
                 $redirect->send();
             }
+
+            $defualt_tables = Caching::init()->get('default.admin.built_in_tables');
+            if(\file_exists($defualt_tables)) {
+                $tables_queries = Yaml::parseFile($defualt_tables)['table'] ?? [];
+                try{
+                    foreach($tables_queries as $query) {
+                         $connection = Database::database()->con();
+                         $statement = $connection->prepare($query);
+                         $statement->execute();
+                    }
+
+                }catch(\Throwable $e){
+
+                }
+            }
         }
     }
 
@@ -196,6 +211,7 @@ class InstallerValidator extends SystemDirectory {
             if (is_dir($full_path)) {
                 $this->recursive_caching_defaults($full_path, $default_keys);
             }
+
         }
 
         Caching::init()->set('system.theme.keys', $default_keys);
