@@ -8,6 +8,8 @@ use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\lib\memory\cache\Caching;
+use Simp\Core\modules\database\Database;
+use Simp\Core\modules\messager\Messager;
 use Simp\Fields\FieldBase;
 use Simp\FormBuilder\FormBase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -83,6 +85,11 @@ class DatabaseForm extends FormBase
                 'password' => $form['password']?->getValue(),
                 'port' => $form['database_port']?->getValue(),
             ];
+
+            $result = Database::createDatabase($data['dbname'], $data['hostname'], $data['username'],$data['password'], $data['port']);
+            if ($result) {
+                Messager::toast()->addMessage("Database connection created successfully");
+            }
             $schema = Caching::init()->get('default.admin.database');
             if (file_exists($schema)) {
                 $schema_data = Yaml::parseFile($schema);

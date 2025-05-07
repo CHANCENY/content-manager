@@ -30,7 +30,7 @@ class Database
         );
 
         try {
-            
+
             $this->pdo = new SPDO($this->dsn, $this->username, $this->password);
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
@@ -94,4 +94,22 @@ class Database
         }
         return null;
     }
+
+   public static function createDatabase(string $dbname, string $host, string $user, string $password, int $port) {
+    try {
+        // DSN without a database selected
+        $dsn = "mysql:host=$host;port=$port";
+
+        // Establish PDO connection
+        $pdo = new PDO($dsn, $user, $password);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        // Create database with full UTF-8 (emoji) support
+        $sql = "CREATE DATABASE IF NOT EXISTS `$dbname` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
+        return $pdo->exec($sql);
+    } catch (PDOException $e) {
+        return false;
+    }
+}
+
 }
