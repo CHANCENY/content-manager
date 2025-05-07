@@ -2,6 +2,10 @@
 
 namespace Simp\Core\lib\forms;
 
+use Phpfastcache\Exceptions\PhpfastcacheCoreException;
+use Phpfastcache\Exceptions\PhpfastcacheDriverException;
+use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
+use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\lib\memory\cache\Caching;
 use Simp\Fields\FieldBase;
@@ -63,6 +67,12 @@ class DatabaseForm extends FormBase
 
     }
 
+    /**
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
     public function submitForm(array &$form): void
     {
         if ($this->validated) {
@@ -78,6 +88,7 @@ class DatabaseForm extends FormBase
                 $schema_data = Yaml::parseFile($schema);
                 $schema_data = array_merge($schema_data, $data);
                 $system = new SystemDirectory();
+                @mkdir($system->setting_dir . DIRECTORY_SEPARATOR . 'database', 0777, true);
                 $setting_data = $system->setting_dir . DIRECTORY_SEPARATOR . 'database' .
                     DIRECTORY_SEPARATOR . 'database.yml';
                 if (file_put_contents($setting_data, Yaml::dump($schema_data))) {

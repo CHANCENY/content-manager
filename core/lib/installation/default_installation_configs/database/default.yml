@@ -49,3 +49,16 @@ table:
     `updated` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT `fk_node_uid` FOREIGN KEY (`uid`) REFERENCES `users` (`uid`) ON DELETE CASCADE
     )
+  - CREATE TABLE IF NOT EXISTS activity (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    start INT,
+    elapsed INT,
+    end INT,
+    memory INT,
+    system_usage INT,
+    user_usage INT,
+    user INT,
+    path VARCHAR(255),
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+

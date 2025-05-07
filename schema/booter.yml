@@ -1,0 +1,25 @@
+# This file has all needs booting configuration
+
+# Streams to be registered.
+streams:
+  -
+    var: Simp\Core\lib\file\file_system\stream_wrapper\VarStreamWrapper
+  -
+    setting: Simp\Core\lib\file\file_system\stream_wrapper\SettingStreamWrapper
+  -
+    public: Simp\Core\lib\file\file_system\stream_wrapper\PublicStreamWrapper
+  -
+    global: Simp\Core\lib\file\file_system\stream_wrapper\GlobalStreamWrapper
+  -
+    private: Simp\Core\lib\file\file_system\stream_wrapper\PrivateStreamWrapper
+  -
+    module: Simp\Core\lib\file\file_system\stream_wrapper\ModuleStreamWrapper
+  -
+    theme: Simp\Core\lib\file\file_system\stream_wrapper\ThemeStreamWrapper
+
+# This script will run on the event request before any process starts.
+request_subscriber:
+
+# This script will run on event of response after the process finishes.
+response_subscriber:
+  - Simp\Core\modules\activity\Activity

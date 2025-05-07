@@ -31,19 +31,26 @@ use Throwable;
 
 class InstallerValidator extends SystemDirectory {
 
-    protected object $installer_schema;
+    public object $installer_schema;
 
     public function __construct() {
 
         parent::__construct();
-        $schema_file = $this->schema_dir."/manifest.yml";
+        $schema_file = $this->schema_dir."/booter.yml";
         if (!file_exists($schema_file)) {
-            die("Step up manifest file does not exist");
+            die("Booter file does not exist");
         }
         $this->installer_schema = Yaml::parseFile($schema_file, Yaml::PARSE_OBJECT_FOR_MAP);
 
         // Run
-        $globals = $this->installer_schema->run->globals;
+        $globals = [
+            'database',
+            'caching',
+            'stream_wrapper',
+            'session_store',
+            'system_store',
+            'request_start_time'
+        ];
         foreach ($globals as $value) {
             $GLOBALS[$value] = null;
         }
@@ -52,101 +59,11 @@ class InstallerValidator extends SystemDirectory {
     }
 
     /**
-     * Check if all file system requirements are met.
-     * @return bool
-     */
-    public function validateFileSystem(): bool {
-        return $this->installer_schema->filesystem_installed !== "pending";
-    }
-
-    /**
-     * Check if Session are set correctly.
-     * @return bool
-     * @throws PhpfastcacheDriverCheckException
-     * @throws PhpfastcacheDriverException
-     * @throws PhpfastcacheDriverNotFoundException
-     * @throws PhpfastcacheExtensionNotInstalledException
-     * @throws PhpfastcacheInvalidArgumentException
-     * @throws PhpfastcacheInvalidConfigurationException
-     * @throws PhpfastcacheInvalidTypeException
-     * @throws PhpfastcacheLogicException
-     */
-    public function validateSession(): bool {
-        if( $this->installer_schema->session_installed === "pending") {
-            return false;
-        }
-
-        $session_store = null;
-        if ( $this->installer_schema->session_installed === 'file_based') {
-            CacheManager::setDefaultConfig(new ConfigurationOption([
-                'path' => $this->var_dir . '/sessions',
-            ]));
-            $session_store = CacheManager::getInstance('files');
-        }
-        else {
-            @session_start();
-        }
-        $GLOBALS["session_store"] = $session_store;
-        return true;
-    }
-
-    /**
-     * Check if database is set correctly.
-     * @return bool
-     */
-    public function validateDatabase(): bool {
-        return $this->installer_schema->database_installed !== "pending";
-    }
-
-
-    /**
-     * @throws PhpfastcacheCoreException
-     * @throws PhpfastcacheLogicException
-     * @throws PhpfastcacheDriverException
-     * @throws PhpfastcacheInvalidArgumentException
-     */
-    public function validateProject(): bool {
-        if ($this->installer_schema->project_installed === "pending") {
-            return false;
-        }
-        $this->setUpProject();
-        return true;
-    }
-
-    /**
-     * @throws PhpfastcacheDriverNotFoundException
-     * @throws PhpfastcacheInvalidConfigurationException
-     * @throws PhpfastcacheExtensionNotInstalledException
-     * @throws PhpfastcacheDriverCheckException
-     * @throws PhpfastcacheInvalidTypeException
-     * @throws PhpfastcacheLogicException
-     * @throws PhpfastcacheDriverException
-     * @throws PhpfastcacheInvalidArgumentException
-     */
-    public function validateCaching(): bool
-    {
-        if($this->installer_schema->caching_installed === "pending") {
-            return false;
-        }
-
-        $cache_store = null;
-        if ($this->installer_schema->caching_installed_steps->fast_cache) {
-
-            CacheManager::setDefaultConfig(new ConfigurationOption([
-                'path' => $this->var_dir . '/cache',
-            ]));
-            $cache_store = CacheManager::getInstance('files');
-        }
-        $GLOBALS["caching"] = $cache_store;
-        return true;
-    }
-
-    /**
-     * @throws Exception
+     * @return void
      */
     public function setUpFileSystem(): void {
 
-        $streams = $this->installer_schema->filesystem_installed_steps->streams;
+        $streams = $this->installer_schema->streams;
 
         // Register StreamWrapper
         foreach ($streams as $wrapper) {
@@ -156,15 +73,17 @@ class InstallerValidator extends SystemDirectory {
             WrapperRegister::register($wrapper_name, $wrapper_handler);
         }
 
-        // Create all need directories.
-        $directories = $this->installer_schema->filesystem_installed_steps->directories;
-        foreach ($directories as $directory) {
-            if (!is_dir($directory)) {
-                if (!mkdir($directory,recursive: true) ) {
-                    throw new Exception("Directory $directory failed to create");
-                }
-            }
+        // settings directory creation.
+        if (!is_dir($this->setting_dir)) {
+            mkdir($this->setting_dir, 0777, true);
         }
+
+        //TODO: Create all need directories.
+        foreach ($this->toArray() as $key=>$directory) {
+            if (is_string($directory) && !is_dir($directory) && str_ends_with($key, '_dir')) {
+                mkdir($directory, 0777, true);
+            }
+        };
 
         // Move the default_files
         $default = __DIR__ . '/default_installation_configs';
@@ -174,9 +93,6 @@ class InstallerValidator extends SystemDirectory {
             $full_path = $default . DIRECTORY_SEPARATOR . $directory;
             $this->recursive_mover($full_path, $directory);
         }
-
-        $this->installer_schema->filesystem_installed = "installed";
-        $this->installer_schema->finished->default_loaded = true;
     }
 
     /**
@@ -191,20 +107,11 @@ class InstallerValidator extends SystemDirectory {
      */
     public function setUpSession(): void
     {
-        $session_store = null;
-        $installed = null;
-        if ($this->installer_schema->session_installed_steps->file_based) {
-            CacheManager::setDefaultConfig(new ConfigurationOption([
-                'path' => $this->var_dir . '/sessions',
-            ]));
-            $session_store = CacheManager::getInstance('files');
-            $installed = 'file_based';
-        }
-        elseif ($this->installer_schema->session_installed_steps->default) {
-            $installed = 'default';
-        }
+        CacheManager::setDefaultConfig(new ConfigurationOption([
+            'path' => $this->var_dir . '/sessions',
+        ]));
+        $session_store = CacheManager::getInstance('files');
         $GLOBALS["session_store"] = $session_store;
-        $this->installer_schema->session_installed = $installed;
     }
 
     /**
@@ -219,52 +126,20 @@ class InstallerValidator extends SystemDirectory {
      */
     public function setUpCaching(): void
     {
-        $cache_store = null;
-        $installed = null;
-        if ($this->installer_schema->caching_installed_steps->fast_cache) {
-
-            CacheManager::setDefaultConfig(new ConfigurationOption([
-                'path' => $this->var_dir . '/cache',
-            ]));
-            $cache_store = CacheManager::getInstance('files');
-            $installed = 'fast_cache';
-        }
+        CacheManager::setDefaultConfig(new ConfigurationOption([
+            'path' => $this->var_dir . '/cache',
+        ]));
+        $cache_store = CacheManager::getInstance('files');
         $GLOBALS["caching"] = $cache_store;
-        $this->installer_schema->finished->setting_cached = true;
-        $this->installer_schema->caching_installed = $installed;
-        $this->installer_schema->finished->route_cached = true;
     }
 
     public function setUpDatabase(): void
     {
-        if ($this->installer_schema->database_installed_steps->check_configuration) {
-
-            if(!empty($GLOBALS['stream_wrapper']['setting']) && $GLOBALS['stream_wrapper']['setting'] instanceof SettingStreamWrapper) {
-
-                $database_settings = $this->setting_dir ."/database/database.yml";
-                if (!file_exists($database_settings)) {
-                    $redirect = new RedirectResponse('/admin/configure/database');
-                    $redirect->send();
-                }
-                $database_settings = Yaml::parseFile($database_settings);
-                $database = new Database(...$database_settings);
-                if ($database->con()->getAttribute(\PDO::ATTR_DRIVER_NAME) !== 'mysql') {
-                    die("Database connection failed");
-                }
-                $default_table_file = $this->setting_dir . DIRECTORY_SEPARATOR . 'defaults'. DIRECTORY_SEPARATOR .'database' . DIRECTORY_SEPARATOR . 'default.yml';
-                if (file_exists($default_table_file)) {
-                    $tables = Yaml::parseFile($default_table_file);
-                    if (is_array($tables)) {
-
-                        try{
-                            foreach ($tables['table'] as $table) {
-                                $statement = $database->con()->prepare($table);
-                                $statement->execute();
-                            }
-                        }catch (Throwable $exception){}
-                    }
-                    $this->installer_schema->database_installed = 'installed';
-                }
+        if(!empty($GLOBALS['stream_wrapper']['setting']) && $GLOBALS['stream_wrapper']['setting'] instanceof SettingStreamWrapper) {
+            $database_settings = $this->setting_dir ."/database/database.yml";
+            if (!file_exists($database_settings)) {
+                $redirect = new RedirectResponse('/admin/configure/database');
+                $redirect->send();
             }
         }
     }
@@ -278,18 +153,6 @@ class InstallerValidator extends SystemDirectory {
     public function setUpProject(): void
     {
         $this->cacheDefaults();
-    }
-
-    public function finishInstall(): void
-    {
-        if ($this->installer_schema->closed === false && $this->installer_schema->twig_setting->debug === false) {
-            $schema_path = $this->schema_dir . DIRECTORY_SEPARATOR . 'manifest.yml';
-            if (file_exists($schema_path)) {
-                $this->installer_schema->closed = true;
-                $array = json_decode(json_encode($this->installer_schema), true);
-                file_put_contents($schema_path, Yaml::dump($array,Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
-            }
-        }
     }
 
     protected function developerCustomRoutes(): array
@@ -324,39 +187,36 @@ class InstallerValidator extends SystemDirectory {
      */
     public function cacheDefaults(): void
     {
-        if ($this->installer_schema->twig_setting->debug) {
-            $setting_root = $this->setting_dir . DIRECTORY_SEPARATOR . 'defaults';
-            $files = array_diff(scandir($setting_root) ?? [], ['..', '.']);
-            $default_keys = [];
+        $setting_root = $this->setting_dir . DIRECTORY_SEPARATOR . 'defaults';
+        $files = array_diff(scandir($setting_root) ?? [], ['..', '.']);
+        $default_keys = [];
 
-            foreach ($files as $file) {
-                $full_path = $setting_root . DIRECTORY_SEPARATOR . $file;
-                if (is_dir($full_path)) {
-                    $this->recursive_caching_defaults($full_path, $default_keys);
-                }
+        foreach ($files as $file) {
+            $full_path = $setting_root . DIRECTORY_SEPARATOR . $file;
+            if (is_dir($full_path)) {
+                $this->recursive_caching_defaults($full_path, $default_keys);
             }
-
-            Caching::init()->set('system.theme.keys', $default_keys);
-
-            new ThemeManager();
-
-            $default_route = Caching::init()->get('default.admin.routes');
-            $routes = [];
-            if (!empty($default_route) && file_exists($default_route)) {
-                $routes = Yaml::parseFile($default_route);
-            }
-
-            if ($routes_custom = $this->developerCustomRoutes()) {
-                $routes = array_merge($routes, $routes_custom);
-            }
-
-            foreach ($routes as $key=>$route) {
-                $route = new Route($key, $route);
-                Caching::init()->set($key, $route);
-            }
-            Caching::init()->set('system.routes.keys', array_keys($routes));
         }
 
+        Caching::init()->set('system.theme.keys', $default_keys);
+
+        new ThemeManager();
+
+        $default_route = Caching::init()->get('default.admin.routes');
+        $routes = [];
+        if (!empty($default_route) && file_exists($default_route)) {
+            $routes = Yaml::parseFile($default_route);
+        }
+
+        if ($routes_custom = $this->developerCustomRoutes()) {
+            $routes = array_merge($routes, $routes_custom);
+        }
+
+        foreach ($routes as $key=>$route) {
+            $route = new Route($key, $route);
+            Caching::init()->set($key, $route);
+        }
+        Caching::init()->set('system.routes.keys', array_keys($routes));
     }
 
     protected function recursive_caching_defaults(string $directory, &$keys): void

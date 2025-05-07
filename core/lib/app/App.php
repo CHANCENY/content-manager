@@ -17,14 +17,18 @@ use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\lib\memory\cache\Caching;
 use Simp\Core\lib\routes\Route;
 use Simp\Core\modules\config\ConfigManager;
+use Simp\Core\modules\event_subscriber\EventSubscriber;
 use Simp\Core\modules\logger\ErrorLogger;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Simp\Router\Route as Router;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Yaml\Yaml;
 use Throwable;
 
 class App
 {
+    protected $currentRoute = null;
     /**
      * @throws PhpfastcacheDriverNotFoundException
      * @throws PhpfastcacheInvalidConfigurationException
@@ -46,25 +50,10 @@ class App
         // Prepare default timezone
         $set_up_wizard = new InstallerValidator();
 
-        /**
-         * Check for filesystem and set up required areas.
-         */
-        if (!$set_up_wizard->validateFileSystem()) {
-            $set_up_wizard->setUpFileSystem();
-        }
-
-       // check for session setting and start sessions.
-        if (!$set_up_wizard->validateSession()) {
-            $set_up_wizard->setUpSession();
-        }
-
-        if (!$set_up_wizard->validateCaching()) {
-            $set_up_wizard->setUpCaching();
-        }
-
-        if(!$set_up_wizard->validateProject()) {
-            $set_up_wizard->setUpProject();
-        }
+        $set_up_wizard->setUpFileSystem();
+        $set_up_wizard->setUpSession();
+        $set_up_wizard->setUpCaching();
+        $set_up_wizard->setUpProject();
 
         // Check for database only if we are not on /admin/configure/database
         $request = Request::createFromGlobals();
@@ -75,38 +64,33 @@ class App
 
         /**@var Route $database_form_route **/
         if ((!empty($database_form_route) && $database_form_route?->route_path != $current_uri) || $current_uri !== '/admin/configure/database') {
-            if (!$set_up_wizard->validateDatabase()) {
-                $set_up_wizard->setUpDatabase();
-            }
+            $set_up_wizard->setUpDatabase();
         }
 
-        $set_up_wizard->finishInstall();
-
+        $response = new Response();
         $config = ConfigManager::config()->getConfigFile("development.setting");
         if ($config?->get('enabled') === 'yes') {
             try{
-                $this->mapRouteListeners();
+                $response = $this->mapRouteListeners();
             }catch (Throwable $exception){
                 ErrorLogger::logger()->logError($exception->__toString());
                 echo "Unexpected error encountered";
             }
         }
         else {
-            $this->mapRouteListeners();
+            $response = $this->mapRouteListeners();
+        }
+        $after_response = $set_up_wizard->installer_schema->response_subscriber ?? [];
+        if (is_array($after_response)) {
+           foreach ($after_response as $subscriber) {
+               $reflection = new \ReflectionClass($subscriber);
+               $object = $reflection->newInstance();
+               if ($object instanceof EventSubscriber) {
+                   $object->listeners(Request::createFromGlobals(),$this->currentRoute, $response);
+               }
+           }
         }
 
-        // Log some executions
-        $start_time = $GLOBALS['request_start_time'];
-        $end_time = microtime(true);
-        $time_elapsed = $end_time - $start_time;
-        $memory_elapsed = memory_get_usage();
-        $cpu_usage = getrusage();
-        $user_cpu = $cpu_usage["ru_utime.tv_sec"] + $cpu_usage["ru_utime.tv_usec"] / 1e6;
-        $system_cpu = $cpu_usage["ru_stime.tv_sec"] + $cpu_usage["ru_stime.tv_usec"] / 1e6;
-
-        $log_file = $GLOBALS['system_store']->setting_dir . '/logs/app.log';
-        $log_content = "start:{$start_time} elapsed:{$time_elapsed} end:{$end_time} memory:{$memory_elapsed} system_usage:{$system_cpu} user_usage:{$user_cpu}\n";
-        file_put_contents($log_file, $log_content, FILE_APPEND);
         if (isset($GLOBALS['temp_error_log'])) {
             unset($GLOBALS['temp_error_log']);
         }
@@ -123,7 +107,7 @@ class App
      * @throws PhpfastcacheDriverException
      * @throws PhpfastcacheInvalidArgumentException
      */
-    protected function mapRouteListeners(): void
+    protected function mapRouteListeners(): Response|JsonResponse|null
     {
         /**@var Driver $cache **/
         $cache = $GLOBALS['caching'];
@@ -145,12 +129,12 @@ class App
 
         if ($route_keys->isHit()) {
             $route_keys = $route_keys->get();
-
+            $response[] = null;
             foreach ($route_keys as $route_key) {
                 $route = $cache->getItem($route_key);
                 if ($route->isHit()) {
                     $route = $route->get();
-
+                    $this->currentRoute = $route;
                     /**@var Route $route**/
                     // check methods
                     $methods = $route->method;
@@ -167,39 +151,26 @@ class App
                     if (count($methods) > 0) {
                         foreach ($methods as $method) {
                             $method_single = strtolower($method);
-                            $router->$method_single($path, $name,$controller, $options);
+                            /**@var Response $response**/
+                            $response[] = $router->$method_single($path, $name,$controller, $options);
                         }
                     }
                 }
             }
+
+            $response = array_filter($response);
+            $response = reset($response);
+            $response = $response ? $response : new Response("Page not found", 404);
+            $response?->send(true);
+            return $response;
         }
         else {
-            if (!empty($GLOBALS["routes"])) {
-                foreach ($GLOBALS["routes"] as $k=>$route) {
 
-                    $route['route_id'] = $k;
-                    $methods = $route['method'];
-                    $path = $route['path'];
-                    $name = $route['controller']['method'];
-                    $controller = $route['controller']['class']. "@" . $name;
-                    
-                    // TODO: add more options values.
-                    $options = [
-                       'access'=> $route->access,
-                       'route' => $route,
-                        'key' => $k,
-                    ];
-
-                    if (count($methods) > 0) {
-                        foreach ($methods as $method) {
-                            $method_single = strtolower($method);
-                            $router->$method_single($path, $name,$controller, $options);
-                        }
-                    }
-
-                }
-            }
+            $response = new Response("Page not found", 404);
+            $response->send(true);
+            return $response;
         }
+
     }
 
     /**
@@ -216,26 +187,10 @@ class App
     public static function consoleApp(): void
     {
         $set_up_wizard = new InstallerValidator();
-
-        /**
-         * Check for filesystem and set up required areas.
-         */
-        if (!$set_up_wizard->validateFileSystem()) {
-            $set_up_wizard->setUpFileSystem();
-        }
-
-        // check for session setting and start sessions.
-        if (!$set_up_wizard->validateSession()) {
-            $set_up_wizard->setUpSession();
-        }
-
-        if (!$set_up_wizard->validateCaching()) {
-            $set_up_wizard->setUpCaching();
-        }
-
-        if(!$set_up_wizard->validateProject()) {
-            $set_up_wizard->setUpProject();
-        }
+        $set_up_wizard->setUpFileSystem();
+        $set_up_wizard->setUpSession();
+        $set_up_wizard->setUpCaching();
+        $set_up_wizard->setUpProject();
     }
 
     protected function optionRequestHandler(): void

@@ -72,14 +72,13 @@ class Theme extends SystemDirectory
         }
 
         $loader = new \Twig\Loader\ArrayLoader($twig_views);
-        $twig_options = Yaml::parseFile($this->schema_dir.DIRECTORY_SEPARATOR.'manifest.yml')['twig_setting'] ?? [];
-        if ($twig_options) {
-            foreach ($twig_options as $key => $value) {
-                if ($key === 'cache' && $value === true) {
-                    $twig_options[$key] = $this->var_dir .DIRECTORY_SEPARATOR . 'twig'.DIRECTORY_SEPARATOR.'cache';
-                }
-            }
-        }
+        //$twig_options = Yaml::parseFile($this->schema_dir.DIRECTORY_SEPARATOR.'manifest.yml')['twig_setting'] ?? [];
+        $twig_options = [
+            'debug' => true,
+            'cache' => false,
+            'strict_variables' => FALSE,
+            'charset' => 'UTF-8',
+        ];
 
         $this->twig_functions[] = new TwigFunction('dump', function ($var): void {
             dump($var);
@@ -91,6 +90,7 @@ class Theme extends SystemDirectory
         $this->twig = new \Twig\Environment($loader, [
             ...$twig_options,
         ]);
+
         if (!empty($this->twig_functions)) {
             foreach ($this->twig_functions as $function) {
                 if ($function instanceof TwigFunction) {

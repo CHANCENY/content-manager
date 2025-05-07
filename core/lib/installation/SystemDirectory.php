@@ -29,4 +29,9 @@ class SystemDirectory
         $this->module_dir = $root . DIRECTORY_SEPARATOR . "public".DIRECTORY_SEPARATOR."module";
         $this->theme_dir = $root . DIRECTORY_SEPARATOR . "public".DIRECTORY_SEPARATOR."theme";
     }
+
+    public function toArray()
+    {
+        return get_object_vars($this);
+    }
 }
