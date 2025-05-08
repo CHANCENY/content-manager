@@ -1,0 +1,21 @@
+<div class="field-wrapper">
+    <div class="form-group">
+        <label for="field-name">Label</label>
+        <input type="text" name="title" id="field-name" class="form-control">
+        <span class="{{ field.error_class|default('field-description') }}">{{ field.error|default('this is field label and machine name') }}</span>
+    </div>
+    <div class="form-group">
+        <label for="storage-limit">Allowed number of values</label>
+        <input type="number" name="limit" id="storage-limit" class="form-control">
+    </div>
+    <fieldset class="form-control">
+        <legend>Field Settings</legend>
+        <div class="form-group">
+            <label for="field-required">Required</label>
+            <input type="checkbox" name="required" id="field-required">
+        </div>
+        <div class="form-group">
+
+        </div>
+    </fieldset>
+</div>
