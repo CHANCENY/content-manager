@@ -19,7 +19,8 @@
         "catfan/medoo": "^2.1",
       "ext-fileinfo": "*",
       "ext-readline": "*",
-        "fakerphp/faker": "^1.24"
+        "fakerphp/faker": "^1.24",
+        "simp/translate": "^1.0"
     },
     "autoload": {
         "psr-4": {

@@ -1,13 +1,18 @@
 <?php
 
 use Simp\Core\lib\memory\cache\Caching;
+use Simp\Core\modules\config\config\ConfigReadOnly;
+use Simp\Core\modules\config\ConfigManager;
 use Simp\Core\modules\files\helpers\FileFunction;
 use Simp\Core\modules\search\SearchManager;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
+use Simp\Core\modules\user\current_user\CurrentUser;
 use Simp\Core\modules\user\entity\User;
+use Simp\Translate\translate\Translate;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+use Twig\TwigFunction;
 
 function getContentType(?string $content_name): ?array
 {
@@ -124,6 +129,36 @@ function author(int $uid): ?User {
     return User::load($uid);
 }
 
+function t(string $text, ?string $from = null, ?string $to = null): string {
+
+     // Check if current user has timezone translation enabled.
+     $current_user = CurrentUser::currentUser();
+    if (empty($to)) {
+        if ($current_user?->getUser()?->getProfile()?->isTranslationEnabled()) {
+            $to = $current_user?->getUser()?->getProfile()?->getTranslation();
+        }else {
+            $to = 'ny';
+        }
+    }
+
+    // Get the system language.
+    if (empty($from)) {
+        $config = ConfigManager::config()->getConfigFile('system.translation.settings');
+        if ($config instanceof ConfigReadOnly) {
+            $from = $config->get('system_lang', 'en');
+        }
+        else {
+            $from = 'en';
+        }
+    }
+
+    if (is_dir('public://translations')) {
+        @mkdir('public://translations');
+    }
+
+    return Translate::translate($text,$from, $to, 'public://translations');
+}
+
 /**
  * @throws RuntimeError
  * @throws SyntaxError
@@ -167,6 +202,9 @@ function getArr(): array
         }),
         new \Twig\TwigFunction('author', function ($uid) {
             return author($uid);
+        }),
+        new TwigFunction('t',function(string $text, ?string $from = null, ?string $to = null){
+            return t($text, $from, $to);
         })
     );
 }

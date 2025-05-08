@@ -1,1 +1,1 @@
-SHOW tables;
+DESCRIBE user_profile;

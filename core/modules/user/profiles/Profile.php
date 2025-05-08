@@ -3,8 +3,9 @@
 namespace Simp\Core\modules\user\profiles;
 
 use Simp\Core\modules\database\Database;
-use Simp\Core\modules\files\helpers\FileFunction;
 use Simp\Core\modules\timezone\TimeZone;
+use Simp\Translate\lang\LanguageManager;
+use Simp\Core\modules\files\helpers\FileFunction;
 
 class Profile
 {
@@ -13,7 +14,9 @@ class Profile
     protected ?int $profile_image,
     protected ?int $uid,
     protected ?string $time_zone,
-    protected ?string $description)
+    protected ?string $description,
+    protected ?int $translation,
+    protected string $translation_code)
     {
     }
 
@@ -42,6 +45,10 @@ class Profile
         return FileFunction::resolve_fid($this->profile_image);
     }
 
+    public function getTranslation() {
+        return $this->translation_code;
+    }
+
     public function getUid(): ?int
     {
         return $this->uid;
@@ -57,6 +64,10 @@ class Profile
         return $this->description;
     }
 
+    public function isTranslationEnabled(): bool {
+        return !empty($this->translation);
+    }
+
     public function setFirstName(?string $first_name): void
     {
         $this->first_name = $first_name;
@@ -67,9 +78,20 @@ class Profile
         $this->last_name = $last_name;
     }
 
+    public function setTranslation(int $translation = 0): void {
+        $this->translation = $translation;
+    }
+
     public function setProfileImage(?int $profile_image): void
     {
         $this->profile_image = $profile_image;
+    }
+
+    public function setTranslationCode(string $code): void {
+        $languageManager = LanguageManager::manager()->getByCode($code);
+        if($languageManager) {
+            $this->translation_code = $code;
+        }
     }
 
     public function setTimeZone(?string $time_zone): void
@@ -84,7 +106,7 @@ class Profile
 
     public function update(): bool
     {
-        $query = "UPDATE user_profile SET first_name = :first_name, last_name = :last_name, time_zone = :time_zone, description = :description, profile_image = :profile_image WHERE uid = :uid AND pid = :pid";
+        $query = "UPDATE user_profile SET first_name = :first_name, last_name = :last_name, time_zone = :time_zone, description = :description, profile_image = :profile_image, translation = :translation, translation_code = :translation_code WHERE uid = :uid AND pid = :pid";
         $query = Database::database()->con()->prepare($query);
 
         $query->bindParam(":uid", $this->uid);
@@ -94,6 +116,8 @@ class Profile
         $query->bindParam(":time_zone", $this->time_zone);
         $query->bindParam(":description", $this->description);
         $query->bindParam(":profile_image", $this->profile_image);
+        $query->bindParam(":translation", $this->translation);
+        $query->bindParam(":translation_code", $this->translation_code);
         return $query->execute();
     }
 
@@ -111,6 +135,8 @@ class Profile
             'profile_image' => $this->profile_image,
             'time_zone' => $this->time_zone,
             'description' => $this->description,
+            'translation' => $this->translation,
+            'translation_code' => $this->translation_code
         ], JSON_PRETTY_PRINT);
     }
 
@@ -121,6 +147,8 @@ class Profile
             'profile_image' => $this->profile_image,
             'time_zone' => $this->time_zone,
             'description' => $this->description,
+             'translation' => $this->translation,
+             'translation_code' => $this->translation_code
         ];
     }
 

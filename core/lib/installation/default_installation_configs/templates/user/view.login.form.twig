@@ -3,7 +3,7 @@
 {% block body %}
 
     <div class="login-container">
-        <div class="login-header">Login to Your Account</div>
+        <div class="login-header">{{ t("Login to Your Account") }}</div>
         <form method="POST" enctype="multipart/form-data">
 
             {% if auth.isNormalAuthActive %}
