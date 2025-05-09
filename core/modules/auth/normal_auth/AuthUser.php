@@ -78,7 +78,7 @@ class AuthUser
      * @throws PhpfastcacheDriverException
      * @throws PhpfastcacheInvalidArgumentException
      */
-    public function finalizeAuthenticate(int $to_remember = 3600): void
+    public function finalizeAuthenticate(int $to_remember = 525600): void
     {
         if ($this->validated) {
             $remember_key = hash('sha512', $this->user->getPassword());

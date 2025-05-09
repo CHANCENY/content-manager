@@ -1,5 +1,9 @@
 <?php
 
+use Phpfastcache\Exceptions\PhpfastcacheCoreException;
+use Phpfastcache\Exceptions\PhpfastcacheDriverException;
+use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
+use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\lib\memory\cache\Caching;
 use Simp\Core\modules\config\config\ConfigReadOnly;
 use Simp\Core\modules\config\ConfigManager;
@@ -129,10 +133,23 @@ function author(int $uid): ?User {
     return User::load($uid);
 }
 
+/**
+ * @throws PhpfastcacheCoreException
+ * @throws PhpfastcacheLogicException
+ * @throws PhpfastcacheDriverException
+ * @throws PhpfastcacheInvalidArgumentException
+ */
 function t(string $text, ?string $from = null, ?string $to = null): string {
 
      // Check if current user has timezone translation enabled.
      $current_user = CurrentUser::currentUser();
+
+    if ($current_user instanceof \Simp\Core\modules\auth\normal_auth\AuthUser) {
+        if (!$current_user->getUser()->getProfile()->isTranslationEnabled()) {
+            return $text;
+        }
+    }
+
     if (empty($to)) {
         if ($current_user?->getUser()?->getProfile()?->isTranslationEnabled()) {
             $to = $current_user?->getUser()?->getProfile()?->getTranslation();
@@ -157,6 +174,14 @@ function t(string $text, ?string $from = null, ?string $to = null): string {
     }
 
     return Translate::translate($text,$from, $to, 'public://translations');
+}
+
+function translation(?string $code): ?array
+{
+    if (empty($code)) {
+        return [];
+    }
+    return \Simp\Translate\lang\LanguageManager::manager()->getByCode($code);
 }
 
 /**
@@ -205,6 +230,9 @@ function getArr(): array
         }),
         new TwigFunction('t',function(string $text, ?string $from = null, ?string $to = null){
             return t($text, $from, $to);
+        }),
+        new TwigFunction('translation',function(?string $code){
+            return translation($code);
         })
     );
 }

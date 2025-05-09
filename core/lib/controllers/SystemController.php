@@ -12,6 +12,7 @@ use Simp\Core\modules\integration\rest\JsonRestManager;
 use Simp\Core\modules\logger\ErrorLogger;
 use Simp\Core\modules\logger\ServerLogger;
 use Simp\Core\modules\search\SearchManager;
+use Simp\Core\modules\structures\content_types\field\FieldManager;
 use Simp\Core\modules\structures\content_types\form\ContentTypeDefinitionEditForm;
 use Simp\Core\modules\structures\views\ViewsManager;
 use Throwable;
@@ -546,10 +547,13 @@ class SystemController
     public function content_type_manage_add_field_controller(...$args): RedirectResponse|Response
     {
         extract($args);
-        $form_base = new FormBuilder(new ContentTypeFieldForm());
-        $form_base->getFormBase()->setFormMethod('POST');
-        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
-        return new Response(View::view('default.view.structure_content_type_manage_add_field',['_form'=>$form_base]), 200);
+//        $form_base = new FormBuilder(new ContentTypeFieldForm());
+//        $form_base->getFormBase()->setFormMethod('POST');
+//        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
+        $fields_supported = FieldManager::fieldManager()->getSupportedFieldsType();
+        $all = array_map(function ($item) { return ucfirst(str_replace('-',' ',$item)); }, $fields_supported);
+        $all = array_combine($fields_supported, $all);
+        return new Response(View::view('default.view.structure_content_type_manage_add_field',['field_types'=>$all]), 200);
     }
 
     public function content_type_manage_edit_field_controller(...$args): RedirectResponse|Response

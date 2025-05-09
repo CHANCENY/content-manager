@@ -25,4 +25,5 @@ class InputFieldBuilder implements FieldBuilderInterface
     {
         return [];
     }
+
 }

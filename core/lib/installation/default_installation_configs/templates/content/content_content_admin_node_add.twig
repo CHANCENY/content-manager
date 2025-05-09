@@ -7,7 +7,7 @@
             <table class="table table-stripped table-hover">
                 <thead class="table-light">
                 <tr>
-                    <th>Content Type</th>
+                    <th>{{ "Content Type"|t }}</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -20,6 +20,12 @@
                 {% endfor %}
                 </tbody>
             </table>
+        {% else %}
+
+            <div class="no-content-types-found">
+                {{ "No content types found. create content type first."|t }}
+            </div>
+
         {% endif %}
     </div>
 

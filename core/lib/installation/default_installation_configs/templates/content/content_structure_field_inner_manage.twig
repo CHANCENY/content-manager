@@ -4,12 +4,13 @@
 
     {% if content %}
     <div class="db-form-container">
-        <h2>Manage Fields for Content Type: {{ content.name }}</h2>
-        <a href="/admin/structure/content-type/{{ content.machine_name }}/field/{{ parent_field }}/add/inner/new" >+ Create a new field</a>
+        <h2>{{ "Manage Fields for Content Type"|t }}: {{ content.name }}</h2>
+        <a href="/admin/structure/content-type/{{ content.machine_name }}/field/{{ parent_field }}/add/inner/new" >+
+            {{ "Create a new field"|t }}</a>
         
          <div class="tabs">
-            <div class="tab active" onclick="showTab('manage-field')">Manage fields</div>
-            <div class="tab" onclick="showTab('display-settings')">Display settings</div>
+            <div class="tab active" onclick="showTab('manage-field')">{{ "Manage fields"|t }}</div>
+            <div class="tab" onclick="showTab('display-settings')">{{ "Display settings"|t }}</div>
         </div>
 
 
@@ -18,10 +19,10 @@
             <table class="table table-stripped">
             <thead class="table-light">
             <tr>
-                <th>Label</th>
-                <th>Machine Name</th>
-                <th>Field Type</th>
-                <th>Operations</th>
+                <th>{{ "Label"|t }}</th>
+                <th>{{ "Machine Name"|t }}</th>
+                <th>{{ "Field Type"|t }}</th>
+                <th>{{ "Operations"|t }}</th>
             </tr>
             </thead>
             <tbody>
@@ -31,8 +32,8 @@
                 <td>{{ field.name }}</td>
                 <td>{{ field.type }}</td>
                 <td>
-                    <a href="/admin/structure/content-type/{{  content.machine_name}}/field/{{ parent_field }}/{{ field.name }}/inner/edit" class="edit-button">Edit</a>
-                    <a href="/admin/structure/content-type/{{ content.machine_name }}/field/{{ parent_field }}/{{ field.name }}/inner/delete" class="btn delete-btn">Delete</a>
+                    <a href="/admin/structure/content-type/{{  content.machine_name}}/field/{{ parent_field }}/{{ field.name }}/inner/edit" class="edit-button">{{ "Edit"|t }}</a>
+                    <a href="/admin/structure/content-type/{{ content.machine_name }}/field/{{ parent_field }}/{{ field.name }}/inner/delete" class="btn delete-btn">{{ "Delete"|t }}</a>
                 </td>
             </tr>
             {% endfor %}
@@ -47,10 +48,10 @@
                     <table class="table table-stripped">
                         <thead class="table-light">
                         <tr>
-                            <th>Field</th>
-                            <th>Display Label</th>
-                            <th>Display As</th>
-                            <th>Display Enabled</th>
+                            <th>{{ "Field"|t }}</th>
+                            <th>{{ "Display Label"|t }}</th>
+                            <th>{{ "Display As"|t }}</th>
+                            <th>{{ "Display Enabled"|t }}</th>
                         </tr>
                         </thead>
                         <tbody>

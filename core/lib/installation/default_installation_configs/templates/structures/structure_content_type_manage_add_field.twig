@@ -3,8 +3,20 @@
 {% block body %}
 
     <div class="db-form-container">
-            <h1>Content field</h1>
-            {{ _form|raw }}
+       <div class="container-fluid">
+           <div class="d-block">
+               <h1>Content field type selection</h1>
+           </div>
+           <div class="row">
+               {% if field_types is iterable %}
+
+                   {% for field in field_types %}
+                     {{ "chance" }}
+                   {% endfor%}
+
+               {% endif %}
+           </div>
+       </div>
     </div>
 
 {% endblock %}

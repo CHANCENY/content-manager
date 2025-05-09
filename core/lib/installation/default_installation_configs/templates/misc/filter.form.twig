@@ -3,7 +3,7 @@
     <form class="row g-3">
         <!-- Search Field -->
         <div class="col-md-4">
-            <input name="search" type="text" class="form-control" placeholder="Search by name or email">
+            <input name="search" type="text" class="form-control" placeholder="{{ "Search by name or email"|t }}">
         </div>
 
         {% if filters.order_by %}
@@ -57,7 +57,7 @@
 
         <!-- Filter Button -->
         <div class="col-md-3">
-            <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+            <button type="submit" class="btn btn-primary w-100">{{ "Apply Filters"|t }}</button>
         </div>
     </form>
 </div>

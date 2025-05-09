@@ -16,7 +16,7 @@ class Profile
     protected ?string $time_zone,
     protected ?string $description,
     protected ?int $translation,
-    protected string $translation_code)
+    protected ?string $translation_code)
     {
     }
 
@@ -62,6 +62,10 @@ class Profile
     public function getDescription(): ?string
     {
         return $this->description;
+    }
+
+    public function getTranslationCode(): ?string {
+        return $this->translation_code;
     }
 
     public function isTranslationEnabled(): bool {

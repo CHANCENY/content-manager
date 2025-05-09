@@ -43,10 +43,12 @@ class Activity implements EventSubscriber
             'path' => $request->getRequestUri(),
         ];
 
-        $connection = Database::database()?->con();
-        if ($connection) {
-            $statement = $connection->prepare("INSERT INTO activity (start,end,elapsed,memory,system_usage,user_usage,user,path) VALUES (:start,:end,:elapsed,:memory,:system_usage,:user_usage,:user,:path)");
-            $statement->execute($data);
-        }
+       try{
+           $connection = Database::database()?->con();
+           if ($connection) {
+               $statement = $connection->prepare("INSERT INTO activity (start,end,elapsed,memory,system_usage,user_usage,user,path) VALUES (:start,:end,:elapsed,:memory,:system_usage,:user_usage,:user,:path)");
+               $statement->execute($data);
+           }
+       }catch (\Throwable){}
     }
 }

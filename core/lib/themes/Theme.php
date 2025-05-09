@@ -14,12 +14,15 @@ use Simp\Core\modules\user\current_user\CurrentUser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Yaml\Yaml;
 use Twig\Environment;
+use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 class Theme extends SystemDirectory
 {
     protected array $twig_functions;
+    protected array $twig_filters;
     protected string $twig_function_definition_file;
+    protected string $twig_filter_definition_file;
     protected array $options;
     public readonly Environment $twig;
 
@@ -46,6 +49,20 @@ class Theme extends SystemDirectory
         $this->twig_functions = [...(is_array($default_twig_function_array) ? $default_twig_function_array : []),
             ...(is_array($custom_functions) ? $custom_functions : [])];
         $site = ConfigManager::config()->getConfigFile('basic.site.setting');
+
+        $default_filters_function = Caching::init()->get('default.admin.filters');
+        $default_filters_function_array = [];
+        if (!empty($default_filters_function) && file_exists($default_filters_function)) {
+            $default_filters_function_array = require_once $default_filters_function;
+            if (!is_array($default_filters_function_array)) {
+                $default_filters_function_array = [];
+            }
+        }
+
+        $this->twig_filter_definition_file = $this->setting_dir .DIRECTORY_SEPARATOR . 'twig'.DIRECTORY_SEPARATOR.'filters.php';
+        $custom_filters = file_exists($this->twig_filter_definition_file) ? require_once $this->twig_filter_definition_file : [];
+        $this->twig_filters = [...(is_array($default_filters_function_array) ? $default_filters_function_array : []), ...(is_array($custom_filters) ? $custom_filters : [])];
+
         $this->options = [
             'page_title' => $site?->get('site_name'),
             'page_description' => $site?->get('site_slogan'),
@@ -95,6 +112,14 @@ class Theme extends SystemDirectory
             foreach ($this->twig_functions as $function) {
                 if ($function instanceof TwigFunction) {
                     $this->twig->addFunction($function);
+                }
+            }
+        }
+
+        if (!empty($this->twig_filters)) {
+            foreach ($this->twig_filters as $filter) {
+                if ($filter instanceof TwigFilter) {
+                    $this->twig->addFilter($filter);
                 }
             }
         }

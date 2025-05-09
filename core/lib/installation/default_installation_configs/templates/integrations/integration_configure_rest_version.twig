@@ -6,18 +6,18 @@
         <h2>REST <em>{{ version.title }}</em></h2>
 
         <div class="action-buttons">
-            <a href="#" id="version-create" class="">+create route</a>
+            <a href="#" id="version-create" class="">+ {{ "create endpoint"|t }}</a>
         </div>
 
         <div class="table-responsive">
             <table class="table table-stripped">
                 <thead>
                    <tr>
-                       <th>Title</th>
-                       <th>Method</th>
-                       <th>URI</th>
-                       <th>Permission</th>
-                       <th>Actions</th>
+                       <th>{{ "Title"|t }}</th>
+                       <th>{{ "Method"|t }}</th>
+                       <th>{{ "URI"|t }}</th>
+                       <th>{{ "Permission"|t }}</th>
+                       <th>{{ "Actions"|t }}</th>
                    </tr>
                 </thead>
                 <tbody>
@@ -29,8 +29,8 @@
                            <td>{{ version_route.getRoutePath() }}</td>
                            <td>{{ version_route.getAccess()|join(',') }}</td>
                            <td>
-                               <a href="#" class="data-source" data-route="{{ index }}">Data Source</a>
-                               <a class="remove" data-route="{{ index }}" data-version="{{ version.version_key }}">Delete</a>
+                               <a href="#" class="data-source" data-route="{{ index }}">{{ "Data Source"|t }}</a>
+                               <a class="remove" data-route="{{ index }}" data-version="{{ version.version_key }}">{{ "Delete"|t }}</a>
                            </td>
                        </tr>
 

@@ -133,6 +133,12 @@ class InstallerValidator extends SystemDirectory {
         $GLOBALS["caching"] = $cache_store;
     }
 
+    /**
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
     public function setUpDatabase(): void
     {
         if(!empty($GLOBALS['stream_wrapper']['setting']) && $GLOBALS['stream_wrapper']['setting'] instanceof SettingStreamWrapper) {
@@ -141,10 +147,9 @@ class InstallerValidator extends SystemDirectory {
                 $redirect = new RedirectResponse('/admin/configure/database');
                 $redirect->send();
             }
-
-            $defualt_tables = Caching::init()->get('default.admin.built_in_tables');
-            if(\file_exists($defualt_tables)) {
-                $tables_queries = Yaml::parseFile($defualt_tables)['table'] ?? [];
+            $default_tables = Caching::init()->get('default.admin.built_in_tables');
+            if(\file_exists($default_tables)) {
+                $tables_queries = Yaml::parseFile($default_tables)['table'] ?? [];
                 try{
                     foreach($tables_queries as $query) {
                          $connection = Database::database()->con();

@@ -56,4 +56,8 @@ class FieldManager
     {
         return array_keys($this->supported_fields);
     }
+
+    public static function fieldManager(): FieldManager {
+        return new self();
+    }
 }

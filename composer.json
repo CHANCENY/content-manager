@@ -38,10 +38,12 @@
     ],
     "scripts": {
     "post-install-cmd": [
-        "@php core/lib/installation/composer.php"
+        "@php core/lib/installation/composer.php",
+        "@php vendor/simp/translate/src/lang/lang.php"
     ],
     "post-update-cmd": [
-        "@php core/lib/installation/composer.php"
+        "@php core/lib/installation/composer.php",
+        "@php vendor/simp/translate/src/lang/lang.php"
     ]
 },
     "require-dev": {

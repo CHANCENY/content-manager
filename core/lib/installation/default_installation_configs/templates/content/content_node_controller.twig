@@ -4,7 +4,7 @@
 
     <div class="node-container">
         <h1 class="node-title">{{ node.title }}</h1>
-        <p class="node-meta">Published by <a href="/user/{{ node.uid }}"><strong>{{ node.getOwner }}</strong></a> on {{ node.created }}</p>
+        <p class="node-meta">{{ "Published by"|t }} <a href="/user/{{ node.uid }}"><strong>{{ node.getOwner }}</strong></a> on {{ node.created }}</p>
         <div class="node-content">
             {% for definition in definitions %}
 

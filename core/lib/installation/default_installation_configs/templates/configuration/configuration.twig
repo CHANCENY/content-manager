@@ -3,31 +3,31 @@
 {% block body %}
 
     <div class="db-form-container">
-        <h2>Configuration Settings</h2>
+        <h2>{{ "Configuration Settings"|t }}</h2>
 
         <div class="config-section">
-            <h3>System</h3>
-            <div class="config-item"><a href="/admin/config/system/site-information">Basic Site Settings</a></div>
-            <div class="config-item"><a href="#">Cron Settings</a></div>
-            <div class="config-item"><a href="/admin/config/smtp">Smtp Settings</a></div>
+            <h3>{{ "System"|t }}</h3>
+            <div class="config-item"><a href="/admin/config/system/site-information">{{ "Basic Site Settings"|t }}</a></div>
+            <div class="config-item"><a href="#">{{ "Cron Settings"|t }}</a></div>
+            <div class="config-item"><a href="/admin/config/smtp">{{ "Smtp Settings"|t }}</a></div>
         </div>
 
         <div class="config-section">
-            <h3>People</h3>
-            <div class="config-item"><a href="/admin/config/people/accounts">Account Settings</a></div>
+            <h3>{{ "People"|t }}</h3>
+            <div class="config-item"><a href="/admin/config/people/accounts">{{ "Account Settings"|t }}</a></div>
         </div>
 
         <div class="config-section">
-            <h3>Development</h3>
-            <div class="config-item"><a href="{{ url('system.search.settings') }}">Search Setting</a></div>
-            <div class="config-item"><a href="/admin/config/development/settings">Development Settings</a></div>
-            <div class="config-item"><a href="/admin/config/log">Logging and Errors</a></div>
+            <h3>{{ "Development"|t }}</h3>
+            <div class="config-item"><a href="{{ url('system.search.settings') }}">{{ "Search Settings"|t }}</a></div>
+            <div class="config-item"><a href="/admin/config/development/settings">{{ "Development Settings"|t }}</a></div>
+            <div class="config-item"><a href="/admin/config/log">{{ "Logging and Errors"|t }}</a></div>
         </div>
 
         <div class="config-section">
-            <h3>Integrations</h3>
-            <div class="config-item"><a href="/admin/integration/rest">REST</a></div>
-            <div class="config-item"><a href="#">Image Styles</a></div>
+            <h3>{{ "Integrations"|t }}</h3>
+            <div class="config-item"><a href="/admin/integration/rest">{{ "REST"|t }}</a></div>
+{#            <div class="config-item"><a href="#">Image Styles</a></div>#}
         </div>
     </div>
 

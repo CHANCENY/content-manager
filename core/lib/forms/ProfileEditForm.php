@@ -11,9 +11,13 @@ use Simp\Core\modules\files\entity\File;
 use Simp\Core\modules\files\uploads\FormUpload;
 use Simp\Core\modules\messager\Messager;
 use Simp\Core\modules\user\entity\User;
+use Simp\Default\ConditionalField;
+use Simp\Default\FieldSetField;
 use Simp\Default\FileField;
+use Simp\Default\SelectField;
 use Simp\Default\TextAreaField;
 use Simp\FormBuilder\FormBase;
+use Simp\Translate\lang\LanguageManager;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -53,6 +57,51 @@ class ProfileEditForm extends FormBase
                 'id' => 'profile_image',
                 'class' => ['form-control'],
                 'handler' => FileField::class,
+            ];
+            $checked = [];
+            if ($profile->isTranslationEnabled()) {
+                $checked['checked'] = $checked;
+            }
+            $form['translations'] = [
+                'label' => 'Translations',
+                'name' => 'translations',
+                'type' => 'conditional',
+                'id' => 'translations',
+                'class' => ['form-group'],
+                'handler' => ConditionalField::class,
+                'inner_field' => [
+                    'enable_translation' => [
+                        'label' => 'Enable Translation',
+                        'name' => 'enable_translation',
+                        'type' => 'select',
+                        'id' => 'enable_translation',
+                        'class' => ['form-check'],
+                        'default_value' => $profile->isTranslationEnabled() ? 'yes' : 'no',
+                        'option_values' => [
+                            'yes' => 'Yes',
+                            'no' => 'No',
+                        ],
+                        'handler' => SelectField::class,
+                    ],
+                    'language' => [
+                        'label' => 'Language',
+                        'name' => 'language',
+                        'type' => 'select',
+                        'id' => 'language',
+                        'class' => ['form-control'],
+                        'option_values' => LanguageManager::manager()->getLanguages(),
+                        'default_value' => 'ny',
+                        'handler' => SelectField::class,
+                    ],
+                ],
+                'conditions' => [
+                    'enable_translation' => [
+                        'event' => 'change',
+                        'receiver_field' => 'language'
+                    ]
+                ],
+                'description' => 'this site uses "english" as default language.'
+
             ];
             $form['description'] = [
                 'label' => 'Description',
@@ -129,6 +178,13 @@ class ProfileEditForm extends FormBase
         }
         if (!empty($form['description']->getValue())) {
             $profile->setDescription( $form['description']->getValue() );
+        }
+
+        if (!empty($form['translations']?->getValue()['enable_translation'])) {
+            $profile->setTranslation($form['translations']?->getValue()['enable_translation'] == 'yes' ? 1 : 0);
+        }
+        if (!empty($form['translations']?->getValue()['language'])) {
+            $profile->setTranslationCode( $form['translations']?->getValue()['language']);
         }
 
         if ($profile->update()) {

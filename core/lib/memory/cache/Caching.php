@@ -33,7 +33,7 @@ class Caching implements MemoryInterface
      * @throws PhpfastcacheDriverException
      * @throws PhpfastcacheInvalidArgumentException
      */
-    public function set(string $key, $value, int $duration = 3600): bool
+    public function set(string $key, $value, int $duration = 525600): bool
     {
         $instance = $this->caching_object->getItem($key);
         $instance->set($value)->expiresAfter($duration);

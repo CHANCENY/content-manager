@@ -110,6 +110,9 @@ class ErrorLogger extends SystemDirectory
     public function __destruct()
     {
         $system = new SystemDirectory();
+        if(is_dir($system->setting_dir . DIRECTORY_SEPARATOR . 'logs') === false) {
+            mkdir($system->setting_dir . DIRECTORY_SEPARATOR . 'logs', 0777, true);
+        }
         $log_file = $system->setting_dir . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'error.log';
         if (!file_exists($log_file)) {
             touch($log_file);
