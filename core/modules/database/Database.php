@@ -4,6 +4,7 @@ namespace Simp\Core\modules\database;
 
 use PDO;
 use Medoo\Medoo;
+use PDOException;
 use Symfony\Component\Yaml\Yaml;
 use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\lib\installation\InstallerValidator;

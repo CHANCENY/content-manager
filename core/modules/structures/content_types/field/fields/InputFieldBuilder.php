@@ -26,4 +26,12 @@ class InputFieldBuilder implements FieldBuilderInterface
         return [];
     }
 
+    public function extensionInfo(string $type): array
+    {
+        return [
+            'title' => \ucfirst(\str_replace('-', ' ', $type)),
+            'type' => $type,
+            'description' => 'This field extension give support for '.$type. ' type field'
+        ];
+    }
 }

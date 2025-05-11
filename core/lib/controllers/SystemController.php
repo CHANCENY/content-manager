@@ -551,9 +551,7 @@ class SystemController
 //        $form_base->getFormBase()->setFormMethod('POST');
 //        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
         $fields_supported = FieldManager::fieldManager()->getSupportedFieldsType();
-        $all = array_map(function ($item) { return ucfirst(str_replace('-',' ',$item)); }, $fields_supported);
-        $all = array_combine($fields_supported, $all);
-        return new Response(View::view('default.view.structure_content_type_manage_add_field',['field_types'=>$all]), 200);
+        return new Response(View::view('default.view.structure_content_type_manage_add_field',['field_types'=>$fields_supported]), 200);
     }
 
     public function content_type_manage_edit_field_controller(...$args): RedirectResponse|Response
@@ -649,7 +647,7 @@ class SystemController
                 return new RedirectResponse('/admin/structure/content-type/' . $name . '/manage');
             }
         }
-        
+
         $content['display_setting'] = $content['display_setting'] ?? [];
 
         return new Response(View::view('default.view.content_structure_field_inner_manage',

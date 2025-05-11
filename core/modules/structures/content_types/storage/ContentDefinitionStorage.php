@@ -49,7 +49,7 @@ class ContentDefinitionStorage
             }
 
         }
-        
+
         $this->content_type['storage'] = array_unique($created_tables);
         ContentDefinitionManager::contentDefinitionManager()->addContentType(
             $this->content_name,
@@ -104,6 +104,7 @@ class ContentDefinitionStorage
 
     public function getStorageInsertStatement(string $field_name): ?string
     {
+        if (empty($this->content_name['stoarage'])) return null;
         $index = array_search("node__{$field_name}", $this->content_type['storage']);
         if ($index !== false) {
             $name = substr($this->content_type['storage'][$index], 4, strlen($this->content_type['storage'][$index]));

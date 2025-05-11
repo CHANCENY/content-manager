@@ -23,3 +23,7 @@ request_subscriber:
 # This script will run on event of response after the process finishes.
 response_subscriber:
   - Simp\Core\modules\activity\Activity
+  - Simp\Core\modules\activity\DatabaseActivity
+
+# always set this key to prod on live server.
+environment: prod

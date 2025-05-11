@@ -8,5 +8,6 @@ interface FieldBuilderInterface
 {
     public function build(Request $request): string;
     public function fieldArray(Request $request): array;
+    public function extensionInfo(string $type): array;
 
 }

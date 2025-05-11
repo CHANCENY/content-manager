@@ -147,8 +147,10 @@ class InstallerValidator extends SystemDirectory {
                 $redirect = new RedirectResponse('/admin/configure/database');
                 $redirect->send();
             }
-            $default_tables = Caching::init()->get('default.admin.built_in_tables');
-            if(\file_exists($default_tables)) {
+
+            if ($this->installer_schema->environment === 'dev') {
+                 $default_tables = Caching::init()->get('default.admin.built_in_tables');
+                 if(\file_exists($default_tables)) {
                 $tables_queries = Yaml::parseFile($default_tables)['table'] ?? [];
                 try{
                     foreach($tables_queries as $query) {
@@ -160,6 +162,7 @@ class InstallerValidator extends SystemDirectory {
                 }catch(\Throwable $e){
 
                 }
+            }
             }
         }
     }

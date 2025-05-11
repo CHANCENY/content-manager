@@ -9,6 +9,8 @@ class SPDOStatement extends \PDOStatement
 {
     private array $params = [];
     private DatabaseCacheManager $cacheManager;
+    private float $lastExecutionTime = 0.0;
+
 
     private bool $skip_for_cache;
     protected function __construct() {
@@ -18,8 +20,16 @@ class SPDOStatement extends \PDOStatement
     }
     public function execute(?array $params = null): bool
     {
-        $result = parent::execute($params);
+         $start = microtime(true);
+         $result = parent::execute($params);
+         $this->lastExecutionTime = microtime(true) - $start;
+        DatabaseRecorder::factory($this->queryString, $this->lastExecutionTime);
         return $result;
+    }
+
+    public function getLastExecutionTime(): float
+    {
+        return $this->lastExecutionTime;
     }
 
     public function bindColumn(int|string $column, mixed &$var, int $type = PDO::PARAM_STR, int $maxLength = 0, mixed $driverOptions = null): bool

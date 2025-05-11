@@ -10,6 +10,7 @@ use Simp\Core\modules\config\ConfigManager;
 use Simp\Core\modules\files\helpers\FileFunction;
 use Simp\Core\modules\search\SearchManager;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
+use Simp\Core\modules\structures\content_types\field\FieldManager;
 use Simp\Core\modules\user\current_user\CurrentUser;
 use Simp\Core\modules\user\entity\User;
 use Simp\Translate\translate\Translate;
@@ -194,6 +195,10 @@ function search_api(string $search_key): ?string
     return SearchManager::buildForm($search_key);
 }
 
+function getFieldTypeInfo(string $type = '') {
+    return FieldManager::fieldManager()->getFieldInfo($type);
+}
+
 
 /**
  * @return array
@@ -233,6 +238,9 @@ function getArr(): array
         }),
         new TwigFunction('translation',function(?string $code){
             return translation($code);
+        }),
+        new TwigFunction('getFieldTypeInfo',function(string $type){
+            return getFieldTypeInfo($type);
         })
     );
 }

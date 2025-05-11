@@ -57,6 +57,18 @@ class FieldManager
         return array_keys($this->supported_fields);
     }
 
+    public function getFieldInfo(string $type): array
+    {
+        $handler = $this->getFieldBuilderHandler($type);
+        if ($handler) {
+            $handler = new $handler();
+            if ($handler instanceof FieldBuilderInterface) {
+                return $handler->extensionInfo($type);
+            }
+        }
+        return [];
+    }
+
     public static function fieldManager(): FieldManager {
         return new self();
     }
