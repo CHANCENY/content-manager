@@ -222,6 +222,7 @@ class Node
             if (!is_array($values)) {
                 $values = [$values];
             }
+
             $flags = [];
             foreach ($values as $value) {
 

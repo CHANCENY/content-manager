@@ -326,6 +326,7 @@ class ContentTypeDefinitionForm extends FormBase
                     }
                 }
                 $node_data = array_merge($node_data, $temp);
+
                 // now insert in other tables.
                 $node = Node::create($node_data);
                 Messager::toast()->addMessage("Content of type {$this->content_type['name']} created");

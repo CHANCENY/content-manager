@@ -36,32 +36,35 @@ class Theme extends SystemDirectory
     {
         parent::__construct();
         $default_twig_function = Caching::init()->get('default.admin.functions');
-        $default_twig_function_array = [];
-        if (!empty($default_twig_function) && file_exists($default_twig_function)) {
-            $default_twig_function_array = require_once $default_twig_function;
-            if (!is_array($default_twig_function_array)) {
-                $default_twig_function_array = [];
-            }
+        if (file_exists($default_twig_function)) {
+            require_once $default_twig_function;
+            $this->twig_functions = get_functions();
         }
 
         $this->twig_function_definition_file = $this->setting_dir .DIRECTORY_SEPARATOR . 'twig'.DIRECTORY_SEPARATOR.'functions.php';
-        $custom_functions = file_exists($this->twig_function_definition_file) ? require_once $this->twig_function_definition_file : [];
-        $this->twig_functions = [...(is_array($default_twig_function_array) ? $default_twig_function_array : []),
-            ...(is_array($custom_functions) ? $custom_functions : [])];
-        $site = ConfigManager::config()->getConfigFile('basic.site.setting');
-
-        $default_filters_function = Caching::init()->get('default.admin.filters');
-        $default_filters_function_array = [];
-        if (!empty($default_filters_function) && file_exists($default_filters_function)) {
-            $default_filters_function_array = require_once $default_filters_function;
-            if (!is_array($default_filters_function_array)) {
-                $default_filters_function_array = [];
-            }
+        if (file_exists($this->twig_function_definition_file)) {
+            require_once $this->twig_function_definition_file;
+            $custom_functions = get_functions();
+            $this->twig_functions = [...$this->twig_functions, ... $custom_functions];
         }
 
+        $site = ConfigManager::config()->getConfigFile('basic.site.setting');
+
+        // Loading default filters.
+        $default_filters_function = Caching::init()->get('default.admin.filters');
+        $default_filters_function_array = [];
+        if (file_exists($default_filters_function ?? '')) {
+            require_once $default_filters_function;
+            $this->twig_filters = get_filters();
+        }
+
+        // Loading custom filters.
         $this->twig_filter_definition_file = $this->setting_dir .DIRECTORY_SEPARATOR . 'twig'.DIRECTORY_SEPARATOR.'filters.php';
-        $custom_filters = file_exists($this->twig_filter_definition_file) ? require_once $this->twig_filter_definition_file : [];
-        $this->twig_filters = [...(is_array($default_filters_function_array) ? $default_filters_function_array : []), ...(is_array($custom_filters) ? $custom_filters : [])];
+        if(file_exists($this->twig_filter_definition_file)) {
+            require_once $this->twig_filter_definition_file;
+            $custom_filters = get_filters();
+            $this->twig_filters = [...$this->twig_filters, ... $custom_filters];
+        }
 
         $this->options = [
             'page_title' => $site?->get('site_name'),

@@ -26,4 +26,4 @@ response_subscriber:
   - Simp\Core\modules\activity\DatabaseActivity
 
 # always set this key to prod on live server.
-environment: prod
+environment: dev

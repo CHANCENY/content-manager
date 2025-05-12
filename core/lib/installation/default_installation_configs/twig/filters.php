@@ -18,7 +18,7 @@ use Simp\Translate\translate\Translate;
  */
 function filter_translator(string $text, ?string $from = null, ?string $to = null): Translate|string
 {
-    // Check if current user has timezone translation enabled.
+    // Check if the current user has timezone translation enabled.
     $current_user = CurrentUser::currentUser();
 
     if ($current_user instanceof \Simp\Core\modules\auth\normal_auth\AuthUser) {
@@ -53,8 +53,11 @@ function filter_translator(string $text, ?string $from = null, ?string $to = nul
     return Translate::translate($text,$from, $to, 'public://translations');
 }
 
-return [
-    new \Twig\TwigFilter('t',function(string $text, ?string $from = null, ?string $to = null){
-        return filter_translator($text, $from, $to);
-    })
-];
+function get_filters(): array
+{
+    return [
+        new \Twig\TwigFilter('t',function(string $text, ?string $from = null, ?string $to = null){
+            return filter_translator($text, $from, $to);
+        })
+    ];
+}

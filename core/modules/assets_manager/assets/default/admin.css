@@ -832,3 +832,83 @@ form {
     }
 
 }
+.add-field-wrapper {
+    max-width: 80%;
+    margin: 2rem auto 2rem 0;
+    padding: 2rem;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    font-family: system-ui, sans-serif;
+}
+
+.add-field-wrapper h1 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #333;
+}
+
+.add-field-wrapper .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* Style for all form elements */
+.add-field-wrapper input,
+.add-field-wrapper select,
+.add-field-wrapper textarea,
+.add-field-wrapper button {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.add-field-wrapper textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.add-field-wrapper input[type="checkbox"],
+.add-field-wrapper input[type="radio"] {
+    width: auto;
+    margin-right: 0.5rem;
+}
+
+.add-field-wrapper label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #444;
+}
+
+/* Button styling */
+.add-field-wrapper button,
+.add-field-wrapper input[type="submit"] {
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.add-field-wrapper button:hover,
+.add-field-wrapper input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive tweak */
+@media (max-width: 600px) {
+    .add-field-wrapper {
+        padding: 1rem;
+    }
+
+    .add-field-wrapper h1 {
+        font-size: 1.5rem;
+    }
+}
+

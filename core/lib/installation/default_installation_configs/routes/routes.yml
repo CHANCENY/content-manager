@@ -405,6 +405,17 @@ system.structure.content-type.manage.field.new:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: content_type_manage_add_field_controller
+system.structure.content-type.manage.field.type.new:
+  title: "Content Type Field"
+  path: '/admin/structure/content-type/[machine_name:string]/field/[type:string]/new'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: content_type_manage_add_field_type_controller
 system.structure.content-type.manage.field.edit:
   title: "Content Type Field"
   path: '/admin/structure/content-type/[machine_name:string]/field/[field_name:string]/edit'

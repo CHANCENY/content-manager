@@ -47,9 +47,9 @@ class FieldManager
         }
     }
 
-    public function getFieldBuilderHandler(string $type)
+    public function getFieldBuilderHandler(string $type): FieldBuilderInterface|null
     {
-        return $this->supported_fields[$type] ?? null;
+        return $this->supported_fields[$type] ? new $this->supported_fields[$type]() : null;
     }
 
     public function getSupportedFieldsType(): array
@@ -60,13 +60,19 @@ class FieldManager
     public function getFieldInfo(string $type): array
     {
         $handler = $this->getFieldBuilderHandler($type);
-        if ($handler) {
-            $handler = new $handler();
-            if ($handler instanceof FieldBuilderInterface) {
-                return $handler->extensionInfo($type);
-            }
-        }
-        return [];
+        return  $handler?->extensionInfo($type);
+    }
+
+    public static function createFieldName(string $title): string
+    {
+        // Convert to lowercase
+        $input = strtolower($title);
+
+        // Replace all non-alphanumeric characters with underscores
+        $input = preg_replace('/[^a-z0-9]+/', '_', $input);
+
+        // Trim leading and trailing underscores
+        return trim($input, '_');
     }
 
     public static function fieldManager(): FieldManager {

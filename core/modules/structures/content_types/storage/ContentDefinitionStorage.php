@@ -104,7 +104,7 @@ class ContentDefinitionStorage
 
     public function getStorageInsertStatement(string $field_name): ?string
     {
-        if (empty($this->content_name['stoarage'])) return null;
+        if (empty($this->content_type['storage'])) return null;
         $index = array_search("node__{$field_name}", $this->content_type['storage']);
         if ($index !== false) {
             $name = substr($this->content_type['storage'][$index], 4, strlen($this->content_type['storage'][$index]));

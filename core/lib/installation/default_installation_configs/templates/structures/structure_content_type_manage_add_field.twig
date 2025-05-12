@@ -3,33 +3,33 @@
 {% block body %}
 
     <div class="db-form-container">
-       <div class="container-fluid">
-           <div class="d-block">
-               <h1>Content field type selection</h1>
-           </div>
-           <div class="row">
-               {% if field_types is iterable %}
+        <div class="container-fluid">
+            <div class="d-block">
+                <h1>Content field type selection</h1>
+            </div>
+            <div class="row">
+                {% if field_types is iterable %}
 
-                   {% for field in field_types %}
-                     <a href="#"  class="card mb-3 m-auto" style="max-width: 500px;">
-                         <div class="row g-0">
-    <div class="col-md-4">
-      <img style="width: 90px;" src="/system/assets/file?name=extension_icon_image.png" class="img-fluid rounded-start" alt="...">
-    </div>
-    <div class="col-md-8">
-      <div class="card-body">
-      {% set type = getFieldTypeInfo(field) %}
-        <h5 class="card-title">{{ type.title }}</h5>
-        <p class="card-text">{{ type.description }}</p>
-      </div>
-    </div>
-  </div>
-                     </a>
-                   {% endfor%}
+                    {% for field in field_types %}
+                        <a href="/admin/structure/content-type/content_prashant/field/{{ field }}/new"  class="card mb-3 m-auto" style="max-width: 500px;">
+                            <div class="row g-0">
+                                <div class="col-md-4">
+                                    <img style="width: 80px;" src="/system/assets/file?name=extension_icon_image.png" class="img-fluid rounded-start" alt="...">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        {% set type = getFieldTypeInfo(field) %}
+                                        <h5 class="card-title">{{ type.title }}</h5>
+                                        <p class="card-text">{{ type.description }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor%}
 
-               {% endif %}
-           </div>
-       </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
 
 {% endblock %}

@@ -547,11 +547,46 @@ class SystemController
     public function content_type_manage_add_field_controller(...$args): RedirectResponse|Response
     {
         extract($args);
-//        $form_base = new FormBuilder(new ContentTypeFieldForm());
-//        $form_base->getFormBase()->setFormMethod('POST');
-//        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
         $fields_supported = FieldManager::fieldManager()->getSupportedFieldsType();
         return new Response(View::view('default.view.structure_content_type_manage_add_field',['field_types'=>$fields_supported]), 200);
+    }
+
+    /**
+     * @throws RuntimeError
+     * @throws LoaderError
+     * @throws SyntaxError
+     * @throws PhpfastcacheIOException
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
+    public function content_type_manage_add_field_type_controller(...$args): RedirectResponse|Response
+    {
+        extract($args);
+        $type = $request->get('type');
+        $entity_type = $request->get('machine_name');
+        $handler = FieldManager::fieldManager()->getFieldBuilderHandler($type);
+        if ($request->getMethod() === 'POST') {
+            $data = $handler->fieldArray($request,$type, $entity_type);
+            if (!empty($data)) {
+                if (ContentDefinitionManager::contentDefinitionManager()->addField(
+                    $entity_type,
+                    $data['name'],
+                    $data,
+                    true,
+                )) {
+                    Messager::toast()->addMessage("Field '$name' has been created");
+                }
+                $redirect = new RedirectResponse('/admin/structure/content-type/'.$entity_type. '/manage');
+                $redirect->send();
+            }else {
+                Messager::toast()->addError("Failed to create field. Please check your input and try again.");
+            }
+        }
+        $build = $handler->build($request,$type);
+        return new Response(View::view('default.view.structure_content_type_manage_add_type_field',
+            ['form'=>$build,'field' => FieldManager::fieldManager()->getFieldInfo($type)]), 200);
     }
 
     public function content_type_manage_edit_field_controller(...$args): RedirectResponse|Response

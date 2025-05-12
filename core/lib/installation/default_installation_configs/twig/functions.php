@@ -195,7 +195,8 @@ function search_api(string $search_key): ?string
     return SearchManager::buildForm($search_key);
 }
 
-function getFieldTypeInfo(string $type = '') {
+function getFieldTypeInfo(string $type = ''): ?array
+{
     return FieldManager::fieldManager()->getFieldInfo($type);
 }
 
@@ -203,7 +204,7 @@ function getFieldTypeInfo(string $type = '') {
 /**
  * @return array
  */
-function getArr(): array
+function get_functions(): array
 {
     return array(
         new \Twig\TwigFunction('get_content_type', function ($content_name) {
@@ -244,5 +245,3 @@ function getArr(): array
         })
     );
 }
-
-return getArr();
