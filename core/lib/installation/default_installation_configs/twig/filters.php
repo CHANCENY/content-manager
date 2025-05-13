@@ -31,7 +31,7 @@ function filter_translator(string $text, ?string $from = null, ?string $to = nul
         if ($current_user?->getUser()?->getProfile()?->isTranslationEnabled()) {
             $to = $current_user?->getUser()?->getProfile()?->getTranslation();
         }else {
-            $to = 'ny';
+            $to = 'en';
         }
     }
 

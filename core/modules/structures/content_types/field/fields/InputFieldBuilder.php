@@ -27,7 +27,7 @@ class InputFieldBuilder implements FieldBuilderInterface
         $field = self::extensionInfo($field_type);
         $template = match ($field_type) {
             'text', 'number', 'email', 'date', 'datetime', 'datetime-local', 'time', 'month', 'week', 'tel',
-                'url', 'search', 'range', 'color', 'password', 'hidden', 'submit' => 'default.view.basic.simple',
+                'url', 'search', 'range', 'color', 'password', 'hidden', 'submit','reset','button' => 'default.view.basic.simple',
             'radio', 'checkbox' => 'default.view.basic.radio',
         };
         return View::view($template,['field'=>$field]);
@@ -38,13 +38,14 @@ class InputFieldBuilder implements FieldBuilderInterface
         $this->field_type = $field_type;
         return match ($field_type) {
             'text', 'number', 'email', 'date', 'datetime', 'datetime-local', 'time', 'month', 'week', 'tel',
-            'url', 'search', 'range', 'color', 'password', 'hidden', 'submit' => $this->parseBasicInputSetting($request,$entity_type),
+            'url', 'search', 'range', 'color', 'password', 'hidden', 'submit','reset','button' => $this->parseBasicInputSetting($request,$entity_type),
             'radio','checkbox' => $this->parseOptionInputFieldSetting($request, $entity_type)
         };
     }
 
     public function extensionInfo(string $type): array
     {
+        $this->field_type = $type;
         return [
             'title' => \ucfirst(\str_replace('-', ' ', $type)),
             'type' => $type,
@@ -75,7 +76,7 @@ class InputFieldBuilder implements FieldBuilderInterface
     {
         return match ($this->field_type) {
             'text', 'number', 'email', 'date', 'datetime', 'datetime-local', 'time', 'month', 'week', 'tel',
-            'url', 'search', 'range', 'color', 'password', 'hidden', 'submit' => BasicField::class,
+            'url', 'search', 'range', 'color', 'password', 'hidden', 'submit','reset','button' => BasicField::class,
             'radio' => RadioField::class,
             'checkbox' => CheckboxField::class
         };

@@ -3,7 +3,9 @@
 @import url(https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.6.1/toastify.min.css);
 
 body {
-    padding-top: 90px;}
+    padding-top: 90px;
+    font-size: 14px;
+}
 /* Top Black Admin Bar */
 .admin-bar {
     background-color: #222;
@@ -35,10 +37,7 @@ body {
     padding: 5px 10px;
     border-radius: 3px;}
 .main-content {
-    margin-right: 3rem !important;
-    margin-left: 3rem !important;
-    margin-top: 8rem !important;
-    margin-bottom: 8rem !important;
+    margin: 12rem 3rem 8rem !important;
     clear: both;}
 .container h2 {
     margin-bottom: 2rem;}
@@ -83,27 +82,7 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 0;}
-/* Layout & spacing */
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;}
-.form-group {
-    margin-bottom: 15px;}
-.btn-primary {
-    background-color: #6e365f;
-    border: none;}
-.field-wrapper {
-    margin: 10px;}
-.field-message {
-    color: darkred;}
-.field-description {
-    font-size: smaller;
-    font-style: italic;
-    color: blueviolet;}
-legend {
-    font-size: large;}
-/* Success toast */
+
 .toastify-success {
     background: #28a745; /* Green */
     border-left: 5px solid #218838;}
@@ -120,31 +99,7 @@ legend {
 .toastify-info {
     background: #17a2b8; /* Blue */
     border-left: 5px solid #117a8b;}
-.table-container {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);}
-.btn-edit {
-    background-color: #6e365f;
-    color: white;
-    border: none;}
-.btn-delete {
-    background-color: #dc3545;
-    color: white;
-    border: none;}
-.confirmation-box {
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin: auto;}
-.btn-cancel {
-    background-color: #6e365f;
-    color: white;
-    border: none;}
-hr{
-    margin: 0 !important;}
+
 .profile-container {
     margin: 50px auto;
     background: white;
@@ -205,18 +160,7 @@ hr{
     color: white;
     font-weight: bold;
     transition: all 0.3s ease;}
-.btn-edit {
-    background: #6e365f;}
-.btn-edit:hover {
-    background: #52294e;}
-.btn-account {
-    background: #007bff;}
-.btn-account:hover {
-    background: #0056b3;}
-.btn-delete {
-    background: #dc3545;}
-.btn-delete:hover {
-    background: #a71d2a;}
+
 .login-container {
     max-width: 50%;
     background: white;
@@ -230,60 +174,7 @@ hr{
     font-weight: bold;
     color: #333;
     margin-bottom: 20px;}
-.form-control {
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 8px;
-    border: 1px solid #ccc;}
-.input-group-text {
-    background: #edf7f7;
-    border: none;}
-.btn-login {
-    background: #6e365f;
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    padding: 10px;
-    border-radius: 8px;
-    width: 100%;
-    transition: all 0.3s ease;}
-.btn-login:hover {
-    background: #52294e;}
-.forgot-password {
-    display: block;
-    margin-top: 10px;
-    color: #007bff;
-    text-decoration: none;
-    font-size: 14px;}
-.btn-social {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    padding: 12px;
-    border-radius: 50px;
-    width: 100%;
-    margin-top: 10px;
-    transition: all 0.3s ease;
-    border: none;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);}
-.btn-google {
-    background: #fff;
-    color: #444;
-    border: 1px solid #ccc;}
-.btn-google img {
-    width: 20px;}
-.btn-google:hover {
-    background: #f2f2f2;}
-.btn-github {
-    background: #24292e;
-    color: white;}
-.btn-github i {
-    font-size: 20px;}
-.btn-github:hover {
-    background: #1a1e22;}
+
 .config-section {
     margin-top: 20px;
     padding: 10px;
@@ -301,67 +192,7 @@ hr{
     transition: background 0.3s;}
 .config-item:hover {
     background: #e9ecef;}
-details {
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background: #fafafa;
-    padding: 10px;}
-summary {
-    font-weight: bold;
-    cursor: pointer;
-    outline: none;}
-/* Headings */
-h1, h2, h3, h4, h5, h6 {
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 10px;}
-/* Links */
-a {
-    color: #0056b3; /* Drupal’s blue shade */
-    text-decoration: none;}
-a:hover {
-    text-decoration: underline;}
-/* Buttons */
-button, .button, input[type="submit"] {
-    background-color: #0074bd;
-    color: #fff;
-    border: none;
-    padding: 10px 15px;
-    font-size: 14px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.2s;}
-button:hover, .button:hover, input[type="submit"]:hover {
-    background-color: #005fa3;}
-/* Forms */
-input[type="text"], input[type="email"], input[type="password"], textarea, select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-    margin-bottom: 10px;}
-input:focus, textarea:focus, select:focus {
-    border-color: #0074bd;
-    outline: none;}
-/* Tables */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-    background: #fff;}
-th, td {
-    padding: 10px;}
-th {
-    background: #f1f1f1;
-    font-weight: 600;}
-/* Cards & Blocks */
-.card {
-    background: white;
-    padding: 15px;
-    border-radius: 6px;
-    margin-bottom: 15px;}
+
 /* Sidebar */
 .sidebar {
     background: #fff;
@@ -387,47 +218,10 @@ th {
 .alert-success { background: #d4edda; color: #155724;}
 .alert-warning { background: #fff3cd; color: #856404;}
 .alert-danger  { background: #f8d7da; color: #721c24;}
-.node-container {
-    margin: 0 auto;
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;}
-.node-title {
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;}
-.node-meta {
-    font-size: 14px;
-    color: #777;
-    margin-bottom: 15px;}
-.node-content {
-    font-size: 16px;
-    line-height: 1.6;
-    color: #444;}
-.node-image {
-    object-fit: cover;
-    border-radius: 5px;
-    margin-top: 15px;
-    width: 100%;
-}
-.node-tags {
-    margin-top: 15px;
-    font-size: 14px;}
-.node-tags span {
-    background: #68d388;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    margin-right: 5px;
-    font-size: 12px;}
 .ck-rounded-corners .ck.ck-editor__editable {
     background: white;
     border: 1px solid;
     height: 150px;}
-.field-label{
-    font-size: x-large;}
-.field-label::after{
-    content: ":";}
 .tabs {
     display: flex;
     border-bottom: 2px solid #ddd;}
@@ -444,91 +238,6 @@ th {
     padding: 20px;}
 .tab-content.active {
     display: block;}
-
-/* Input Fields */
-input[type="text"], input[type="email"], input[type="password"],
-input[type="url"], input[type="tel"], textarea, select {
-    width: 100%;
-    padding: 10px;
-    margin: 8px 0;
-    border: 1px solid #a6aab4; /* Claro input border */
-    border-radius: 5px;
-    font-size: 16px;
-    background: #f8f9fb; /* Claro input background */
-    transition: border 0.3s ease-in-out, background 0.3s;
-    color: #32373d; /* Claro text color */
-}
-
-input:focus, textarea:focus, select:focus {
-    border-color: #005ea8; /* Drupal Blue */
-    outline: none;
-    background: white;
-}
-
-/* Link Input */
-input[type="url"] {
-    border-color: #579aca; /* Claro blue */
-    color: #005ea8;
-}
-
-input[type="url"]:focus {
-    border-color: #005ea8;
-}
-
-/* Fieldset Styling */
-fieldset {
-    border: 1px solid #a6aab4; /* Claro gray */
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-    background: #f8f9fb; /* Light background */
-}
-
-legend {
-    font-weight: bold;
-    color: #005ea8; /* Drupal Blue */
-}
-
-/* Details and Summary */
-details {
-    background: #f8f9fb; /* Claro background */
-    padding: 10px;
-    border-radius: 5px;
-    margin: 10px 0;
-    border: 1px solid #d8dae2;
-}
-
-summary {
-    font-weight: bold;
-    cursor: pointer;
-    color: #005ea8; /* Drupal Blue */
-}
-
-summary:hover {
-    text-decoration: underline;
-}
-
-/* Labels */
-label {
-    font-weight: bold;
-    color: #32373d; /* Claro text */
-}
-
-/* Buttons */
-button, input[type="submit"] {
-    background: #005ea8; /* Drupal Blue */
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s ease-in-out;
-}
-
-button:hover, input[type="submit"]:hover {
-    background: #00457c; /* Darker Drupal Blue */
-}
-
 .modal {
     display: none;
     position: fixed;
@@ -571,77 +280,7 @@ button:hover, input[type="submit"]:hover {
     padding-top: 10px;
     margin-top: 10px;
 }
-button {
-    background-color: #007bff;
-    border: none;
-    color: white;
-    padding: 8px 16px;
-    font-size: 14px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background 0.3s;
-}
-button:hover { background-color: #0056b3; }
 
-.container {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
-}
-.title {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-.section {
-    margin-top: 15px;
-    padding: 10px;
-    background: #eef1f5;
-    border-radius: 5px;
-}
-.section-title {
-    font-weight: bold;
-    font-size: 14px;
-    margin-bottom: 5px;
-}
-.list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-.list-item {
-    background: white;
-    padding: 8px;
-    margin-bottom: 5px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-}
-.buttons {
-    margin-top: 10px;
-}
-button {
-    background: #007bff;
-    color: white;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-button.cancel {
-    background: #6c757d;
-}
-.pagination .page-item.active .page-link {
-    background-color: #c8102e; /* red style like in your image */
-    border-color: #c8102e;
-    color: white;
-}
-.display .list-item {
-    display: inline-flex;
-    width: 100%;
-    justify-content: space-between;
-}
 .mysql-query pre {
     background-color: #272822; /* Dark background for contrast */
     color: #f8f8f2; /* Light text color */
@@ -667,248 +306,5 @@ button.cancel {
 }
 .mysql-query pre .comment {
     color: #75715e; /* Gray for comments */
-}
-
-/* View Templates Block */
-.view-templates {
-    background-color: #f9fafa;
-    padding: 20px;
-    border-radius: 8px;
-}
-
-.view-templates h5 {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    color: #222;
-}
-
-.view-templates strong {
-    display: block;
-    margin-top: 10px;
-    color: #333;
-}
-
-.view-templates p {
-    margin: 4px 0 6px 20px;
-    font-family: monospace;
-    color: #444;
-    font-size: 14px;
-}
-
-
-/* General layout */
-.content-type-search {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fa;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
-
-    /* Fieldset and legend */
-    fieldset {
-        border: 1px solid #dee2e6;
-        padding: 1.5rem;
-        border-radius: 8px;
-        background-color: #fdfdfe;
-    }
-
-    legend {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #2c3e50;
-        margin-bottom: 1rem;
-    }
-
-    /* Form Groups */
-    .form-group {
-        margin-bottom: 1.2rem;
-    }
-
-    label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: #343a40;
-    }
-
-    select {
-        width: 100%;
-        padding: 0.4rem 0.6rem;
-        font-size: 1rem;
-        border: 1px solid #ced4da;
-        border-radius: 6px;
-        background-color: #ffffff;
-    }
-
-    /* Tables */
-    .table-responsive {
-        margin-top: 2rem;
-    }
-
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-        background-color: #ffffff;
-        border: 1px solid #dee2e6;
-        border-radius: 6px;
-        overflow: hidden;
-    }
-
-    .table th,
-    .table td {
-        padding: 0.9rem 1rem;
-        text-align: left;
-        border-bottom: 1px solid #dee2e6;
-    }
-
-    .table th {
-        background-color: #f1f3f5;
-        font-weight: 600;
-        color: #495057;
-    }
-
-    /* Buttons */
-    a.remove,
-    a.button.remove {
-        display: inline-block;
-        padding: 0.4rem 0.7rem;
-        background-color: #007bff;
-        color: #fff;
-        border-radius: 5px;
-        text-decoration: none;
-        font-size: 0.9rem;
-        transition: background-color 0.3s ease;
-    }
-
-    a.remove:hover,
-    a.button.remove:hover {
-        background-color: #0056b3;
-    }
-
-    /* Responsive tweaks */
-    @media (max-width: 768px) {
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        select {
-            font-size: 0.95rem;
-        }
-
-        .table th,
-        .table td {
-            font-size: 0.95rem;
-            padding: 0.7rem;
-        }
-    }
-
-}
-
-form {
-    .filter-append {
-        margin-top: 5px;
-        background-color: #f8f9fa; /* light background */
-        border-radius: 4px;
-        max-height: 200px; /* optional scroll limit */
-        overflow-y: auto;
-    }
-
-    .filter-append .list-item {
-        padding: 10px 15px;
-        border: 1px solid #dee2e6;
-        border-top: none;
-        cursor: pointer;
-        background-color: white;
-        transition: background-color 0.2s;
-    }
-
-    .filter-append .list-item:first-child {
-        border-top: 1px solid #dee2e6; /* only first has top border */
-    }
-
-    .filter-append .list-item:hover {
-        background-color: #e9ecef;
-    }
-
-}
-.add-field-wrapper {
-    max-width: 80%;
-    margin: 2rem auto 2rem 0;
-    padding: 2rem;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    font-family: system-ui, sans-serif;
-}
-
-.add-field-wrapper h1 {
-    font-size: 1.8rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    color: #333;
-}
-
-.add-field-wrapper .form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-}
-
-/* Style for all form elements */
-.add-field-wrapper input,
-.add-field-wrapper select,
-.add-field-wrapper textarea,
-.add-field-wrapper button {
-    width: 100%;
-    padding: 0.75rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    box-sizing: border-box;
-}
-
-.add-field-wrapper textarea {
-    resize: vertical;
-    min-height: 100px;
-}
-
-.add-field-wrapper input[type="checkbox"],
-.add-field-wrapper input[type="radio"] {
-    width: auto;
-    margin-right: 0.5rem;
-}
-
-.add-field-wrapper label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: #444;
-}
-
-/* Button styling */
-.add-field-wrapper button,
-.add-field-wrapper input[type="submit"] {
-    background-color: #007bff;
-    color: #fff;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.add-field-wrapper button:hover,
-.add-field-wrapper input[type="submit"]:hover {
-    background-color: #0056b3;
-}
-
-/* Responsive tweak */
-@media (max-width: 600px) {
-    .add-field-wrapper {
-        padding: 1rem;
-    }
-
-    .add-field-wrapper h1 {
-        font-size: 1.5rem;
-    }
 }
 

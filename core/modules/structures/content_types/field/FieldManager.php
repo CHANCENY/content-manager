@@ -3,7 +3,10 @@
 namespace Simp\Core\modules\structures\content_types\field;
 
 use Simp\Core\lib\installation\SystemDirectory;
+use Simp\Core\modules\structures\content_types\field\fields\FieldSetBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\InputFieldBuilder;
+use Simp\Core\modules\structures\content_types\field\fields\SelectFieldBuilder;
+use Simp\Core\modules\structures\content_types\field\fields\TextAreaFieldBuilder;
 
 class FieldManager
 {
@@ -33,6 +36,12 @@ class FieldManager
             'submit' => InputFieldBuilder::class,
             'reset' => InputFieldBuilder::class,
             'button' => InputFieldBuilder::class,
+            'select' => SelectFieldBuilder::class,
+            'simple_textarea' => TextAreaFieldBuilder::class,
+            'ck_editor' => TextAreaFieldBuilder::class,
+            'details' => FieldSetBuilder::class,
+            'fieldset' => FieldSetBuilder::class,
+            'conditional' => FieldSetBuilder::class,
         ];
         $system = new SystemDirectory();
         $extension_file = $system->setting_dir . DIRECTORY_SEPARATOR . 'fields' . DIRECTORY_SEPARATOR . 'fields.php';
@@ -49,7 +58,10 @@ class FieldManager
 
     public function getFieldBuilderHandler(string $type): FieldBuilderInterface|null
     {
-        return $this->supported_fields[$type] ? new $this->supported_fields[$type]() : null;
+        /**@var FieldBuilderInterface $new**/
+        $new = $this->supported_fields[$type] ? new $this->supported_fields[$type]() : null;
+        $new->extensionInfo($type);
+        return $new;
     }
 
     public function getSupportedFieldsType(): array

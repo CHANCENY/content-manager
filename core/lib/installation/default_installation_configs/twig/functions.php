@@ -155,7 +155,7 @@ function t(string $text, ?string $from = null, ?string $to = null): string {
         if ($current_user?->getUser()?->getProfile()?->isTranslationEnabled()) {
             $to = $current_user?->getUser()?->getProfile()?->getTranslation();
         }else {
-            $to = 'ny';
+            $to = 'en';
         }
     }
 
