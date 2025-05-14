@@ -1,40 +1,49 @@
 {% extends 'default.view.admin_base' %}
 
 {% block body %}
+    <div class="login-header">{{ t("Add Content Type") }}</div>
+    <p>{{ "Individual content types can have different fields, behaviors, and permissions assigned to them."|t }}</p>
 
-    <div class="db-form-container">
-        <h2>Add Content Type</h2>
-        <p>Individual content types can have different fields, behaviors, and permissions assigned to them.</p>
+    <form action="#" method="POST">
 
-        <form action="#" method="POST">
-            <div class="form-group">
+        <!-- Name -->
+        <div class="row">
+            <div class="column">
                 <label for="name">Name *</label>
                 <input type="text" id="name" name="name" required>
                 <small>The human-readable name for this content type, displayed on the Content types page.</small>
             </div>
+        </div>
 
-            <div class="form-group">
+        <!-- Description -->
+        <div class="row">
+            <div class="column">
                 <label for="description">Description</label>
                 <textarea id="description" name="description" rows="3"></textarea>
                 <small>Displays on the Content types page.</small>
             </div>
+        </div>
 
-            <div class="sidebar">
+        <!-- Sidebar (Options) -->
+        <div class="row">
+            <div class="column">
                 <details>
                     <summary>Publishing options</summary>
                     <p>Published, Promoted to front page, Create new revision</p>
                 </details>
-
                 <details>
                     <summary>Display settings</summary>
                     <p>Display author and date information</p>
                 </details>
+            </div>
+        </div>
 
+        <!-- Submit Button -->
+        <div class="row">
+            <div class="column">
+                <button type="submit" class="button button-primary">Save</button>
             </div>
-            <div class="form-group mt-5">
-                <button class="w-auto" type="submit">Save</button>
-            </div>
-        </form>
-    </div>
+        </div>
+    </form>
 
 {% endblock %}

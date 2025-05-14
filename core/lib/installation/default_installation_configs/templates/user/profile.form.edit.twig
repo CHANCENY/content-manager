@@ -1,18 +1,6 @@
 {% extends 'default.view.admin_base' %}
 
 {% block body %}
-
-    <div class="db-form-container">
-
-        <div class="row">
-            <div class="col-md-8 col-md-offset-2">
-                <h1 class="title">Account Profile Edit</h1>
-                <div class="mt-lg-2 border p-3">
-                    {{ _form|raw }}
-                </div>
-            </div>
-        </div>
-    </div>
-
-
+    <div class="login-header">{{ t("Account Profile Edit")  }}</div>
+    {{ _form|raw }}
 {% endblock %}

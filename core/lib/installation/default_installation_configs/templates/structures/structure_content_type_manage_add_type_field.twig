@@ -1,18 +1,6 @@
 {% extends 'default.view.admin_base' %}
 
 {% block body %}
-
-    <div class="db-form-container">
-       <div class="add-field-wrapper">
-           <div class="d-block">
-               <h1>{{ "Add Field "|t }}{{ field.title }}</h1>
-           </div>
-           <div class="d-block">
-               <div class="form">
-                   {{ form|raw }}
-               </div>
-           </div>
-       </div>
-    </div>
-
+    <h3>{{ "Add Field "|t }}{{ field.title }}</h3>
+    {{ form|raw }}
 {% endblock %}

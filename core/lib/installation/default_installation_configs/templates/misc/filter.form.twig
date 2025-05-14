@@ -1,23 +1,22 @@
-<!-- Filter Form -->
-<div class="card p-3 mb-4">
-    <form class="row g-3">
-        <!-- Search Field -->
-        <div class="col-md-4">
-            <input name="search" type="text" class="form-control" placeholder="{{ "Search by name or email"|t }}">
+<div class="card" style="padding: 1.5rem; margin-bottom: 2rem;">
+    <form class="row">
+        <!-- Search -->
+        <div class="column column-20">
+            <input name="search" type="text" placeholder="{{ 'Search by name or email'|t }}">
         </div>
 
         {% if filters.order_by %}
-        <div class="col-md-3">
-            <select class="form-select" name="search_by">
-                {% for order_by in filters.order_by %}
-                    <option value="{{ order_by }}">{{ order_by }}</option>
-                {% endfor %}
-            </select>
-        </div>
+            <div class="column column-15">
+                <select name="search_by">
+                    {% for order_by in filters.order_by %}
+                        <option value="{{ order_by }}">{{ order_by }}</option>
+                    {% endfor %}
+                </select>
+            </div>
         {% endif %}
 
-        <div class="col-md-3">
-            <select class="form-select" name="search_type">
+        <div class="column column-15">
+            <select name="search_type">
                 <option value="1">Any</option>
                 <option value="2">Start with</option>
                 <option value="3">End with</option>
@@ -25,17 +24,17 @@
         </div>
 
         {% if filters.order_by %}
-            <!-- Order By -->
-            <div class="col-md-3">
-                <select class="form-select" name="sort_by">
-                    <option value="">Sort By</option>
+            <div class="column column-15">
+                <select name="sort_by">
+                    <option value="">{{ 'Sort By'|t }}</option>
                     {% for order_by in filters.order_by %}
                         <option value="{{ order_by }}">{{ order_by }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-3">
-                <select class="form-select" name="order_by">
+
+            <div class="column column-10">
+                <select name="order_by">
                     <option value="DESC">DESC</option>
                     <option value="ASC">ASC</option>
                 </select>
@@ -43,21 +42,20 @@
         {% endif %}
 
         {% if filters.total_rows %}
-            <div class="col-md-2">
-                <input type="number" name="limit" class="form-control" placeholder="Limit #" min="10" max="{{ filters.total_rows }}">
+            <div class="column column-10">
+                <input type="number" name="limit" placeholder="Limit #" min="10" max="{{ filters.total_rows }}">
             </div>
         {% endif %}
 
-        {% if filters.offset%}
-            <!-- Page Number -->
-            <div class="col-md-2">
-                <input type="number" name="page" class="form-control" placeholder="Page #" min="1" max="{{ filters.offset }}">
+        {% if filters.offset %}
+            <div class="column column-10">
+                <input type="number" name="page" placeholder="Page #" min="1" max="{{ filters.offset }}">
             </div>
         {% endif %}
 
-        <!-- Filter Button -->
-        <div class="col-md-3">
-            <button type="submit" class="btn btn-primary w-100">{{ "Apply Filters"|t }}</button>
+        <!-- Button -->
+        <div class="column column-10">
+            <input class="button button-primary" type="submit" value="{{ 'Apply Filters'|t }}">
         </div>
     </form>
 </div>

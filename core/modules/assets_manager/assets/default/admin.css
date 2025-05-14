@@ -1,4 +1,4 @@
-@import url(https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css);
+/*@import url(https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css);*/
 @import url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css);
 @import url(https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.6.1/toastify.min.css);
 
@@ -37,8 +37,10 @@ body {
     padding: 5px 10px;
     border-radius: 3px;}
 .main-content {
-    margin: 12rem 3rem 8rem !important;
-    clear: both;}
+    clear: both;
+    margin-top: 12rem;
+}
+
 .container h2 {
     margin-bottom: 2rem;}
 .db-form-container h2 {
@@ -308,3 +310,100 @@ body {
     color: #75715e; /* Gray for comments */
 }
 
+/* Enhance the 'details' element */
+details {
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+details summary {
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #333;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+details summary:hover {
+    background-color: #f1f1f1;
+}
+
+details[open] summary {
+    color: #007bff;
+}
+
+details p {
+    padding-top: 10px;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Enhance the 'fieldset' element */
+fieldset {
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+fieldset legend {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    padding: 5px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    border-radius: 3px;
+}
+
+fieldset label {
+    display: inline-block;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+fieldset input,
+fieldset select,
+fieldset textarea {
+    width: 100%;
+    padding: 8px;
+    margin: 8px 0 15px 0;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 14px;
+    background-color: #fff;
+}
+
+fieldset input[type="checkbox"],
+fieldset input[type="radio"] {
+    width: auto;
+    margin-right: 8px;
+}
+
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+    details, fieldset {
+        padding: 10px;
+    }
+
+    details summary,
+    fieldset legend {
+        font-size: 14px;
+    }
+
+    fieldset input,
+    fieldset select,
+    fieldset textarea {
+        font-size: 13px;
+    }
+}

@@ -1,34 +1,71 @@
 {% extends 'default.view.admin_base' %}
 
 {% block body %}
+    <h3>{{ "Configuration Settings"|t }}</h3>
 
-    <div class="db-form-container">
-        <h2>{{ "Configuration Settings"|t }}</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>{{ "System"|t }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><a href="/admin/config/system/site-information">{{ "Basic Site Settings"|t }}</a></td>
+        </tr>
+        <tr>
+            <td><a href="#">{{ "Cron Settings"|t }}</a></td>
+        </tr>
+        <tr>
+            <td><a href="/admin/config/smtp">{{ "SMTP Settings"|t }}</a></td>
+        </tr>
+        </tbody>
+    </table>
 
-        <div class="config-section">
-            <h3>{{ "System"|t }}</h3>
-            <div class="config-item"><a href="/admin/config/system/site-information">{{ "Basic Site Settings"|t }}</a></div>
-            <div class="config-item"><a href="#">{{ "Cron Settings"|t }}</a></div>
-            <div class="config-item"><a href="/admin/config/smtp">{{ "Smtp Settings"|t }}</a></div>
-        </div>
+    <table>
+        <thead>
+        <tr>
+            <th>{{ "People"|t }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><a href="/admin/config/people/accounts">{{ "Account Settings"|t }}</a></td>
+        </tr>
+        </tbody>
+    </table>
 
-        <div class="config-section">
-            <h3>{{ "People"|t }}</h3>
-            <div class="config-item"><a href="/admin/config/people/accounts">{{ "Account Settings"|t }}</a></div>
-        </div>
+    <table>
+        <thead>
+        <tr>
+            <th>{{ "Development"|t }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><a href="{{ url('system.search.settings') }}">{{ "Search Settings"|t }}</a></td>
+        </tr>
+        <tr>
+            <td><a href="/admin/config/development/settings">{{ "Development Settings"|t }}</a></td>
+        </tr>
+        <tr>
+            <td><a href="/admin/config/log">{{ "Logging and Errors"|t }}</a></td>
+        </tr>
+        </tbody>
+    </table>
 
-        <div class="config-section">
-            <h3>{{ "Development"|t }}</h3>
-            <div class="config-item"><a href="{{ url('system.search.settings') }}">{{ "Search Settings"|t }}</a></div>
-            <div class="config-item"><a href="/admin/config/development/settings">{{ "Development Settings"|t }}</a></div>
-            <div class="config-item"><a href="/admin/config/log">{{ "Logging and Errors"|t }}</a></div>
-        </div>
-
-        <div class="config-section">
-            <h3>{{ "Integrations"|t }}</h3>
-            <div class="config-item"><a href="/admin/integration/rest">{{ "REST"|t }}</a></div>
-{#            <div class="config-item"><a href="#">Image Styles</a></div>#}
-        </div>
-    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>{{ "Integrations"|t }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><a href="/admin/integration/rest">{{ "REST"|t }}</a></td>
+        </tr>
+        {# <tr><td><a href="#">Image Styles</a></td></tr> #}
+        </tbody>
+    </table>
 
 {% endblock %}

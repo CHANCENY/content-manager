@@ -1,29 +1,25 @@
 {% extends 'default.view.admin_base' %}
 
 {% block body %}
-    <div class="db-form-container">
-        <h2 class="mb-lg-5">{{ "Content"|t }}</h2>
-        <div class="mt-4 mb-4">
-            <a href="/node/add">+ {{ "Create Content"|t }}</a>
-        </div>
-        {% include 'default.view.filter.form' ignore missing  %}
-        <!-- Users Table -->
-        <div class="">
-            <table class="table table-striped table-hover">
-                <thead class="table-light">
-                <tr>
-                    <th>#</th>
-                    <th>{{ "Title"|t }}</th>
-                    <th>{{ "Type"|t }}</th>
-                    <th>{{ "Author"|t }}</th>
-                    <th>{{ "Updated on"|t }}</th>
-                    <th>{{ "Created on"|t }}</th>
-                    <th>{{ "Status"|t }}</th>
-                    <th>{{ "Actions"|t }}</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% if nodes is not empty %}
+    <div class="login-header">{{ t("Content")  }}</div>
+    <a href="/node/add">+ {{ "Create Content"|t }}</a>
+    {% include 'default.view.filter.form' ignore missing  %}
+    <div class="table">
+        <table>
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>{{ "Title"|t }}</th>
+                <th>{{ "Type"|t }}</th>
+                <th>{{ "Author"|t }}</th>
+                <th>{{ "Updated on"|t }}</th>
+                <th>{{ "Created on"|t }}</th>
+                <th>{{ "Status"|t }}</th>
+                <th>{{ "Actions"|t }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if nodes is not empty %}
                 {% for node in nodes %}
                     <tr>
                         <td>{{ node.nid }}</td>
@@ -34,27 +30,25 @@
                         <td>{{ node.created }}</td>
                         <td>
                             {% if node.status %}
-                                <span class="">{{ "Active"|t }}</span>
+                                <span class="status-active">{{ "Active"|t }}</span>
                             {% else %}
-                                <span class="">{{ "Inactive"|t }}</span>
+                                <span class="status-inactive">{{ "Inactive"|t }}</span>
                             {% endif %}
                         </td>
                         <td>
-                            <a href="/node/{{ node.nid }}/edit" class="">{{ "Edit"|t }}</a>
-                            <a href="/node/{{ node.nid }}/delete" class="">{{ "Delete"|t }}</a>
+                            <a href="/node/{{ node.nid }}/edit">{{ "Edit"|t }}</a>
+                            <a href="/node/{{ node.nid }}/delete">{{ "Delete"|t }}</a>
                         </td>
                     </tr>
                 {% endfor %}
-                </tbody>
-                {% else %}
-                    <tfoot>
-                    <tr>
-                        <td colspan="9"><p class="text-white-0 text-center p-5">{{ "No content created yet."|t }}</p></td>
-                    </tr>
-                    </tfoot>
-                {% endif %}
-            </table>
-        </div>
-
+            {% else %}
+                <tr>
+                    <td colspan="8">
+                        <p style="text-align: center; padding: 2rem;">{{ "No content created yet."|t }}</p>
+                    </td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
     </div>
 {% endblock %}

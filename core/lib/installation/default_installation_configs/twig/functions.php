@@ -222,8 +222,8 @@ function get_functions(): array
         new \Twig\TwigFunction('file', function ($fid) {
             return FileFunction::file($fid);
         }),
-        new \Twig\TwigFunction('br', function ($text) {
-            return breakLineToHtml($text);
+        new \Twig\TwigFunction('br', function ($text,$at= 100) {
+            return breakLineToHtml($text,$at);
         }),
         new \Twig\TwigFunction('url', function ($url, $options = [], $params = []) {
             return url($url, $options, $params);
