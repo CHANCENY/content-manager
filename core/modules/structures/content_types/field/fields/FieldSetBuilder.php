@@ -49,6 +49,7 @@ class FieldSetBuilder implements FieldBuilderInterface
         $this->field_type = $field_type;
         return match ($field_type) {
             'fieldset', 'details' => $this->parseFieldCollectionSetting($request, $entity_type),
+            'conditional' => $this->parseFieldCollectionConditionalSetting($request, $entity_type)
         };
     }
 
@@ -145,6 +146,17 @@ class FieldSetBuilder implements FieldBuilderInterface
                 $inner_fields[$inner_field['name']] = $inner_field;
             }
             $field_data['inner_field'] = $inner_fields;
+        }
+        return $field_data;
+    }
+
+    private function parseFieldCollectionConditionalSetting(Request $request, string $entity_type)
+    {
+        $data = $request->request->all();
+        $field_data = [];
+        if (!empty($data['title'])) {
+            $field_data = $this->parseFieldCollectionSetting($request, $entity_type);
+            dd($field_data, $data);
         }
         return $field_data;
     }
