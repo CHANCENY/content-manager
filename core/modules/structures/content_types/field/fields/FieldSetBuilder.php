@@ -156,7 +156,20 @@ class FieldSetBuilder implements FieldBuilderInterface
         $field_data = [];
         if (!empty($data['title'])) {
             $field_data = $this->parseFieldCollectionSetting($request, $entity_type);
-            dd($field_data, $data);
+
+           $events = $data['condition'] ?? [];
+           $triggers = $data['trigger'] ?? [];
+           $controlled = $data['controlled'] ?? [];
+           $conditions = [];
+           if (count($events) === count($triggers) && count($events) === count($controlled)) {
+            foreach($events as $key=>$event) {
+                $conditions[$triggers[$key]] = [
+                    'event' => $event,
+                    'receiver_field' => $controlled[$key],
+                ];
+            }
+           }
+           $field_data['conditions'] = $conditions;
         }
         return $field_data;
     }
