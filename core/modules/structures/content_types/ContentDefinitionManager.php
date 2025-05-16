@@ -70,18 +70,24 @@ class ContentDefinitionManager extends SystemDirectory
         return @unlink($this->content_file. DIRECTORY_SEPARATOR. $name . '.yml');
     }
 
-    public function addField(string $name, string $field_name, array $config = [], bool $persist = false, array $persist_override = []): bool
+    public function addField(string $entity_name, string $field_name, array $config = []): bool
     {
-        $this->content_types[$name]['fields'][$field_name] = $config;
-        if (file_put_contents($this->content_file . DIRECTORY_SEPARATOR . $name . '.yml', 
-        Yaml::dump($this->savable($name, $this->content_types),Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK))) {
+        if (!empty($this->content_types[$entity_name])) {
+            $this->content_types[$entity_name]['fields'][$field_name] = $config;
+            $storage = ContentDefinitionStorage::contentDefinitionStorage($entity_name);
+            if (!empty($config['inner_field'])) {
 
-            $storage = ContentDefinitionStorage::contentDefinitionStorage($name);
-            // process the tables.
-            if ($persist) {
-                $storage->storageDefinitionsPersistent($persist_override);
+                foreach ($config['inner_field'] as $inner_field_name => $inner_field_config) {
+                    $storage->storageDefinitionsPersistent($inner_field_config);
+                }
             }
-            return true;
+            else {
+                $storage->storageDefinitionsPersistent($config);
+            }
+            if (file_put_contents($this->content_file . DIRECTORY_SEPARATOR . $entity_name . '.yml',
+                Yaml::dump($this->savable($entity_name, $this->content_types),Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK))) {
+                return true;
+            }
         }
         return false;
     }
