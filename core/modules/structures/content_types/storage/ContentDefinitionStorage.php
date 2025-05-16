@@ -70,6 +70,7 @@ class ContentDefinitionStorage
        }catch (\Throwable $e) {
            ErrorLogger::logger()->logError($e->getMessage().' in '.$e->getFile().' on line '.$e->getLine().'\n'.PHP_EOL.$e->getTraceAsString());
        }
+       return true;
     }
 
     public function getStorageDefinition(string $field_name): ?string

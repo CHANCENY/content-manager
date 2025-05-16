@@ -21,7 +21,7 @@ class InputFieldBuilder implements FieldBuilderInterface
      * @throws SyntaxError
      * @throws LoaderError
      */
-    public function build(Request $request, string $field_type): string
+    public function build(Request $request, string $field_type, array $options = []): string
     {
         $this->field_type = $field_type;
         $field = self::extensionInfo($field_type);
@@ -30,7 +30,7 @@ class InputFieldBuilder implements FieldBuilderInterface
                 'url', 'search', 'range', 'color', 'password', 'hidden', 'submit','reset','button' => 'default.view.basic.simple',
             'radio', 'checkbox' => 'default.view.basic.radio',
         };
-        return View::view($template,['field'=>$field]);
+        return View::view($template,['field'=>$field,'definition'=>$options]);
     }
 
     public function fieldArray(Request $request, string $field_type, string $entity_type): array

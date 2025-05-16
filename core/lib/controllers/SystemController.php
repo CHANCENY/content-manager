@@ -592,10 +592,46 @@ class SystemController
     public function content_type_manage_edit_field_controller(...$args): RedirectResponse|Response
     {
         extract($args);
-        $form_base = new FormBuilder(new ContentTypeFieldEditForm());
-        $form_base->getFormBase()->setFormMethod('POST');
-        $form_base->getFormBase()->setFormEnctype('multipart/form-data');
-        return new Response(View::view('default.view.structure_content_type_manage_add_field',['_form'=>$form_base]), 200);
+        $field = ContentDefinitionManager::contentDefinitionManager()->getField(
+            $request->get('machine_name'),
+            $request->get('field_name')
+        );
+
+        if(empty($field['type'])) {
+            return new RedirectResponse($request->headers->get('referrer') ?? '/');
+        }
+
+        $handler = FieldManager::fieldManager()->getFieldBuilderHandler($field['type']);
+        $entity_type =  $request->get('machine_name');
+        $field_name =  $request->get('field_name');
+
+        if ($request->getMethod() === 'POST') {
+            $data = $handler->fieldArray($request,$field['type'], $entity_type);
+            if (!empty($data)) {
+                $data['name'] = $field_name;
+                if (ContentDefinitionManager::contentDefinitionManager()->addField(
+                    $entity_type,
+                    $data['name'],
+                    $data,
+                    true,
+                )) {
+                    Messager::toast()->addMessage("Field '$name' has been updated");
+                }
+                $redirect = new RedirectResponse('/admin/structure/content-type/'.$entity_type. '/manage');
+                $redirect->send();
+            }else {
+                Messager::toast()->addError("Failed to update field. Please check your input and try again.");
+            }
+        }
+
+
+        $build = $handler->build($request, $field['type'], $field);
+        return new Response(View::view('default.view.structure_content_type_manage_edit_field',
+        [
+            '_form'=>$build ,
+            'field' => FieldManager::fieldManager()->getFieldInfo($field['type'])
+        ]
+        ), 200);
     }
 
     /**

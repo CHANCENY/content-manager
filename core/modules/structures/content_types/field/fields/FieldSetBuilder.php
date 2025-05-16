@@ -23,7 +23,7 @@ class FieldSetBuilder implements FieldBuilderInterface
      * @throws RuntimeError
      * @throws LoaderError
      */
-    public function build(Request $request, string $field_type): string
+    public function build(Request $request, string $field_type, array $options = []): string
     {
         $this->field_type = $field_type;
         $field = self::extensionInfo($field_type);

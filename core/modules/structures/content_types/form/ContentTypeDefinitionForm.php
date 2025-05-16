@@ -157,7 +157,7 @@ class ContentTypeDefinitionForm extends FormBase
             if (in_array($inner_field['type'], ['fieldset', 'conditional', 'details'])) {
                 return $this->submit_recursive($inner_field, $temp, $request, $data_all, $k);
             }
-            
+
             elseif ($inner_field['type'] === 'file') {
                 $files = $data_all[$parent_key][$k] ?? [];
                 $processed_files = [];
@@ -222,8 +222,8 @@ class ContentTypeDefinitionForm extends FormBase
                     $temp[$k] = $request->request->get($k);
                 }
             }
-           
-            
+
+
         }
     }
 
@@ -242,7 +242,10 @@ class ContentTypeDefinitionForm extends FormBase
                 return $value->getValue();
             }, $form);
 
-            $user = User::loadByName($data_all['owner'] ?? '') ?? User::load($data_all['owner'] ?? 1);
+
+
+            $user = User::loadByName($data_all['owner'] ?? '') ?? User::load(
+                \is_numeric($data_all['owner']) ? $data_all['owner'] : 1);
             if ($user instanceof User) {
                 $node_data = [
                     'title' => $data_all['title'] ?? null,
@@ -319,7 +322,7 @@ class ContentTypeDefinitionForm extends FormBase
                         $node_data[$key] = $file_fids;
                     }
 
-                    elseif (isset($field) && in_array($field['type'], ['fieldset', 'details', 'conditional'])) 
+                    elseif (isset($field) && in_array($field['type'], ['fieldset', 'details', 'conditional']))
                     {
                       $this->submit_recursive($field, $temp, $request, $node_data, $key);
                       unset($node_data[$key]);
