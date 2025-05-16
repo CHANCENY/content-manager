@@ -3,6 +3,7 @@
 namespace Simp\Core\modules\structures\content_types\storage;
 
 use Simp\Core\modules\database\Database;
+use Simp\Core\modules\logger\ErrorLogger;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
 
 class ContentDefinitionStorage
@@ -16,38 +17,22 @@ class ContentDefinitionStorage
     public function storageDefinitionsPersistent(array $persist_override_field = []): void
     {
         $fields = $this->content_type['fields'] ?? [];
-        $created_tables = [];
-        if (!empty($persist_override_field)) {
-            $created_tables = $this->content_type['storage'] ?? [];
-            $fields = [
-                $persist_override_field['name'] => $persist_override_field
-            ];
-        }
+        $created_tables = $this->content_type['storage'] ?? [];
 
         // create a table and map it to content type;
         foreach ($fields as $key => $field) {
-            $type = $field['type'] ?? null;
-            if ($type === 'number') {
-                $type = "INT";
-            } elseif ($type === 'textarea') {
-                $type = "TEXT";
-            } else {
-                $type = "VARCHAR(255)";
-            }
+            try{
 
-            if (!empty($key)) {
-                $entity_field = "`nid` INT NOT NULL";
-                $constraint = "CONSTRAINT `fk_node__{$key}_nid` FOREIGN KEY (`nid`) REFERENCES `node_data` (`nid`) ON DELETE CASCADE";
-                $required = !empty($field['required']) ? "NOT NULL" : "NULL";
-                $default = !empty($field['default_value']) ? "DEFAULT '" . $field['default_value'] . "'" : "NULL";
-                $comment = !empty($field['description']) ? "COMMENT '" . $field['description'] . "'" : "NULL";
-                $line = "CREATE TABLE IF NOT EXISTS `node__{$key}` (`{$key}_id` INT PRIMARY KEY AUTO_INCREMENT, $entity_field, `{$key}__value` {$type} $required {$default} {$comment}, $constraint)";
-                $query = Database::database()->con()->prepare($line);
-                if ($query->execute()) {
-                    $created_tables[] = "node__" . $key;
+                if (!empty($field['inner_field'])) {
+                    $this->createTable($field['inner_field'], $created_tables);
                 }
-            }
+                else {
+                    $this->createTable([$key => $field], $created_tables);
+                }
 
+            }catch (\Throwable $e) {
+                ErrorLogger::logger()->logError($e->getMessage().' in '.$e->getFile().' on line '.$e->getLine().'\n'.PHP_EOL.$e->getTraceAsString());
+            }
         }
 
         $this->content_type['storage'] = array_unique($created_tables);
@@ -57,6 +42,35 @@ class ContentDefinitionStorage
         );
     }
 
+    protected function createTable(array $field_config, array &$created_tables): bool {
+       try{
+           foreach ($field_config as $key => $field) {
+               $type = $field['type'] ?? null;
+               if ($type === 'number') {
+                   $type = "INT";
+               } elseif ($type === 'textarea') {
+                   $type = "TEXT";
+               } else {
+                   $type = "VARCHAR(255)";
+               }
+
+               if (!empty($key)) {
+                   $entity_field = "`nid` INT NOT NULL";
+                   $constraint = "CONSTRAINT `fk_node__{$key}_nid` FOREIGN KEY (`nid`) REFERENCES `node_data` (`nid`) ON DELETE CASCADE";
+                   $required = !empty($field['required']) ? "NOT NULL" : "NULL";
+                   $default = !empty($field['default_value']) ? "DEFAULT '" . $field['default_value'] . "'" : "NULL";
+                   $comment = !empty($field['description']) ? "COMMENT '" . $field['description'] . "'" : "NULL";
+                   $line = "CREATE TABLE IF NOT EXISTS `node__{$key}` (`{$key}_id` INT PRIMARY KEY AUTO_INCREMENT, $entity_field, `{$key}__value` {$type} $required {$default} {$comment}, $constraint)";
+                   $query = Database::database()->con()->prepare($line);
+                   if ($query->execute()) {
+                       $created_tables[] = "node__" . $key;
+                   }
+               }
+           }
+       }catch (\Throwable $e) {
+           ErrorLogger::logger()->logError($e->getMessage().' in '.$e->getFile().' on line '.$e->getLine().'\n'.PHP_EOL.$e->getTraceAsString());
+       }
+    }
 
     public function getStorageDefinition(string $field_name): ?string
     {
