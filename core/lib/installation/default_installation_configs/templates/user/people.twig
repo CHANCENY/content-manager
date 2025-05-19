@@ -2,6 +2,9 @@
 
 {% block body %}
     <div class="login-header">{{ t("People")  }}</div>
+    <div>
+      <a href="/user/register">+ {{ "New User"|t }}</a>
+    </div>
     {% include 'default.view.filter.form' ignore missing  %}
     <div class="table">
         <table>

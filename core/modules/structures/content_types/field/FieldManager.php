@@ -4,6 +4,7 @@ namespace Simp\Core\modules\structures\content_types\field;
 
 use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\modules\structures\content_types\field\fields\FieldSetBuilder;
+use Simp\Core\modules\structures\content_types\field\fields\FileFieldBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\InputFieldBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\SelectFieldBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\TextAreaFieldBuilder;
@@ -36,6 +37,7 @@ class FieldManager
             'submit' => InputFieldBuilder::class,
             'reset' => InputFieldBuilder::class,
             'button' => InputFieldBuilder::class,
+            'file' => FileFieldBuilder::class,
             'select' => SelectFieldBuilder::class,
             'simple_textarea' => TextAreaFieldBuilder::class,
             'ck_editor' => TextAreaFieldBuilder::class,
