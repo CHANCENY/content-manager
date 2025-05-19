@@ -626,6 +626,7 @@ class SystemController
 
 
         $build = $handler->build($request, $field['type'], $field);
+
         return new Response(View::view('default.view.structure_content_type_manage_edit_field',
         [
             '_form'=>$build ,

@@ -30,7 +30,7 @@ class TextAreaFieldBuilder implements FieldBuilderInterface
             'ck_editor' => 'default.view.basic.ck_editor.textarea',
 
         };
-        return View::view($template,['field'=>$field]);
+        return View::view($template,['field'=>$field, 'definition'=>$options]);
     }
 
     public function fieldArray(Request $request, string $field_type, string $entity_type): array

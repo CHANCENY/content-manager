@@ -21,7 +21,6 @@
                         <th>{{ "Label"|t }}</th>
                         <th>{{ "Machine Name"|t }}</th>
                         <th>{{ "Field Type"|t }}</th>
-                        <th>{{ "Operations"|t }}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -30,10 +29,6 @@
                             <td>{{ field.label }}</td>
                             <td>{{ field.name }}</td>
                             <td>{{ field.type }}</td>
-                            <td>
-                                <a href="/admin/structure/content-type/{{  content.machine_name}}/field/{{ parent_field }}/{{ field.name }}/inner/edit" class="edit-button">{{ "Edit"|t }}</a>
-                                <a href="/admin/structure/content-type/{{ content.machine_name }}/field/{{ parent_field }}/{{ field.name }}/inner/delete" class="btn delete-btn">{{ "Delete"|t }}</a>
-                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>

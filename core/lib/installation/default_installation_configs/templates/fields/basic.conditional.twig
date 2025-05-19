@@ -4,7 +4,7 @@
         <!-- Field Label and Name -->
         <div class="form-group">
             <label for="field-name">Label</label>
-            <input type="text" name="title" id="field-name" class="form-control" placeholder="Enter field label">
+            <input value="{{ content.label }}" type="text" name="title" id="field-name" class="form-control" placeholder="Enter field label">
         </div>
 
         <!-- Field Settings -->
@@ -13,66 +13,122 @@
 
             <div class="form-group">
                 <label for="class">Css Classes (optional)</label>
-                <input type="text" name="class" id="class" class="form-control">
+                <input value="{{ content.class|join(' ') }}" type="text" name="class" id="class" class="form-control">
                 <small>Separate classes with a space</small>
             </div>
             <div class="form-group">
                 <label for="default-value">Html ID (optional)</label>
-                <input type="text" name="id" id="default-value" class="form-control">
+                <input value="{{ content.id }}" type="text" name="id" id="default-value" class="form-control">
             </div>
         </fieldset>
 
-        <fieldset class="option-wrapper">
-            <legend>{{ field.title }} Inner Fields</legend>
-            <div class="inner-collection">
-                <div class="form-group">
-                    <label>Type</label>
-                    <select name="inner_type[]" class="form-control inner-field-type">
-                        <option value="">Select type</option>
-                        {% for info in fields %}
-                            <option value="{{ info.type }}">{{ info.type }}</option>
+        {% if content.inner_field %}
+
+            <fieldset class="option-wrapper">
+                <legend>{{ field.title }} Inner Fields</legend>
+                <div class="inner-collection">
+
+                    {% if content.inner_field %}
+
+                        {% for inner in content.inner_field %}
+
+                            {% set inner_type = inner.type %}
+                            {% set index = loop.index %}
+
+                            {% if inner_type %}
+
+                                {% if inner_type == 'textarea' %}
+
+                                    {% if 'editor' in inner.class %}
+                                        {% set inner_type = 'ck_editor' %}
+                                    {% else %}
+                                        {% set inner_type = 'simple_textarea' %}
+                                    {% endif %}
+
+                                {% endif %}
+
+                                <div class="form-group old-inner-field">
+                                    <label>Type</label>
+                                    <select name="inner_type[]" class="form-control inner-field-type">
+                                        <option value="">Select type</option>
+                                        {% for info in fields %}
+
+                                            {% if inner_type == info.type %}
+
+                                                <option value="{{ info.type }}" selected>{{ info.type }}</option>
+
+                                            {% else %}
+
+                                                <option value="{{ info.type }}">{{ info.type }}</option>
+
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                    <details>
+                                        {{ get_field_type_info(inner_type, index, inner)|raw }}
+                                    </details>
+                                    <input type="hidden" name="name_{{ index - 1 }}" value="{{ inner.name }}">
+                                    <a href="#" class="remove d-none">Remove field</a>
+                                </div>
+                            {% endif %}
+
                         {% endfor %}
-                    </select>
-                    <details></details>
-                    <a href="#" class="remove d-none">Remove field</a>
-                </div>
-            </div>
-            <div class="form-group">
-                <button type="button" class="btn btn-primary w-auto add-inner">Add field</button>
-            </div>
-        </fieldset>
 
-        <fieldset class="conditional-wrapper">
-            <legend>Conditional Logic</legend>
-            <div class="form-group">
-                <fieldset class="conditional-logic">
+                    {% else %}
+
+                        <div class="form-group old-inner-field">
+                            <label>Type</label>
+                            <select name="inner_type[]" class="form-control inner-field-type">
+                                <option value="">Select type</option>
+                                {% for info in fields %}
+
+                                    {% if inner_type == info.type %}
+
+                                        <option value="{{ info.type }}" selected>{{ info.type }}</option>
+
+                                    {% else %}
+
+                                        <option value="{{ info.type }}">{{ info.type }}</option>
+
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            <details>
+                                {{ get_field_type_info(inner_type, index, inner)|raw }}
+                            </details>
+                            <a href="#" class="remove d-none">Remove field</a>
+                        </div>
+
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-primary w-auto add-inner">Add field</button>
+                </div>
+            </fieldset>
+
+        {% else %}
+
+            <fieldset class="option-wrapper">
+                <legend>{{ field.title }} Inner Fields</legend>
+                <div class="inner-collection">
                     <div class="form-group">
-                        <label for="conditional">Condition</label>
-                        <select name="condition[]" class="form-control conditional">
-                            <option value="">Select condition</option>
-                            <option value="input">On Input</option>
-                            <option value="change">On Change</option>
-                            <option value="blur">On Blur</option>
+                        <label>Type</label>
+                        <select name="inner_type[]" class="form-control inner-field-type">
+                            <option value="">Select type</option>
+                            {% for info in fields %}
+                                <option value="{{ info.type }}">{{ info.type }}</option>
+                            {% endfor %}
                         </select>
+                        <details></details>
+                        <a href="#" class="remove d-none">Remove field</a>
                     </div>
-                    <div class="form-group">
-                        <label for="conditional">Trigger Field</label>
-                        <select id="conditional" name="trigger[]" class="form-control trigger">
-                            <option value="">Select Field</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="conditional">Controlled Field</label>
-                        <select id="conditional" name="controlled[]" class="form-control controlled">
-                            <option value="">Select Field</option>
-                        </select>
-                    </div>
-                </fieldset>
-            </div>
-            <div class="form-group">
-                <button type="button" class="btn btn-primary w-auto add-conditional">Add condition</button>
-            </div>
-        </fieldset>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-primary w-auto add-inner">Add field</button>
+                </div>
+            </fieldset>
+
+        {% endif %}
 
         <div class="form-group">
             <button type="submit" class="btn btn-primary w-25">Save</button>
@@ -80,7 +136,7 @@
     </div>
 </form>
 <noscript id="inner-field-supported">{{ html|json_encode|raw }}</noscript>
-<noscript id="inner-count">0</noscript>
+<noscript id="inner-count">{{ content.inner_field|length }}</noscript>
 <script>
     (function($) {
         $(document).ready(function(){
@@ -190,6 +246,44 @@
                 })
             }
 
+            const old_fields = $('.inner-collection');
+            if (old_fields) {
+                old_fields.find('.old-inner-field').each(function(index, element){
+                    const html = $(element).find('details');
+                    if (html) {
+                        const html_obj = $(html);
+
+                        if (html_obj.length > 0 && html_obj.is('details')) {
+                            // Get the <form> element inside the html_obj
+                            const form = html_obj.find('form').length ? html_obj.find('form') : html_obj;
+
+                            if (form.length) {
+                                // Remove submit buttons inside the form
+                                form.find('input[type="submit"]').remove();
+
+                                // Update all name attributes to use array syntax
+                                form.find('[name]').each(function() {
+                                    let originalName = $(this).attr('name');
+                                    if (originalName && !originalName.endsWith('[]')) {
+                                        $(this).attr('name', 'inner_'+originalName + '_'+ index);
+                                    }else {
+                                        originalName = originalName.replace('[]', '').trim();
+                                        $(this).attr('name', 'inner_'+originalName + '_'+ index+ '[]');
+                                    }
+                                });
+
+                                // Get only the inner HTML of the form
+                                const formInnerHtml = form.html();
+
+                                // Find and populate <details> with form inner HTML
+                                html_obj.html(formInnerHtml);
+                                html_obj.show();
+                            }
+                        }
+
+                    }
+                });
+            }
 
         });
     })(jQuery);

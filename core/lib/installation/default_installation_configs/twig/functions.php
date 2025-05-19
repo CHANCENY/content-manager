@@ -10,10 +10,12 @@ use Simp\Core\modules\config\ConfigManager;
 use Simp\Core\modules\files\helpers\FileFunction;
 use Simp\Core\modules\search\SearchManager;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
+use Simp\Core\modules\structures\content_types\field\FieldBuilderInterface;
 use Simp\Core\modules\structures\content_types\field\FieldManager;
 use Simp\Core\modules\user\current_user\CurrentUser;
 use Simp\Core\modules\user\entity\User;
 use Simp\Translate\translate\Translate;
+use Symfony\Component\HttpFoundation\Request;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -200,6 +202,30 @@ function getFieldTypeInfo(string $type = ''): ?array
     return FieldManager::fieldManager()->getFieldInfo($type);
 }
 
+function get_field_type_info(string $type = '', $index = 0, array $field = []): string
+{
+
+    $options = $field;
+    $options['index'] = $index;
+
+    if ($type === 'textarea') {
+        if (in_array('editor', $field['class'] ?? [])) {
+            $type = 'ck_editor';
+        }
+        else {
+            $type = 'simple_textarea';
+        }
+    }
+    if ($type === 'conditional') {
+        $type = 'fieldset';
+    }
+
+    $handler = FieldManager::fieldManager()->getFieldBuilderHandler($type);
+    if ($handler instanceof FieldBuilderInterface) {
+        return $handler->build(Request::createFromGlobals(),$type, $options);
+    }
+    return '';
+}
 
 /**
  * @return array
@@ -242,6 +268,9 @@ function get_functions(): array
         }),
         new TwigFunction('getFieldTypeInfo',function(string $type){
             return getFieldTypeInfo($type);
+        }),
+        new TwigFunction('get_field_type_info',function(string $type, $index = 0, array $field = []){
+            return get_field_type_info($type, $index, $field);
         })
     );
 }

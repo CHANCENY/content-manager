@@ -41,7 +41,7 @@ class FieldSetBuilder implements FieldBuilderInterface
             'fieldset','details' => 'default.view.basic.fieldset',
             'conditional' => 'default.view.basic.conditional',
         };
-        return View::view($template,['field'=>$field,'fields'=>$all,'html'=>$html]);
+        return View::view($template,['field'=>$field,'fields'=>$all,'html'=>$html, 'content'=>$options]);
     }
 
     public function fieldArray(Request $request, string $field_type, string $entity_type): array
@@ -89,8 +89,8 @@ class FieldSetBuilder implements FieldBuilderInterface
         $field_data = [];
         if (!empty($data['title'])) {
             $field_data['label'] = $data['title'];
-            $field_data['name'] = $entity_type .'_field_' . FieldManager::createFieldName($data['title']);
-            $field_data['id'] = !empty($data['id']) ? $data['id'] : $entity_type .'_field_' . FieldManager::createFieldName($data['title']);
+            $field_data['name'] = $data['name'] ?? $entity_type .'_field_' . FieldManager::createFieldName($data['title']);
+            $field_data['id'] = !empty($data['id']) ? $data['id'] : ( $data['name'] ?? $entity_type .'_field_' . FieldManager::createFieldName($data['title']));
             $field_data['class'] = array_filter(explode(' ', $data['class'] ?? ''));
             $field_data['default_value'] = $data['default_value'] ?? '';
             $field_data['required'] = !empty($data['required']) && $data['required'] == 'on';
@@ -111,46 +111,72 @@ class FieldSetBuilder implements FieldBuilderInterface
 
             $largest_index = $largest_index === 0 ? 100 : $largest_index;
             for ($i = 0; $i <= $largest_index; $i++) {
-                $handler = FieldManager::fieldManager()->getFieldBuilderHandler($data['inner_type_' . $i]);
-                $handler = $handler->getFieldHandler();
-                $inner_field = [
-                    'label' => $data['inner_title_' . $i] ?? '',
-                    'name' => $entity_type .'_field_' . FieldManager::createFieldName($data['inner_title_' . $i]),
-                    'id' => !empty($data['inner_id_' . $i]) ? $data['inner_id_' . $i] : $entity_type .'_field_' . FieldManager::createFieldName($data['inner_title_' . $i]),
-                    'class' => array_filter(explode(' ', $data['inner_class_' . $i] ?? '')),
-                    'default_value' => $data['inner_default_value_' . $i] ?? '',
-                    'required' => !empty($data['inner_required_' . $i]) && $data['inner_required_' . $i] == 'on',
-                    'handler' => $handler,
-                ];
-                if ($data['inner_type_' . $i] === 'checkbox') {
-                    $inner_field['type'] = 'checkbox';
-                    $inner_field['checkboxes'] = $data['inner_options_' . $i] ?? [];
+
+                if (!empty($data['inner_type_' . $i])) {
+
+                    if (empty($data['name'])) {
+                        $handler = FieldManager::fieldManager()->getFieldBuilderHandler($data['inner_type_' . $i]);
+                        $handler = $handler->getFieldHandler();
+                        $inner_field = [
+                            'label' => $data['inner_title_' . $i] ?? '',
+                            'name' => $entity_type .'_field_' . FieldManager::createFieldName($data['inner_title_' . $i]),
+                            'id' => !empty($data['inner_id_' . $i]) ? $data['inner_id_' . $i] : $entity_type .'_field_' . FieldManager::createFieldName($data['inner_title_' . $i]),
+                            'class' => array_filter(explode(' ', $data['inner_class_' . $i] ?? '')),
+                            'default_value' => $data['inner_default_value_' . $i] ?? '',
+                            'required' => !empty($data['inner_required_' . $i]) && $data['inner_required_' . $i] == 'on',
+                            'handler' => $handler,
+                        ];
+
+                    }
+                    else {
+
+
+                        if (!empty($data['name_'.$i])) {
+                            $handler = FieldManager::fieldManager()->getFieldBuilderHandler($data['inner_type_' . $i]);
+                            $handler = $handler->getFieldHandler();
+                            $inner_field = [
+                                'label' => $data['inner_title_' . $i] ?? '',
+                                'name' =>  $data['name_'.$i],
+                                'id' => !empty($data['inner_id_' . $i]) ? $data['inner_id_' . $i] : $data['name_'.$i],
+                                'class' => array_filter(explode(' ', $data['inner_class_' . $i] ?? '')),
+                                'default_value' => $data['inner_default_value_' . $i] ?? '',
+                                'required' => !empty($data['inner_required_' . $i]) && $data['inner_required_' . $i] == 'on',
+                                'handler' => $handler,
+                            ];
+                        }
+                    }
+
+                    if ($data['inner_type_' . $i] === 'checkbox') {
+                        $inner_field['type'] = 'checkbox';
+                        $inner_field['checkboxes'] = $data['inner_options_' . $i] ?? [];
+                    }
+                    elseif ($data['inner_type_' . $i] === 'radio') {
+                        $inner_field['type'] = 'radio';
+                        $inner_field['radios'] = $data['inner_options_' . $i] ?? [];
+                    }
+                    elseif ($data['inner_type_' . $i] === 'select') {
+                        $inner_field['type'] = 'select';
+                        $inner_field['option_values'] = $data['inner_options_' . $i] ?? [];
+                    }
+                    elseif ($data['inner_type_' . $i] === 'simple_textarea') {
+                        $inner_field['type'] = 'textarea';
+                    }
+                    elseif ($data['inner_type_' . $i] === 'ck_editor') {
+                        $inner_field['type'] = 'textarea';
+                    }
+                    else {
+                        $inner_field['type'] = $data['inner_type_' . $i];
+                    }
+                    $inner_fields[$inner_field['name']] = $inner_field;
                 }
-                elseif ($data['inner_type_' . $i] === 'radio') {
-                    $inner_field['type'] = 'radio';
-                    $inner_field['radios'] = $data['inner_options_' . $i] ?? [];
-                }
-                elseif ($data['inner_type_' . $i] === 'select') {
-                    $inner_field['type'] = 'select';
-                    $inner_field['option_values'] = $data['inner_options_' . $i] ?? [];
-                }
-                elseif ($data['inner_type_' . $i] === 'simple_textarea') {
-                    $inner_field['type'] = 'textarea';
-                }
-                elseif ($data['inner_type_' . $i] === 'ck_editor') {
-                    $inner_field['type'] = 'textarea';
-                }
-                else {
-                    $inner_field['type'] = $data['inner_type_' . $i];
-                }
-                $inner_fields[$inner_field['name']] = $inner_field;
+
             }
             $field_data['inner_field'] = $inner_fields;
         }
         return $field_data;
     }
 
-    private function parseFieldCollectionConditionalSetting(Request $request, string $entity_type)
+    private function parseFieldCollectionConditionalSetting(Request $request, string $entity_type): array
     {
         $data = $request->request->all();
         $field_data = [];

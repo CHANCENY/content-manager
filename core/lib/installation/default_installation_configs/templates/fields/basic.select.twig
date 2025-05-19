@@ -4,13 +4,13 @@
         <!-- Field Label and Name -->
         <div class="form-group">
             <label for="field-name">Label</label>
-            <input type="text" name="title" id="field-name" class="form-control" placeholder="Enter field label">
+            <input value="{{ definition.label }}" type="text" name="title" id="field-name" class="form-control" placeholder="Enter field label">
         </div>
 
         <!-- Allowed Number of Values -->
         <div class="form-group">
             <label for="storage-limit">Allowed number of values</label>
-            <input type="number" name="limit" min="1" id="storage-limit" class="form-control" placeholder="e.g., 1 or unlimited">
+            <input value="{{ definition.limit }}" type="number" name="limit" min="1" id="storage-limit" class="form-control" placeholder="e.g., 1 or unlimited">
         </div>
 
         <!-- Field Settings -->
@@ -20,7 +20,7 @@
             <!-- Required Checkbox -->
             <div class="form-group">
                 <label for="field-required">
-                    <input type="checkbox" name="required" id="field-required">
+                    <input {{ definition.required ? 'checked' : '' }} type="checkbox" name="required" id="field-required">
                     Required
                 </label>
             </div>
@@ -29,7 +29,18 @@
                 <legend>{{ field.title }} Options</legend>
                 <div class="option-collection">
                     <div class="form-group">
-                        <input type="text" name="options[]" class="form-control" placeholder="Enter option">
+                        {% set options = definition.option_values %}
+
+                        {% if options %}
+
+                            {% for option in options %}
+                                <input value="{{ option }}" type="text" name="options[]" class="form-control" placeholder="Enter option">
+                            {% endfor %}
+
+                        {% else %}
+                            <input type="text" name="options[]" class="form-control" placeholder="Enter option">
+                        {% endif %}
+
                         <a href="#" class="remove d-none">Remove option</a>
                     </div>
                 </div>
