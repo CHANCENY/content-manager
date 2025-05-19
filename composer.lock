@@ -1834,16 +1834,16 @@
         },
         {
             "name": "simp/forms",
-            "version": "v1.0.8",
+            "version": "v1.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CHANCENY/forms.git",
-                "reference": "9b0d4a15bacef75f6a0a074b86ab41329042024a"
+                "reference": "2fb15c1fc41db6130cfabb107a5dd128ba4826a3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CHANCENY/forms/zipball/9b0d4a15bacef75f6a0a074b86ab41329042024a",
-                "reference": "9b0d4a15bacef75f6a0a074b86ab41329042024a",
+                "url": "https://api.github.com/repos/CHANCENY/forms/zipball/2fb15c1fc41db6130cfabb107a5dd128ba4826a3",
+                "reference": "2fb15c1fc41db6130cfabb107a5dd128ba4826a3",
                 "shasum": ""
             },
             "require": {
@@ -1868,9 +1868,9 @@
             "description": "This is form builder library",
             "support": {
                 "issues": "https://github.com/CHANCENY/forms/issues",
-                "source": "https://github.com/CHANCENY/forms/tree/v1.0.8"
+                "source": "https://github.com/CHANCENY/forms/tree/v1.0.9"
             },
-            "time": "2025-05-15T07:11:14+00:00"
+            "time": "2025-05-19T11:42:51+00:00"
         },
         {
             "name": "simp/mail",
@@ -3272,16 +3272,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.1.15",
+            "version": "2.1.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "402d11c1aa40ae2e1c3a512e6a4edb957527b20b"
+                "reference": "b8c1cf533cba0c305d91c6ccd23f3dd0566ba5f9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/402d11c1aa40ae2e1c3a512e6a4edb957527b20b",
-                "reference": "402d11c1aa40ae2e1c3a512e6a4edb957527b20b",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/b8c1cf533cba0c305d91c6ccd23f3dd0566ba5f9",
+                "reference": "b8c1cf533cba0c305d91c6ccd23f3dd0566ba5f9",
                 "shasum": ""
             },
             "require": {
@@ -3326,7 +3326,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-05-14T11:16:08+00:00"
+            "time": "2025-05-16T09:40:10+00:00"
         },
         {
             "name": "psr/event-dispatcher",

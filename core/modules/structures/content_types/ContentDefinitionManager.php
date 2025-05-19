@@ -4,6 +4,7 @@ namespace Simp\Core\modules\structures\content_types;
 
 use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\modules\database\Database;
+use Simp\Core\modules\logger\ErrorLogger;
 use Simp\Core\modules\structures\content_types\storage\ContentDefinitionStorage;
 use Symfony\Component\Yaml\Yaml;
 
@@ -100,17 +101,50 @@ class ContentDefinitionManager extends SystemDirectory
 
     public function removeField(string $name, string $field_name): bool
     {
+        $reference = $this->content_types[$name]['fields'][$field_name] ?? [];
         if (isset($this->content_types[$name]['fields'][$field_name])) {
             unset($this->content_types[$name]['fields'][$field_name]);
         }
 
+        $recursively_remove_inner_fields = function($fields) use (&$recursively_remove_inner_fields, $name) {
+            foreach ($fields as $key => $field) {
+                if (isset($field['inner_field'])) {
+                    $recursively_remove_inner_fields($key, $field['inner_field']);
+                }
+                else {
+                   try{
+                       $index = array_search('node__' . $key, $this->content_types[$name]['storage']);
+                       if ($index !== false) {
+                           unset($this->content_types[$name]['display_setting'][$key]);
+                           unset($this->content_types[$name]['storage'][$index]);
+                           $delete_query = ContentDefinitionStorage::contentDefinitionStorage($name)->getStorageDropStatement($key);
+                           $sta = Database::database()->con()->prepare($delete_query);
+                           $sta->execute();
+                       }
+                   }catch (\Throwable $e) {
+                       ErrorLogger::logger()->logError($e->getMessage().' in '.$e->getFile().' on line '.$e->getLine().'\n'.PHP_EOL.$e->getTraceAsString());
+                   }
+                }
+            }
+        };
+
+        if (!empty($reference['inner_field'])) {
+            $recursively_remove_inner_fields($reference['inner_field']);
+        }
+
         $index = array_search('node__' . $field_name, $this->content_types[$name]['storage']);
         if ($index !== false) {
-            unset($this->content_types[$name]['storage'][$index]);
-            $delete_query = ContentDefinitionStorage::contentDefinitionStorage($name)->getStorageDropStatement($field_name);
-            $sta = Database::database()->con()->prepare($delete_query);
-            $sta->execute();
+           try{
+               unset($this->content_types[$name]['display_setting'][$field_name]);
+               unset($this->content_types[$name]['storage'][$index]);
+               $delete_query = ContentDefinitionStorage::contentDefinitionStorage($name)->getStorageDropStatement($field_name);
+               $sta = Database::database()->con()->prepare($delete_query);
+               $sta->execute();
+           }catch (\Throwable $e) {
+               ErrorLogger::logger()->logError($e->getMessage().' in '.$e->getFile().' on line '.$e->getLine().'\n'.PHP_EOL.$e->getTraceAsString());
+           }
         }
+
         if (file_put_contents($this->content_file . DIRECTORY_SEPARATOR . $name . '.yml',
          Yaml::dump($this->savable($name, $this->content_types),Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK))) {
             return true;

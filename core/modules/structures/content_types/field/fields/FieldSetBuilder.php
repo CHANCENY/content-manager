@@ -89,8 +89,8 @@ class FieldSetBuilder implements FieldBuilderInterface
         $field_data = [];
         if (!empty($data['title'])) {
             $field_data['label'] = $data['title'];
-            $field_data['name'] = $data['name'] ?? $entity_type .'_field_' . FieldManager::createFieldName($data['title']);
-            $field_data['id'] = !empty($data['id']) ? $data['id'] : ( $data['name'] ?? $entity_type .'_field_' . FieldManager::createFieldName($data['title']));
+            $field_data['name'] = !empty($data['name']) ? $data['name'] : $entity_type .'_field_' . FieldManager::createFieldName($data['title']);
+            $field_data['id'] = !empty($data['id']) ? $data['id'] : ( !empty($data['name']) ? $data['name'] : $entity_type .'_field_' . FieldManager::createFieldName($data['title']));
             $field_data['class'] = array_filter(explode(' ', $data['class'] ?? ''));
             $field_data['default_value'] = $data['default_value'] ?? '';
             $field_data['required'] = !empty($data['required']) && $data['required'] == 'on';
