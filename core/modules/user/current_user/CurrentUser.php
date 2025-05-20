@@ -8,6 +8,7 @@ use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\lib\memory\session\Session;
 use Simp\Core\modules\auth\normal_auth\AuthUser;
+use Simp\Core\modules\user\entity\User;
 
 class CurrentUser
 {
@@ -19,6 +20,6 @@ class CurrentUser
      */
     public static function currentUser(): ?AuthUser
     {
-        return Session::init()->get('private.current.user');
+        return Session::init()->get('private.current.user') ?? AuthUser::auth();
     }
 }

@@ -389,6 +389,80 @@ fieldset input[type="radio"] {
     margin-right: 8px;
 }
 
+.floating-window-token {
+    position: relative;
+    z-index: 9999;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* Floating opener link (bottom right) */
+.floating-opener {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    z-index: 10000;
+}
+
+.floating-opener a {
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    color: #2199e8;
+}
+
+/* The floating window container */
+.floating-window {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 30%;
+    max-height: 70vh;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 10001;
+    font-size: 2rem;
+    overflow-y: auto;
+
+    /* Interact.js drag-related styling */
+    transform: translate(0, 0);
+    touch-action: none;
+
+    /* Hidden by default with transition */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+}
+
+/* Visible state for toggle effect */
+.floating-window.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Header sections inside the floating window */
+.floating-window h5 {
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.3rem;
+    cursor: pointer;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Token list styling */
+.floating-window ul {
+    list-style: square;
+    padding: 0;
+    margin: 0 0 1rem 5rem;
+}
+
+.floating-window ul li {
+    margin-bottom: 0.25rem;
+    cursor: pointer;
+}
+
 
 /* Responsive Enhancements */
 @media (max-width: 768px) {

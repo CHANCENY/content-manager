@@ -9,30 +9,25 @@ class ConfigReadOnly
     }
 
     /**
-     * @param string|null $name You can use dot notation. Or null if data being search is just string or number
+     * @param string|null $name null if data being search is just string or number
      * @param mixed|null $default
      * @return mixed
      */
     public function get(?string $name = null, mixed $default = null): mixed
     {
         $config = [];
-        if (is_array($this->data)) {
-            $config = $this->data;
-        }
-        elseif (is_object($this->data)) {
-            $config = json_decode(json_encode($this->data), true);
-        }else {
-            return $this->data;
+        if (empty($this->data)) {
+            return $default;
         }
 
-        foreach ($config as $key => $value) {
+        foreach ($this->data as $key => $value) {
             if ($key === $name) {
                 return $value;
             }
-            if (is_array($value)) {
-                $value = $this->recursive_search($value, $name);
-                if (!empty($value)) {
-                    return $value;
+            elseif (is_array($value)) {
+                $ok = $this->recursive_search($value, $name);
+                if ($ok) {
+                    return $ok;
                 }
             }
         }

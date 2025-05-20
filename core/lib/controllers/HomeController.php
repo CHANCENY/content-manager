@@ -7,6 +7,7 @@ use Simp\Core\components\site\SiteManager;
 use Simp\Core\lib\routes\Route;
 use Simp\Core\lib\themes\View;
 use Simp\Core\modules\theme\ThemeManager;
+use Simp\Core\modules\tokens\TokenManager;
 use Simp\Core\modules\user\current_user\CurrentUser;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Error\LoaderError;
@@ -40,7 +41,6 @@ class HomeController
                 $home_template = $theme->getCurrentThemeHomeTemplate() ?? $home_template;
             }
         }
-
 
         return new Response(View::view($home_template),200);
     }

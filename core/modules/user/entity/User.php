@@ -3,11 +3,21 @@
 namespace Simp\Core\modules\user\entity;
 
 use PDO;
+use Phpfastcache\Exceptions\PhpfastcacheCoreException;
+use Phpfastcache\Exceptions\PhpfastcacheDriverException;
+use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
+use Phpfastcache\Exceptions\PhpfastcacheLogicException;
+use Random\RandomException;
+use Simp\Core\components\site\SiteManager;
 use Simp\Core\modules\config\ConfigManager;
 use Simp\Core\modules\database\Database;
+use Simp\Core\modules\mail\MailQueueManager;
+use Simp\Core\modules\tokens\TokenManager;
+use Simp\Core\modules\user\current_user\CurrentUser;
 use Simp\Core\modules\user\profiles\Profile;
 use Simp\Core\modules\user\roles\Role;
 use Simp\Core\modules\user\trait\StaticHelperTrait;
+use Simp\Mail\Mail\Envelope;
 
 class User
 {
@@ -27,6 +37,12 @@ class User
             return null;
         }
         return new User(...$result);
+    }
+
+    public static function loadAnonymous(): User
+    {
+        $account_setting = ConfigManager::config()->getConfigFile("account.setting");
+        return new User(0, $account_setting?->get('anonymous_name', "Guest user"), null, null, null, null, null, 1);
     }
 
     public function toArray(): array
@@ -74,6 +90,11 @@ class User
      * @return User|false|null
      * False is returned if name or mail already exist.
      * Null if keys name, mail, password, time_zone are not set
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     * @throws PhpfastcacheLogicException
+     * @throws \Exception
      */
     public static function create(array $data): User|null|false
     {
@@ -81,6 +102,30 @@ class User
         $query_profile = "INSERT INTO user_profile (uid, time_zone) VALUES (:uid, :time_zone)";
         $query_role = "INSERT INTO user_roles (name, role_name, role_label, uid) VALUES (:name, :role_name, :role_label, :uid)";
         $connection = Database::database()->con();
+
+        // Bring in settings
+        $account_setting = ConfigManager::config()->getConfigFile("account.setting");
+        if ($account_setting?->get('register')) {
+
+            $allowed = $account_setting?->get('allow_account_creation');
+            $current_user = CurrentUser::currentUser()->getUser();
+
+            if(!in_array($allowed, array_map(fn($item) => $item->getRoleName(), $current_user->getRoles()))) {
+                return false;
+            }
+
+        }
+
+        $emails = [];
+        if ($account_setting?->get('verification_email') === 'yes') {
+            $emails['verifying'] = "Hello [user:name] you have created account on  [site:name] and you need to verify your email address. Please click the link below to verify your email address. [site:url]/user/verify/[user:verify_token]";
+        }
+        if (trim($account_setting?->get('account_creation_message',''))) {
+            $emails['creation'] = $account_setting?->get('account_creation_message','');
+        }
+        if ($account_setting?->get('notifications')) {
+            $emails['notifications'] = "Hello new user has created account on [site:name]. Please click the link below to view the new user. [site:url]/user/[user:uid]";
+        }
 
         // Creation user first so that we can have uid value.
         $uid = 0;
@@ -148,14 +193,40 @@ class User
             $statement->bindParam(':time_zone', $data['time_zone'], PDO::PARAM_STR);
             $statement->execute();
 
-            // TODO: send mail if is allowed.
-            return self::load($uid);
+            $user = self::load($uid);
+           if ($emails) {
+
+               if ($emails['verifying']) {
+                  MailQueueManager::factory()->add(Envelope::create(
+                      'Verifying your email address',
+                      TokenManager::token()->resolver($emails['verifying'], ['site'=>SiteManager::factory(), 'user'=>$user]),
+                  )->addToAddresses([$user->getMail()]));
+               }
+               if ($emails['creation']) {
+                   MailQueueManager::factory()->add( Envelope::create(
+                       'Account creation',
+                       TokenManager::token()->resolver($emails['creation'], ['site'=>SiteManager::factory(), 'user'=>$user]),
+                   )->addToAddresses([$user->getName()]));
+               }
+               if ($emails['notifications']) {
+                   MailQueueManager::factory()->add(Envelope::create(
+                       'New user',
+                       TokenManager::token()->resolver($emails['notifications'], ['site'=>SiteManager::factory(), 'user'=>$user, 'settings'=>$account_setting]),
+                   )->addToAddresses([$account_setting?->get('notifications')]));
+               }
+           }
+           return $user;
         }
         return null;
     }
 
     public function getRoles(): array
     {
+        if ($this->uid === 0) {
+            return [
+                new Role(0, 'anonymous', 0,'anonymous', 'anonymous'),
+            ];
+        }
         $query = "SELECT * FROM `user_roles` WHERE `uid` = :uid";
         $query = Database::database()->con()->prepare($query);
         $query->bindParam(':uid', $this->uid, PDO::PARAM_INT);
@@ -169,6 +240,9 @@ class User
 
     public function getProfile(): ?Profile
     {
+        if ($this->uid === 0) {
+            return new Profile(0,'Guest','Profile',0,0,null,null,0,'en');
+        }
         $query = "SELECT * FROM `user_profile` WHERE `uid` = :uid";
         $query = Database::database()->con()->prepare($query);
         $query->bindParam(':uid', $this->uid, PDO::PARAM_INT);
@@ -187,6 +261,7 @@ class User
 
     public function getName(): ?string
     {
+        $account_setting = ConfigManager::config()->getConfigFile("account.setting");
         return $this->name;
     }
 
@@ -198,6 +273,23 @@ class User
     public function getPassword(): ?string
     {
         return $this->password;
+    }
+
+    /**
+     * @throws RandomException
+     */
+    public function getVerifyEmailToken(): ?string {
+
+        $token = random_bytes(32);
+        $token = bin2hex($token);
+        $query = "INSERT INTO verify_email_token (token, uid) VALUES (:token, :uid) ON DUPLICATE KEY UPDATE token = :token_update";
+        $query = Database::database()->con()->prepare($query);
+        $query->bindParam(':token', $token, PDO::PARAM_STR);
+        $query->bindParam(':uid', $this->uid, PDO::PARAM_INT);
+        $query->bindParam(':token_update', $token, PDO::PARAM_STR);
+        $query->execute();
+        return $token;
+
     }
 
     public function getCreated(): ?string

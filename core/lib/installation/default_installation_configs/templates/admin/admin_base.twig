@@ -19,6 +19,9 @@
     <script>
         {{ assets.getAssetsFile('reference.js')|raw }}
     </script>
+    <script>
+        {{ assets.getAssetsFile('interactive.js')|raw }}
+    </script>
     {#  TODO: settings for toastify  #}
     <style>
         {{ assets.getAssetsFile('admin.css')|raw }}
@@ -106,6 +109,10 @@
 
 <div class="container main-content">
     {% block body %}{% endblock %}
+</div>
+
+<div class="floating-window-token">
+    {{ tokens_floating_window()|raw }}
 </div>
 
 <script>

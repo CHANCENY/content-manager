@@ -227,6 +227,7 @@ function get_field_type_info(string $type = '', $index = 0, array $field = []): 
     return '';
 }
 
+
 /**
  * @return array
  */
@@ -271,6 +272,9 @@ function get_functions(): array
         }),
         new TwigFunction('get_field_type_info',function(string $type, $index = 0, array $field = []){
             return get_field_type_info($type, $index, $field);
+        }),
+        new TwigFunction('tokens_floating_window',function(){
+            return \Simp\Core\modules\tokens\TokenManager::token()->getFloatingWindow();
         })
     );
 }

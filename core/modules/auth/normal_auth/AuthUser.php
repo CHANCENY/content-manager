@@ -188,7 +188,7 @@ class AuthUser
 
     public function getUser(): User
     {
-        return $this->user;
+        return $this->user ?? User::loadAnonymous();
     }
 
     public function isValidated(): bool

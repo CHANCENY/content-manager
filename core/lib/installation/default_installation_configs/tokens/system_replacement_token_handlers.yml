@@ -1,0 +1,6 @@
+site: Simp\Core\modules\tokens\resolver\DefaultTokenResolver
+user: Simp\Core\modules\tokens\resolver\DefaultTokenResolver
+file: Simp\Core\modules\tokens\resolver\DefaultTokenResolver
+role: Simp\Core\modules\tokens\resolver\DefaultTokenResolver
+profile: Simp\Core\modules\tokens\resolver\DefaultTokenResolver
+request: Simp\Core\modules\tokens\resolver\DefaultTokenResolver

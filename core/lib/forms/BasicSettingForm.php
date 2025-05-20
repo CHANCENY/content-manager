@@ -139,7 +139,13 @@ class BasicSettingForm extends FormBase
                 return $value->getValue();
             }, $form);
 
-            ConfigManager::config()->addConfigFile('basic.site.setting', $basic_setting);
+            $settings = [
+                ...$basic_setting['site'],
+                ...$basic_setting['front_page'],
+                ...$basic_setting['error_pages']
+            ];
+
+            ConfigManager::config()->addConfigFile('basic.site.setting', $settings);
             $redirect = new RedirectResponse('/admin/config/system/site-information');
             $redirect->send();
         }

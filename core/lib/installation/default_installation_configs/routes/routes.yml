@@ -169,6 +169,21 @@ user.account.password.reset:
   controller:
     class: Simp\Core\lib\controllers\UserAccountFormController
     method: user_account_password_reset_form_controller
+user.account.email.verify:
+  title: "New Password"
+  path: '/user/verify/[hash:string]'
+  method:
+    - GET
+    - POST
+  access:
+    - anonymous
+    - administrator
+    - content_creator
+    - manager
+    - authenticated
+  controller:
+    class: Simp\Core\lib\controllers\UserAccountFormController
+    method: user_account_email_verify_form_controller
 
 system.messager.toastify:
   title: "Messages"

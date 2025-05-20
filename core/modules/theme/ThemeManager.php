@@ -47,46 +47,50 @@ class ThemeManager
         $themes_base = $system->theme_dir;
         
         $files = array_diff(scandir($themes_base) ?? [], ['.', '..']);
-        foreach ($files as $file) {
-            
-            $full_path = $themes_base . DIRECTORY_SEPARATOR . $file . DIRECTORY_SEPARATOR .
-            $file.'.info.yml';
 
-            if (file_exists($full_path)) {
-                $content = Yaml::parseFile($full_path);
-                if (!empty($content['name']) && !empty($content['version'])) {
-                    $this->themes[$file] = $content;
+        if (!empty($files)) {
+            foreach ($files as $file) {
 
-                    if (!empty($content['default'])) {
-                        $this->currentTheme = $file;
-                        $this->currentThemeHomeTemplate = $content['home_template'] ?? null;
-                        $all_twig_files = array_diff(scandir($themes_base . DIRECTORY_SEPARATOR . $file) ?? [], ['.', '..']);
-                        foreach ($all_twig_files as $twig_file) {
-                            $full_twig_path = $themes_base . DIRECTORY_SEPARATOR . $file . DIRECTORY_SEPARATOR . $twig_file;
-                            if (is_dir($full_twig_path)) {
-                                $this->recursive_dir_iterator($full_twig_path);
-                            }
-                            elseif (file_exists($full_twig_path) && pathinfo($full_twig_path, PATHINFO_EXTENSION) === 'twig') {
-                                $key = $file. '.view.'. pathinfo($twig_file, PATHINFO_FILENAME);
-                                $this->current_theme_files[$key] = new TwigResolver($full_twig_path);
+                $full_path = $themes_base . DIRECTORY_SEPARATOR . $file . DIRECTORY_SEPARATOR .
+                    $file.'.info.yml';
+
+                if (file_exists($full_path)) {
+                    $content = Yaml::parseFile($full_path);
+                    if (!empty($content['name']) && !empty($content['version'])) {
+                        $this->themes[$file] = $content;
+
+                        if (!empty($content['default'])) {
+                            $this->currentTheme = $file;
+                            $this->currentThemeHomeTemplate = $content['home_template'] ?? null;
+                            $all_twig_files = array_diff(scandir($themes_base . DIRECTORY_SEPARATOR . $file) ?? [], ['.', '..']);
+                            foreach ($all_twig_files as $twig_file) {
+                                $full_twig_path = $themes_base . DIRECTORY_SEPARATOR . $file . DIRECTORY_SEPARATOR . $twig_file;
+                                if (is_dir($full_twig_path)) {
+                                    $this->recursive_dir_iterator($full_twig_path);
+                                }
+                                elseif (file_exists($full_twig_path) && pathinfo($full_twig_path, PATHINFO_EXTENSION) === 'twig') {
+                                    $key = $file. '.view.'. pathinfo($twig_file, PATHINFO_FILENAME);
+                                    $this->current_theme_files[$key] = new TwigResolver($full_twig_path);
+                                }
                             }
                         }
-                    }
 
+                    }
                 }
             }
-        }
 
-        if (!empty($this->currentTheme) && !empty($this->current_theme_files)) {
+            if (!empty($this->currentTheme) && !empty($this->current_theme_files)) {
 
-            $theme_keys = Caching::init()->get('system.theme.keys');
-            foreach ($this->current_theme_files as $key => $value) {
-                $theme_keys[] = $key;
-                Caching::init()->set($key, $value);
+                $theme_keys = Caching::init()->get('system.theme.keys');
+                foreach ($this->current_theme_files as $key => $value) {
+                    $theme_keys[] = $key;
+                    Caching::init()->set($key, $value);
+                }
+                $theme_keys = array_unique($theme_keys);
+                Caching::init()->set('system.theme.keys', $theme_keys);
             }
-            $theme_keys = array_unique($theme_keys);
-            Caching::init()->set('system.theme.keys', $theme_keys);
         }
+        $GLOBALS['theme_manager'] = $this;
         
     }
 
@@ -158,6 +162,9 @@ class ThemeManager
     
     public static function manager(): ThemeManager
     {
+        if (isset($GLOBALS['theme_manager'])) {
+            return $GLOBALS['theme_manager'];
+        }
         return new ThemeManager();
     }
 }

@@ -17,37 +17,19 @@ class SiteManager extends SystemDirectory
         if (file_exists($site_file)) {
             $this->basic_settings = Yaml::parseFile($site_file);
         }
+        $GLOBALS['site_manager'] = $this;
     }
 
     public function get(string $key, $default = null)
     {
-
-        $function = function(array $setting) use ($key, &$function) {
-            foreach ($setting as $setting_key => $setting_value) {
-                if ($setting_key === $key) {
-                    return $setting_value;
-                }
-                elseif (is_array($setting_value)) {
-                  return $function($setting_value);
-                }
-            }
-        };
-
-        foreach ($this->basic_settings as $setting) {
-            if (isset($setting[$key])) {
-                return $setting[$key];
-            }
-            elseif (is_array($setting)) {
-               $f = $function($setting);
-               if ($f) {
-                   return $f;
-               }
-            }
-        }
+        return $this->basic_settings[$key] ?? $default;
     }
 
-    public static function factory(): static
+    public static function factory(): SiteManager
     {
-        return new static();
+        if (isset($GLOBALS['site_manager'])) {
+            return $GLOBALS['site_manager'];
+        }
+        return new self();
     }
 }

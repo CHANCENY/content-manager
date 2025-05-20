@@ -67,13 +67,14 @@ class ViewsController
             if (!empty($content_type)) {
                 $field = self::findField($content_type['fields'], $field['field']);
             }
+
             $view_rows[] = [
                 'name' => $field['name'] ?? $field['field'],
                 'label' => $field['label'] ?? ucfirst($field['field']),
                 'content_type' => $type,
-                'is_label' => !empty($content_type['display_setting'][$field['name']]['display_label']),
-                'display_as' => !empty($content_type['display_setting'][$field['name']]['display_as'])
-                 ? $content_type['display_setting'][$field['name']]['display_as'] : 'p',
+                'is_label' => !empty($content_type['display_setting'][$field['name'] ?? $field['field']]['display_label']),
+                'display_as' => !empty($content_type['display_setting'][$field['name'] ?? $field['field']]['display_as'])
+                 ? $content_type['display_setting'][$field['name'] ?? $field['field']]['display_as'] : 'p',
             ];
         }
 
