@@ -111,9 +111,13 @@
     {% block body %}{% endblock %}
 </div>
 
+{% if request.user is not null and request.user.isIsAdmin %}
+
 <div class="floating-window-token">
     {{ tokens_floating_window()|raw }}
 </div>
+
+{% endif %}
 
 <script>
     {{ assets.getAssetsFile('bootstrap.js')|raw }}
