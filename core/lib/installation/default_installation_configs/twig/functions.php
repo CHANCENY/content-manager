@@ -1,5 +1,11 @@
 <?php
 
+use Simp\Core\lib\routes\Route;
+use Simp\Core\modules\structures\content_types\entity\Node;
+use Simp\Core\modules\files\entity\File;
+use Simp\Core\modules\auth\normal_auth\AuthUser;
+use Simp\Translate\lang\LanguageManager;
+use Simp\Core\modules\tokens\TokenManager;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
@@ -20,6 +26,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use Twig\TwigFunction;
+use Simp\Core\modules\services\Service;
 
 function getContentType(?string $content_name): ?array
 {
@@ -103,7 +110,7 @@ function url(string $id, array $options, array $params = []): string
 {
     if (!empty($id)) {
         $route = Caching::init()->get($id);
-        if ($route instanceof \Simp\Core\lib\routes\Route) {
+        if ($route instanceof Route) {
             $pattern = $route->getRoutePath();
             function generatePath(string $pattern, array $values): string {
                 $segments = explode('/', $pattern);
@@ -132,6 +139,70 @@ function url(string $id, array $options, array $params = []): string
     return '';
 }
 
+function buildReferenceLink(int|string|array $value, array $field_definition): array
+{
+    $html = [];
+
+    if (is_array($value) && array_key_exists(0,$value) && empty(reset($value))) {
+        return [];
+    }
+
+
+    if (is_string($value)) {
+       $value = [$value];
+    }
+    elseif (is_int($value)) {
+        $value = [$value];
+    }
+
+    foreach ($value as $v) {
+
+        if (!empty($field_definition['type']) && $field_definition['type'] === 'reference') {
+            if (!empty($field_definition['reference']['type'])) {
+
+                if ($field_definition['reference']['type'] === 'node') {
+                    $link = url('system.structure.content.node',['nid'=>$v]);
+                    $node = Node::load($v);
+                    if ($node instanceof Node) {
+                        $html[] = [
+                            'url' => $link,
+                            'name' => $node->getTitle(),
+                        ];
+                    }
+                }
+                elseif ($field_definition['reference']['type'] === 'users') {
+                    $link = url('system.account.view:',['uid'=>$v]);
+                    $user = User::load($v);
+                    if ($user instanceof User) {
+                        $html[] = [
+                            'url' => $link,
+                            'name' => $user->getName()
+                        ];
+                    }
+                }
+                elseif ($field_definition['reference']['type'] === 'file') {
+                    $file = File::load($v);
+                    if ($file instanceof File) {
+                        $html[] = [
+                            'url' => $file->getUri(),
+                            'name' => $file->getName()
+                        ];
+                    }
+                }
+
+            }
+        }
+
+    }
+
+    return empty($html) ? [
+        [
+            'url' => '#',
+            'name' => $value
+        ]
+    ] : $html;
+}
+
 function author(int $uid): ?User {
     return User::load($uid);
 }
@@ -147,7 +218,7 @@ function t(string $text, ?string $from = null, ?string $to = null): string {
      // Check if current user has timezone translation enabled.
      $current_user = CurrentUser::currentUser();
 
-    if ($current_user instanceof \Simp\Core\modules\auth\normal_auth\AuthUser) {
+    if ($current_user instanceof AuthUser) {
         if (!$current_user->getUser()->getProfile()->isTranslationEnabled()) {
             return $text;
         }
@@ -184,7 +255,7 @@ function translation(?string $code): ?array
     if (empty($code)) {
         return [];
     }
-    return \Simp\Translate\lang\LanguageManager::manager()->getByCode($code);
+    return LanguageManager::manager()->getByCode($code);
 }
 
 /**
@@ -222,9 +293,22 @@ function get_field_type_info(string $type = '', $index = 0, array $field = []): 
 
     $handler = FieldManager::fieldManager()->getFieldBuilderHandler($type);
     if ($handler instanceof FieldBuilderInterface) {
-        return $handler->build(Request::createFromGlobals(),$type, $options);
+        return $handler->build(Service::serviceManager()->request,$type, $options);
     }
     return '';
+}
+
+function file_size_format(int|float $size): string
+{
+    $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    $i = 0;
+
+    while ($size >= 1024 && $i < count($units) - 1) {
+        $size /= 1024;
+        $i++;
+    }
+
+    return round($size, 2) . ' ' . $units[$i];
 }
 
 
@@ -234,31 +318,31 @@ function get_field_type_info(string $type = '', $index = 0, array $field = []): 
 function get_functions(): array
 {
     return array(
-        new \Twig\TwigFunction('get_content_type', function ($content_name) {
+        new TwigFunction('get_content_type', function ($content_name) {
             return getContentType($content_name);
         }),
-        new \Twig\TwigFunction('get_content_type_field', function ($content_name, $field_name) {
+        new TwigFunction('get_content_type_field', function ($content_name, $field_name) {
             return getContentTypeField($content_name, $field_name);
         }),
-        new \Twig\TwigFunction('route_by_name', function ($route_name) {
+        new TwigFunction('route_by_name', function ($route_name) {
             return routeByName($route_name);
         }),
-        new \Twig\TwigFunction('file_uri', function ($fid) {
+        new TwigFunction('file_uri', function ($fid) {
             return FileFunction::resolve_fid($fid);
         }),
-        new \Twig\TwigFunction('file', function ($fid) {
+        new TwigFunction('file', function ($fid) {
             return FileFunction::file($fid);
         }),
-        new \Twig\TwigFunction('br', function ($text,$at= 100) {
+        new TwigFunction('br', function ($text,$at= 100) {
             return breakLineToHtml($text,$at);
         }),
-        new \Twig\TwigFunction('url', function ($url, $options = [], $params = []) {
+        new TwigFunction('url', function ($url, $options = [], $params = []) {
             return url($url, $options, $params);
         }),
-        new \Twig\TwigFunction('search_form', function ($search_key, $wrapper = false) {
+        new TwigFunction('search_form', function ($search_key, $wrapper = false) {
             return search_api($search_key,$wrapper);
         }),
-        new \Twig\TwigFunction('author', function ($uid) {
+        new TwigFunction('author', function ($uid) {
             return author($uid);
         }),
         new TwigFunction('t',function(string $text, ?string $from = null, ?string $to = null){
@@ -274,7 +358,13 @@ function get_functions(): array
             return get_field_type_info($type, $index, $field);
         }),
         new TwigFunction('tokens_floating_window',function(){
-            return \Simp\Core\modules\tokens\TokenManager::token()->getFloatingWindow();
+            return TokenManager::token()->getFloatingWindow();
+        }),
+        new TwigFunction('reference_link',function(int|string|array $value, array $field_definition){
+            return buildReferenceLink($value, $field_definition);
+        }),
+        new TwigFunction('size_format',function(int|float $size){
+            return file_size_format($size);
         })
     );
 }

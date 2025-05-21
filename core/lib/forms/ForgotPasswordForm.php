@@ -2,6 +2,7 @@
 
 namespace Simp\Core\lib\forms;
 
+use Exception;
 use Simp\Core\modules\user\entity\User;
 use Simp\Core\modules\user\password\PasswordManager;
 use Simp\FormBuilder\FormBase;
@@ -48,7 +49,7 @@ class ForgotPasswordForm extends FormBase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function submitForm(array &$form): void
     {

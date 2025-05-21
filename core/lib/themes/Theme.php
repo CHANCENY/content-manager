@@ -2,6 +2,7 @@
 
 namespace Simp\Core\lib\themes;
 
+use Twig\Loader\ArrayLoader;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
@@ -16,6 +17,7 @@ use Symfony\Component\Yaml\Yaml;
 use Twig\Environment;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
+use Simp\Core\modules\services\Service;
 
 class Theme extends SystemDirectory
 {
@@ -72,7 +74,7 @@ class Theme extends SystemDirectory
             'page_keywords' => 'Content, Management, System',
             'request' => [
                 'user' => CurrentUser::currentUser(),
-                'http' => Request::createFromGlobals()
+                'http' => Service::serviceManager()->request
             ],
             'site' => $site,
             'assets' => new AssetsManager(),
@@ -91,7 +93,7 @@ class Theme extends SystemDirectory
             }
         }
 
-        $loader = new \Twig\Loader\ArrayLoader($twig_views);
+        $loader = new ArrayLoader($twig_views);
         //$twig_options = Yaml::parseFile($this->schema_dir.DIRECTORY_SEPARATOR.'manifest.yml')['twig_setting'] ?? [];
         $twig_options = [
             'debug' => true,
@@ -107,7 +109,7 @@ class Theme extends SystemDirectory
             dd($asset);
         });
 
-        $this->twig = new \Twig\Environment($loader, [
+        $this->twig = new Environment($loader, [
             ...$twig_options,
         ]);
 

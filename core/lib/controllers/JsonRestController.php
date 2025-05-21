@@ -2,6 +2,8 @@
 
 namespace Simp\Core\lib\controllers;
 
+use Exception;
+use Throwable;
 use Simp\Core\components\rest_data_source\interface\RestDataSourceInterface;
 use Simp\Core\lib\routes\Route;
 use Simp\Core\modules\integration\rest\JsonRestManager;
@@ -41,8 +43,8 @@ class JsonRestController
 
                     return $response;
                 }
-                throw new \Exception('Handler not found  or handle has not implemented RestDataSourceInterface');
-            }catch (\Throwable $exception) {
+                throw new Exception('Handler not found  or handle has not implemented RestDataSourceInterface');
+            }catch (Throwable $exception) {
                 ErrorLogger::logger()->logError($exception->getMessage());
             }
 

@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Simp\Core\modules\services\Service;
 
 class Route
 {
@@ -116,7 +117,7 @@ class Route
         $controller = $controller->newInstance();
         $method = $route->getControllerMethod();
         $options = [
-            'request'=>Request::createFromGlobals(),
+            'request'=>Service::serviceManager()->request,
             'route_name' => $route->route_id,
             'options' => $controller_method_arguments
 

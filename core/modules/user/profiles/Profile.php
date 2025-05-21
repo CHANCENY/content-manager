@@ -2,6 +2,7 @@
 
 namespace Simp\Core\modules\user\profiles;
 
+use Simp\Core\modules\timezone\Zone;
 use Simp\Core\modules\database\Database;
 use Simp\Core\modules\timezone\TimeZone;
 use Simp\Translate\lang\LanguageManager;
@@ -125,7 +126,7 @@ class Profile
         return $query->execute();
     }
 
-    public function timeZoneEntity(): ?\Simp\Core\modules\timezone\Zone
+    public function timeZoneEntity(): ?Zone
     {
         $timezone = new TimeZone($this->time_zone);
         return $timezone->getZone();

@@ -1,5 +1,7 @@
 <?php
 
+use Simp\Core\modules\structures\content_types\faker_manager\FakerManager;
+
 $vendor = getcwd() . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 if (!file_exists($vendor)) {
     die('vendor directory not found. please run commands from root directory');
@@ -180,7 +182,7 @@ function user(array $options): void
                 }
                 echo PHP_EOL . PHP_EOL;
             }
-            
+
         }
 
         return;
@@ -218,7 +220,7 @@ function user(array $options): void
             echo "\033[" . $terminal_colors['red'] . "m failed to create user!\033[0m\n";
             return;    
         }
-        
+
         echo PHP_EOL;
         echo "\033[" . $terminal_colors['red'] . "m username, password, email are required!\033[0m\n";
         return;
@@ -233,7 +235,7 @@ function user(array $options): void
         $username = trim(readline("Enter username: "));
         $email = trim(readline("Enter email: "));
         $password = trim(readline("Enter password: "));
-        
+
         if (!empty($uid) && is_numeric($uid)) {
 
             $user = User::load($uid);
@@ -246,7 +248,7 @@ function user(array $options): void
             if(!empty($password)) {
                 $user->setPassword(password_hash($password, PASSWORD_BCRYPT));
             }
-            
+
             if ($user->update()) {
                 echo PHP_EOL;
                 echo "\033[" . $terminal_colors['green'] . "m update user successfully!\033[0m\n";
@@ -336,7 +338,7 @@ function faker(array $options): void
             return;
         }
 
-        $faker = new \Simp\Core\modules\structures\content_types\faker_manager\FakerManager($content_type);
+        $faker = new FakerManager($content_type);
         $fields = $faker->getFillableFields();
         if (empty($fields)) {
             echo "\033[" . $terminal_colors['yellow'] . "m sorry content type has not fields.\033[0m\n";
@@ -474,7 +476,7 @@ function faker(array $options): void
             return;
         }
 
-        $user = \Simp\Core\modules\user\entity\User::loadByName($username);
+        $user = User::loadByName($username);
 
         if (empty($user)) {
             echo "Username can't be empty".PHP_EOL.PHP_EOL;

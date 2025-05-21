@@ -27,4 +27,4 @@ response_subscriber:
   - Simp\Core\modules\activity\MailQueueActivity
 
 # always set this key to prod on the live server.
-environment: dev
+environment: prod

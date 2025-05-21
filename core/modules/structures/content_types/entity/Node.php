@@ -50,7 +50,7 @@ class Node
             }
 
             $this->values = $rows;
-        }catch(\Throwable){}
+        }catch(Throwable){}
     }
 
     public static function filter(string $title, string $content_type): array

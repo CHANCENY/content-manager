@@ -2,6 +2,7 @@
 
 namespace Simp\Core\modules\user\entity;
 
+use Exception;
 use PDO;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
@@ -94,7 +95,7 @@ class User
      * @throws PhpfastcacheDriverException
      * @throws PhpfastcacheInvalidArgumentException
      * @throws PhpfastcacheLogicException
-     * @throws \Exception
+     * @throws Exception
      */
     public static function create(array $data): User|null|false
     {

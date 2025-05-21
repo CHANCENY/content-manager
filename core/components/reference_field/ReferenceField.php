@@ -3,6 +3,7 @@
 namespace Simp\Core\components\reference_field;
 
 use Exception;
+use Simp\Core\modules\structures\content_types\field\FieldManager;
 use Simp\Fields\FieldBase;
 use Simp\Fields\FieldRequiredException;
 use Simp\Fields\FieldTypeSupportException;
@@ -90,7 +91,7 @@ class ReferenceField extends FieldBase
 
     public function getId(): string
     {
-        return $this->field['id'] ?? '';
+        return !empty($this->field['id']) ? $this->field['id'] : FieldManager::createFieldName($this->getLabel());
     }
 
     public function getClassList(): array

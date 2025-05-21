@@ -14,6 +14,7 @@ use Simp\Default\TextAreaField;
 use Simp\FormBuilder\FormBase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Simp\Core\modules\services\Service;
 
 class ContentTypeForm extends FormBase
 {
@@ -67,7 +68,7 @@ class ContentTypeForm extends FormBase
     public function submitForm(array &$form): void
     {
         $system = new SystemDirectory();
-        $request = Request::createFromGlobals();
+        $request = Service::serviceManager()->request;
         $data = $request->request->all();
         $line = str_replace(' ', '_', $data['name']);
         $line = 'content_'.strtolower($line);

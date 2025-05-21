@@ -2,15 +2,12 @@
 
 
     function reference_caller(field_id, settings, appender_element) {
-
         console.log(field_id, settings, appender_element);
-
         if (field_id && settings && appender_element) {
              $(`#${field_id}`).on('input',async (e) => {
                  const value = e.target.value;
                  if (value.length > 3) {
                      const result = await send({settings, value});
-                     console.log(result);
                      if (result.result.length > 0) {
                          appender_element.innerHTML = '';
                          result.result.forEach((item)=>{

@@ -1834,16 +1834,16 @@
         },
         {
             "name": "simp/forms",
-            "version": "v1.0.9",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CHANCENY/forms.git",
-                "reference": "2fb15c1fc41db6130cfabb107a5dd128ba4826a3"
+                "reference": "d2477301a47b8c8a7eefd6289e5defb99ab20087"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CHANCENY/forms/zipball/2fb15c1fc41db6130cfabb107a5dd128ba4826a3",
-                "reference": "2fb15c1fc41db6130cfabb107a5dd128ba4826a3",
+                "url": "https://api.github.com/repos/CHANCENY/forms/zipball/d2477301a47b8c8a7eefd6289e5defb99ab20087",
+                "reference": "d2477301a47b8c8a7eefd6289e5defb99ab20087",
                 "shasum": ""
             },
             "require": {
@@ -1868,9 +1868,9 @@
             "description": "This is form builder library",
             "support": {
                 "issues": "https://github.com/CHANCENY/forms/issues",
-                "source": "https://github.com/CHANCENY/forms/tree/v1.0.9"
+                "source": "https://github.com/CHANCENY/forms/tree/v1.1.0"
             },
-            "time": "2025-05-19T11:42:51+00:00"
+            "time": "2025-05-21T13:22:28+00:00"
         },
         {
             "name": "simp/mail",
@@ -5087,7 +5087,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
@@ -5095,6 +5095,6 @@
         "ext-fileinfo": "*",
         "ext-readline": "*"
     },
-    "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "platform-dev": [],
+    "plugin-api-version": "2.2.0"
 }

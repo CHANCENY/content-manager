@@ -2,9 +2,10 @@
 
 namespace Simp\Core\modules\database;
 
+use PDO;
 use Simp\Core\lib\installation\SystemDirectory;
 
-class SPDO extends \PDO
+class SPDO extends PDO
 {
     protected SystemDirectory $systemDirectory;
     public function __construct($dsn, $user, $pass) {

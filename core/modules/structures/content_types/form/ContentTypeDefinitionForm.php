@@ -22,6 +22,7 @@ use Simp\FormBuilder\FormBase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
+use Simp\Core\modules\services\Service;
 
 class ContentTypeDefinitionForm extends FormBase
 {
@@ -39,7 +40,7 @@ class ContentTypeDefinitionForm extends FormBase
      */
     public function __construct()
     {
-        $this->request = Request::createFromGlobals();
+        $this->request = Service::serviceManager()->request;
         $content_name = $this->request->get("content_name");
         if (empty($content_name)) {
             $redirect = new RedirectResponse('/');
@@ -256,7 +257,7 @@ class ContentTypeDefinitionForm extends FormBase
                 ];
                 $node_data = array_merge($data_all, $node_data);
 
-                $request = Request::createFromGlobals();
+                $request = Service::serviceManager()->request;
 
                 $temp = [];
                 foreach ($node_data as $key => $value) {

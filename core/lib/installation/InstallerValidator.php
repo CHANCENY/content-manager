@@ -159,7 +159,7 @@ class InstallerValidator extends SystemDirectory {
                          $statement->execute();
                     }
 
-                }catch(\Throwable $e){
+                }catch(Throwable $e){
 
                 }
             }
@@ -210,6 +210,24 @@ class InstallerValidator extends SystemDirectory {
      */
     public function cacheDefaults(): void
     {
+        // Cache services
+        $service_file = $this->setting_dir . DIRECTORY_SEPARATOR . 'defaults' . DIRECTORY_SEPARATOR . 'services'
+            . DIRECTORY_SEPARATOR . 'default.services.yml';
+        $services_custom = $this->setting_dir . DIRECTORY_SEPARATOR . 'services' . DIRECTORY_SEPARATOR . 'custom.services.yml';
+        $services = [];
+        if (file_exists($service_file)) {
+            $services = Yaml::parseFile($service_file) ?? [];
+        }
+        if (file_exists($services_custom)) {
+            $services = array_merge($services, Yaml::parseFile($services_custom) ?? []);
+        }
+
+        foreach ($services as $key=>$service) {
+            $services[$key] = base64_encode($service);
+        }
+
+        Caching::init()->set('system_services', $services);
+
         $setting_root = $this->setting_dir . DIRECTORY_SEPARATOR . 'defaults';
         $files = array_diff(scandir($setting_root) ?? [], ['..', '.']);
         $default_keys = [];

@@ -2,72 +2,58 @@
 
 namespace Simp\Core\modules\logger;
 
-use Simp\Core\lib\installation\SystemDirectory;
-use SplFileObject;
+use PDO;
+use PDOException;
+use Simp\Core\modules\database\Database;
 
-class ServerLogger extends SystemDirectory
+class ServerLogger
 {
     protected array $logs = [];
+    protected PDO $con;
 
     public function __construct(int $limit = 50, int $offset = 0)
     {
-        parent::__construct();
-        $log_file = $this->setting_dir . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'app.log';
+        $this->con = Database::database()->con();
+        $query = "SELECT * FROM activity ORDER BY created DESC LIMIT $limit OFFSET $offset";
+        $query = $this->con->prepare($query);
+        $query->execute();
+        $this->logs = array_map(function ($item) {
+            $item['memory'] = $this->readableMemory($item['memory']);
+            $item['start'] = $this->date($item['start']);
+            $item['elapsed'] = $this->date($item['elapsed']);
+            $item['end'] = $this->date($item['end']);
+            return $item;
 
-        if (file_exists($log_file)) {
-            $file = new SplFileObject($log_file, 'r');
-            if ($offset > 0) {
-                $offset = ($offset + $limit) - 1;
-            }
-            $file->seek($offset);
-
-            $lines_read = 0;
-            while (!$file->eof() && $lines_read < $limit) {
-                $line = trim($file->fgets());
-                if (!empty($line)) {
-                    $line_parts = explode(' ', $line);
-                    if (count($line_parts) >= 4) {
-                        $one = [];
-                        foreach ($line_parts as $item) {
-                            $line_one = explode(':', $item);
-                            if (count($line_one) >= 2) {
-                                $key = $line_one[0];
-                                $value = trim(end($line_one));
-
-                                if (in_array($key, ['elapsed', 'start', 'end'])) {
-                                    $one[$key] = $this->date($value);
-                                } elseif ($key === 'memory') {
-                                    $one[$key] = $this->readableMemory($value);
-                                } else {
-                                    $one[$key] = $value;
-                                }
-                            }
-                        }
-                        $this->logs[] = $one;
-                    }
-                    $lines_read++;
-                }
-            }
-
-            sort($this->logs);
-        }
+        },$query->fetchAll());
     }
 
     public function getFilterNumber(int $limit = 50): array
     {
-        $log_file = $this->setting_dir . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'app.log';
         $filters = [
             'limit' => $limit,
             'offset_max' => 1,
         ];
-        if (file_exists($log_file)) {
-            $filesize = filesize($log_file);
-            $filters['offset_max'] = floor($filesize / $limit);
+
+        $query = "SELECT COUNT(*) AS total FROM activity LIMIT :limit OFFSET :offset";
+
+        try {
+            $stmt = $this->con->prepare($query);
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $filters['offset_max'], PDO::PARAM_INT);
+            $stmt->execute();
+
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $filters['count'] = $result['total'] ?? 0;
+        } catch (PDOException $e) {
+            // Log the error or handle it accordingly
+            $filters['error'] = $e->getMessage();
         }
+
         return $filters;
     }
 
-    protected function date($microtime): string
+
+    protected function date(int $microtime): string
     {
         $timestamp = floor($microtime);
         $milliseconds = ($microtime - $timestamp) * 1000;

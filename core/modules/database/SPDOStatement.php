@@ -2,10 +2,11 @@
 
 namespace Simp\Core\modules\database;
 
+use PDOStatement;
 use PDO;
 use Throwable;
 
-class SPDOStatement extends \PDOStatement
+class SPDOStatement extends PDOStatement
 {
     private array $params = [];
     private DatabaseCacheManager $cacheManager;

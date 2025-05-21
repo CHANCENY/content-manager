@@ -14,7 +14,7 @@ use Simp\Default\SelectField;
 use Simp\Fields\FieldBase;
 use Simp\FormBuilder\FormBase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
+use Simp\Core\modules\services\Service;
 
 class SearchFormConfiguration extends FormBase
 {
@@ -28,7 +28,7 @@ class SearchFormConfiguration extends FormBase
 
     public function buildForm(array &$form): array
     {
-        $key = Request::createFromGlobals()->get('key','');
+        $key = Service::serviceManager()->request->get('key','');
         $search = SearchManager::searchManager()->getSetting($key);
         $form['search_wrapper'] = array(
             'type' => 'fieldset',
@@ -116,7 +116,7 @@ class SearchFormConfiguration extends FormBase
     public function submitForm(array &$form): void
     {
         if ($this->validated) {
-            $search_key = Request::createFromGlobals()->get('key');
+            $search_key = Service::serviceManager()->request->get('key');
 
             $data = array_map(fn($field)=> $field->getValue(), $form);
             $data = $data['search_wrapper'];

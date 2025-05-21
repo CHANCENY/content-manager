@@ -9,6 +9,7 @@ use Simp\Core\modules\user\entity\User;
 use Simp\Core\modules\user\profiles\Profile;
 use Simp\Core\modules\user\roles\Role;
 use Symfony\Component\HttpFoundation\Request;
+use Simp\Core\modules\services\Service;
 
 class DefaultTokenResolver implements ResolverInterface
 {
@@ -16,7 +17,7 @@ class DefaultTokenResolver implements ResolverInterface
     protected Request $request;
     public function __construct()
     {
-        $this->request = Request::createFromGlobals();
+        $this->request = Service::serviceManager()->request;
     }
 
     /**
@@ -27,7 +28,7 @@ class DefaultTokenResolver implements ResolverInterface
         $replacements = [];
         if ($type === 'user') {
 
-            foreach ($tokens as $key => $token) {
+            foreach ($tokens as $token) {
 
                 $user = $options['user'] ?? null;
 
@@ -51,7 +52,7 @@ class DefaultTokenResolver implements ResolverInterface
 
         elseif ($type === 'site') {
 
-            foreach ($tokens as $key => $token) {
+            foreach ($tokens as $token) {
 
                 $site = $options['site'] ?? null;
                 if ($site instanceof SiteManager) {
@@ -71,7 +72,7 @@ class DefaultTokenResolver implements ResolverInterface
 
         elseif ($type === 'profile') {
 
-            foreach ($tokens as $key => $token) {
+            foreach ($tokens as $token) {
                 $data_tok = $options['profile'] ?? $options['user'] ?? null;
                 $profile = null;
                 if ($data_tok instanceof Profile) {
@@ -99,7 +100,7 @@ class DefaultTokenResolver implements ResolverInterface
 
         elseif ($type === 'role') {
 
-            foreach ($tokens as $key => $token) {
+            foreach ($tokens as $token) {
 
                 $role = $options['role'] ?? null;
                 if ($role instanceof Role) {
@@ -116,7 +117,7 @@ class DefaultTokenResolver implements ResolverInterface
 
         elseif ($type === 'file') {
 
-            foreach ($tokens as $key => $token) {
+            foreach ($tokens as $token) {
                 $file = $options['file'] ?? null;
                 if ($file instanceof File) {
                     $replacements[$token] = match ($token) {
@@ -136,7 +137,7 @@ class DefaultTokenResolver implements ResolverInterface
 
         elseif ($type === 'request') {
 
-            foreach ($tokens as $key => $token) {
+            foreach ($tokens as $token) {
 
                 if (str_contains($token,'get_value?')) {
                    $params = $this->request->attributes->all();

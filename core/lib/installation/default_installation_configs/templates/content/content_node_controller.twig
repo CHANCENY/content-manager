@@ -39,6 +39,15 @@
                 }} %}
                 {% include 'default.view.node.field.textarea' with content %}
 
+            {% elseif definition.type == 'reference' %}
+
+                {% set url_value = {'content': {
+                    'data': reference_link(node.get(definition.name), definition),
+                    'definition': definition,
+                    'display': display[definition.name]
+                }} %}
+                {% include 'default.view.node.reference.link' with url_value %}
+
             {% else %}
                 {% set content = {'content': {
                     'data': node.get(definition.name),

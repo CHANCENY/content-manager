@@ -2,6 +2,7 @@
 
 namespace Simp\Core\modules\structures\views;
 
+use PDO;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
@@ -183,7 +184,7 @@ class Display
                 }
             }
             $statement->execute();
-            $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+            $result = $statement->fetchAll(PDO::FETCH_ASSOC);
             $processed = [];
             foreach ($result as $row) {
                 $keys_list = array_keys($row);

@@ -1,6 +1,8 @@
 <?php
 
 
+use Simp\Core\modules\auth\normal_auth\AuthUser;
+use Twig\TwigFilter;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
@@ -21,7 +23,7 @@ function filter_translator(string $text, ?string $from = null, ?string $to = nul
     // Check if the current user has timezone translation enabled.
     $current_user = CurrentUser::currentUser();
 
-    if ($current_user instanceof \Simp\Core\modules\auth\normal_auth\AuthUser) {
+    if ($current_user instanceof AuthUser) {
         if (!$current_user->getUser()->getProfile()->isTranslationEnabled()) {
             return $text;
         }
@@ -56,7 +58,7 @@ function filter_translator(string $text, ?string $from = null, ?string $to = nul
 function get_filters(): array
 {
     return [
-        new \Twig\TwigFilter('t',function(string $text, ?string $from = null, ?string $to = null){
+        new TwigFilter('t',function(string $text, ?string $from = null, ?string $to = null){
             return filter_translator($text, $from, $to);
         })
     ];

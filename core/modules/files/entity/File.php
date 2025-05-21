@@ -3,9 +3,12 @@
 namespace Simp\Core\modules\files\entity;
 
 use Simp\Core\modules\database\Database;
+use Simp\Core\modules\user\entity\User;
+use Simp\Core\modules\user\trait\StaticHelperTrait;
 
 class File
 {
+    use StaticHelperTrait;
     public function __construct(protected int $fid, protected int $uid, protected string $uri, protected string $mime_type,
                                 protected int $size, protected string $extension, protected string $name, protected string $created){}
 
@@ -34,6 +37,21 @@ class File
             return new static(...$files);
         }
         return null;
+    }
+
+    public static function search($value): array
+    {
+        $query = "SELECT * FROM `file_managed` WHERE `name` LIKE :name OR `uri` LIKE :uri OR `mime_type` LIKE :mime_type OR `size` LIKE :size OR `extension` LIKE :extension";
+        $query = Database::database()->con()->prepare($query);
+        $searchTerm = "%$value%";
+        $query->bindParam(':name', $searchTerm);
+        $query->bindParam(':uri', $searchTerm);
+        $query->bindParam(':mime_type', $searchTerm);
+        $query->bindParam(':size', $searchTerm);
+        $query->bindParam(':extension', $searchTerm);
+        $query->execute();
+        $files = $query->fetchAll();
+        return array_map(fn($file) => new static(...$file), $files);
     }
 
     public function getFid(): int
@@ -116,7 +134,13 @@ class File
         $this->mime_type = $mime_type;
     }
 
-
+    public function getOwner(): ?User
+    {
+        if ($this->uid) {
+            return User::load($this->uid);
+        }
+        return null;
+    }
 
     public static function load(int $fid): ?static
     {
@@ -169,4 +193,29 @@ class File
         return $query->execute();
     }
 
+    public function toArray(): array
+    {
+        return [
+            'fid' => $this->fid,
+            'uid' => $this->uid,
+            'uri' => $this->uri,
+            'mime_type' => $this->mime_type,
+            'size' => $this->size,
+            'extension' => $this->extension,
+            'name' => $this->name,
+        ];
+    }
+
+    public function __get($name)
+    {
+        if (property_exists($this, $name)) {
+            return $this->$name;
+        }
+        return null;
+    }
+
+    public function __toString(): string
+    {
+        return json_encode($this->toArray(),JSON_PRETTY_PRINT);
+    }
 }

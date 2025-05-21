@@ -752,3 +752,16 @@ system.integration.configure.rest.version.delete:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: integration_configure_rest_version_delete
+
+# Files routes
+system.files.add:
+  title: "Add File"
+  path: '/file/add'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\FileController
+    method: add_file

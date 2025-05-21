@@ -16,6 +16,7 @@ use Simp\Default\DetailWrapperField;
 use Simp\Default\SelectField;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Simp\Core\modules\services\Service;
 
 class UserAccountEditForm extends UserAccountForm
 {
@@ -33,7 +34,7 @@ class UserAccountEditForm extends UserAccountForm
     public function buildForm(array &$form): array
     {
         $form = parent::buildForm($form);
-        $request = Request::createFromGlobals();
+        $request = Service::serviceManager()->request;
         $user = User::load($request->get('uid'));
         $profile = $user->getProfile();
 
@@ -111,7 +112,7 @@ class UserAccountEditForm extends UserAccountForm
 
     public function submitForm(array &$form): void
     {
-        $request = Request::createFromGlobals();
+        $request = Service::serviceManager()->request;
         $user = User::load($request->get('uid'));
         $profile = $user->getProfile();
 

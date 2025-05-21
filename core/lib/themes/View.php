@@ -2,6 +2,7 @@
 
 namespace Simp\Core\lib\themes;
 
+use Throwable;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
@@ -47,7 +48,7 @@ class View
             if (Caching::init()->has($override_key)) {
                 $view = $override_key;
             }
-        }catch (\Throwable $e) {
+        }catch (Throwable $e) {
             ErrorLogger::logger()->logError($e->__toString());
         }
         $string = $this->theme->twig->render($view,$options);

@@ -2,11 +2,13 @@
 
 namespace Simp\Core\modules\auth\google;
 
+use Google\Service\Oauth2\Userinfo;
 use Google\Client;
 use Google\Service\Exception;
 use Google\Service\Oauth2;
 use Simp\Core\modules\auth\AuthenticationSystem;
 use Symfony\Component\HttpFoundation\Request;
+use Simp\Core\modules\services\Service;
 
 class GoogleAuth
 {
@@ -29,7 +31,7 @@ class GoogleAuth
         $this->client->setClientId($this->client_id);
         $this->client->setClientSecret($this->client_secret);
 
-        $request = Request::createFromGlobals();
+        $request = Service::serviceManager()->request;
         $schema = trim($request->getSchemeAndHttpHost(), '/');
         $this->client->setRedirectUri($schema.'/'. trim($this->redirect_uri, '/'));
         $this->client->setScopes($this->scope);
@@ -54,7 +56,7 @@ class GoogleAuth
     /**
      * @throws Exception
      */
-    public function oauth2Profile(): Oauth2\Userinfo
+    public function oauth2Profile(): Userinfo
     {
         $oauth = new Oauth2($this->client);
         return $oauth->userinfo->get();

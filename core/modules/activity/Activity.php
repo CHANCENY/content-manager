@@ -2,6 +2,7 @@
 
 namespace Simp\Core\modules\activity;
 
+use Throwable;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
@@ -49,6 +50,6 @@ class Activity implements EventSubscriber
                $statement = $connection->prepare("INSERT INTO activity (start,end,elapsed,memory,system_usage,user_usage,user,path) VALUES (:start,:end,:elapsed,:memory,:system_usage,:user_usage,:user,:path)");
                $statement->execute($data);
            }
-       }catch (\Throwable){}
+       }catch (Throwable){}
     }
 }

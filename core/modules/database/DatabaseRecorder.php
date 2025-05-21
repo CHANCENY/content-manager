@@ -2,13 +2,14 @@
 
 namespace Simp\Core\modules\database;
 use Symfony\Component\HttpFoundation\Request;
+use Simp\Core\modules\services\Service;
 
 class DatabaseRecorder {
 
     public function __construct(string $query_run, int|float $executed_time)
     {
         if (session_id()) {
-             $request = Request::createFromGlobals();
+             $request = Service::serviceManager()->request;
             if (empty($GLOBALS[session_id()])) {
                 $GLOBALS[session_id()] = [
                     $request->getRequestUri() => [

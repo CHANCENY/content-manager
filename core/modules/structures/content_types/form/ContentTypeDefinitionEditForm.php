@@ -20,6 +20,7 @@ use Simp\FormBuilder\FormBase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
+use Simp\Core\modules\services\Service;
 
 class ContentTypeDefinitionEditForm extends FormBase
 {
@@ -37,7 +38,7 @@ class ContentTypeDefinitionEditForm extends FormBase
      */
     public function __construct()
     {
-        $this->request = Request::createFromGlobals();
+        $this->request = Service::serviceManager()->request;
         $nid = $this->request->get('nid');
         $node = Node::load($nid);
         if (empty($node)) {
@@ -261,7 +262,7 @@ class ContentTypeDefinitionEditForm extends FormBase
             $user = User::loadByName($data_all['owner'] ?? '');
             if ($user instanceof User) {
 
-                $request = Request::createFromGlobals();
+                $request = Service::serviceManager()->request;
                 $this->node->setTitle($data_all['title'] ?? $this->node->getTitle());
                 $this->node->setStatus(($data_all['status'] == 1 ? 1 : 2));
                 $this->node->setUid($user->getUid());

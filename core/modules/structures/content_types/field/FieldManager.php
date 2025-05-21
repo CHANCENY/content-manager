@@ -6,6 +6,7 @@ use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\modules\structures\content_types\field\fields\FieldSetBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\FileFieldBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\InputFieldBuilder;
+use Simp\Core\modules\structures\content_types\field\fields\ReferenceFieldBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\SelectFieldBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\TextAreaFieldBuilder;
 
@@ -44,6 +45,7 @@ class FieldManager
             'details' => FieldSetBuilder::class,
             'fieldset' => FieldSetBuilder::class,
             'conditional' => FieldSetBuilder::class,
+            'reference' => ReferenceFieldBuilder::class,
         ];
         $system = new SystemDirectory();
         $extension_file = $system->setting_dir . DIRECTORY_SEPARATOR . 'fields' . DIRECTORY_SEPARATOR . 'fields.php';

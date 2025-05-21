@@ -2,6 +2,7 @@
 
 namespace Simp\Core\lib\forms;
 
+use Exception;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
@@ -12,6 +13,7 @@ use Simp\Core\modules\user\password\PasswordManager;
 use Simp\FormBuilder\FormBase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Simp\Core\modules\services\Service;
 
 class ForgotPasswordResetForm extends FormBase
 {
@@ -77,12 +79,12 @@ class ForgotPasswordResetForm extends FormBase
      * @throws PhpfastcacheLogicException
      * @throws PhpfastcacheDriverException
      * @throws PhpfastcacheInvalidArgumentException
-     * @throws \Exception
+     * @throws Exception
      */
     public function submitForm(array &$form): void
     {
         if ($this->validated) {
-            $hash = Request::createFromGlobals()->get('hash');
+            $hash = Service::serviceManager()->request->get('hash');
             if (Caching::init()->has($hash)) {
                 $user = Caching::init()->get($hash);
                 $password = new PasswordManager($user->getUid());

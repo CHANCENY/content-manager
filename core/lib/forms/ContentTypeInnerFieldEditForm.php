@@ -20,6 +20,7 @@ use Simp\Core\modules\messager\Messager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
+use Simp\Core\modules\services\Service;
 
 class ContentTypeInnerFieldEditForm extends ContentTypeFieldForm
 {
@@ -31,7 +32,7 @@ class ContentTypeInnerFieldEditForm extends ContentTypeFieldForm
 
     public function buildForm(array &$form): array
     {
-        $request = Request::createFromGlobals();
+        $request = Service::serviceManager()->request;
         $name = $request->get('machine_name');
         $field_name = $request->get('parent_name');
 
@@ -208,7 +209,7 @@ class ContentTypeInnerFieldEditForm extends ContentTypeFieldForm
      */
     public function submitForm(array &$form): void
     {
-        $request = Request::createFromGlobals();
+        $request = Service::serviceManager()->request;
         if ($this->validated) {
             $data = array_map(function ($item) {
                 return $item->getValue();

@@ -2,6 +2,7 @@
 
 namespace Simp\Core\modules\user\password;
 
+use Exception;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
@@ -12,6 +13,7 @@ use Simp\Core\modules\mail\MailManager;
 use Simp\Core\modules\user\entity\User;
 use Simp\Mail\Mail\Envelope;
 use Symfony\Component\HttpFoundation\Request;
+use Simp\Core\modules\services\Service;
 
 class PasswordManager
 {
@@ -19,13 +21,13 @@ class PasswordManager
 
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct(int $uid)
     {
         $user = User::load($uid);
         if ($user === null) {
-            throw new \Exception("User not found");
+            throw new Exception("User not found");
         }
         $this->user = $user;
     }
@@ -77,7 +79,7 @@ class PasswordManager
      */
     public function sendForgotPasswordLink(): bool|array|null
     {
-        $host = Request::createFromGlobals()->getSchemeAndHttpHost() . $this->forgotPasswordLink();
+        $host = Service::serviceManager()->request->getSchemeAndHttpHost() . $this->forgotPasswordLink();
         $mail = MailManager::mailManager();
 
         $mail->addEnvelope(Envelope::create(

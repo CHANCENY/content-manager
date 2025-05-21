@@ -20,6 +20,7 @@ use Simp\FormBuilder\FormBase;
 use Simp\Translate\lang\LanguageManager;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Simp\Core\modules\services\Service;
 
 class ProfileEditForm extends FormBase
 {
@@ -31,7 +32,7 @@ class ProfileEditForm extends FormBase
 
     public function buildForm(array &$form): array
     {
-        $request = Request::createFromGlobals();
+        $request = Service::serviceManager()->request;
         $user = User::load($request->get('uid'));
         if ($profile = $user->getProfile()) {
             $form['first_name'] = [
@@ -138,7 +139,7 @@ class ProfileEditForm extends FormBase
      */
     public function submitForm(array &$form): void
     {
-        $request = Request::createFromGlobals();
+        $request = Service::serviceManager()->request;
         $user = User::load($request->get('uid'));
         $profile = $user->getProfile();
         //TODO: upload image here if exist.

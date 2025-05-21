@@ -2,6 +2,7 @@
 
 namespace Simp\Core\modules\auth\normal_auth;
 
+use DateTime;
 use Google\Service\Oauth2\Userinfo;
 use League\OAuth2\Client\Provider\GithubResourceOwner;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
@@ -102,7 +103,7 @@ class AuthUser
                     }
                 }
             }
-            $login_time = new \DateTime();
+            $login_time = new DateTime();
             $this->user->setLogin($login_time->format('Y-m-d H:i:s'));
             if ($this->user->update()) {
                 $this->is_login = true;

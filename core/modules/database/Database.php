@@ -2,6 +2,7 @@
 
 namespace Simp\Core\modules\database;
 
+use Throwable;
 use PDO;
 use Medoo\Medoo;
 use PDOException;
@@ -42,7 +43,7 @@ class Database
                 $content = "CONNECTION [OK] ".$this->pdo->getAttribute(PDO::ATTR_SERVER_INFO).PHP_EOL;
                 $this->pdo->log($content);
             }
-        }catch (\Throwable $exception){
+        }catch (Throwable $exception){
             if ($this->log === true) {
                 exit("Error: database connection failed: ".$exception->getMessage());
             }

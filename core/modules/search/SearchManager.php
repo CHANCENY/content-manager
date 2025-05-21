@@ -2,6 +2,7 @@
 
 namespace Simp\Core\modules\search;
 
+use PDO;
 use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\lib\memory\cache\Caching;
 use Simp\Core\lib\themes\View;
@@ -117,7 +118,7 @@ class SearchManager
             elseif (isset($setting['type']) && $setting['type'] == 'database_type') {
                 $query = Database::database()->con()->prepare("SHOW TABLES");
                 $query->execute();
-                $rows = $query->fetchAll(\PDO::FETCH_COLUMN);
+                $rows = $query->fetchAll(PDO::FETCH_COLUMN);
                 $new_rows = array_filter($rows, function ($row) {
                     $excludes = ['users', 'user_profile', 'user_roles', 'file_managed', 'node_data'];
                     return !in_array($row, $excludes);
@@ -132,7 +133,7 @@ class SearchManager
     {
         $query = Database::database()->con()->prepare("SHOW COLUMNS FROM $source");
         $query->execute();
-        $rows = $query->fetchAll(\PDO::FETCH_COLUMN);
+        $rows = $query->fetchAll(PDO::FETCH_COLUMN);
         $new_rows = array_map(function ($row) use ($source) {
             return "$source:$row";
         },$rows);
@@ -323,7 +324,7 @@ class SearchManager
             }
         }
         $query->execute();
-        $this->results = $query->fetchAll(\PDO::FETCH_ASSOC);
+        $this->results = $query->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getSearchQuery(): string

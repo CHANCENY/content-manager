@@ -1,5 +1,6 @@
 <?php
 
+use Simp\Core\lib\app\App;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverCheckException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
@@ -37,7 +38,7 @@ PHP_OS === 'Windows' ? @system('cls') : @system('clear');
  */
 function extracted($argv): void
 {
-    \Simp\Core\lib\app\App::consoleApp();
+    App::consoleApp();
 
     echo "Simp content management CLI" . PHP_EOL;
     echo implode("", array_fill(0, strlen("Simp content management CLI" . PHP_EOL), '_'));

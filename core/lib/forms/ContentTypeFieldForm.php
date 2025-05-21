@@ -20,6 +20,7 @@ use Simp\Default\TextAreaField;
 use Simp\FormBuilder\FormBase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Simp\Core\modules\services\Service;
 
 class ContentTypeFieldForm extends FormBase
 {
@@ -255,7 +256,7 @@ class ContentTypeFieldForm extends FormBase
      */
     public function submitForm(array &$form): void
     {
-        $request = Request::createFromGlobals();
+        $request = Service::serviceManager()->request;
        if ($this->validated) {
            $data = array_map(function($item) {
                return $item->getValue();

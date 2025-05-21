@@ -12,10 +12,10 @@ class FileFunction
     public static function reserve_uri(string $uri, bool $webroot = true): string
     {
         $system = new SystemDirectory();
-        $schema = $system->schema_dir . DIRECTORY_SEPARATOR. "manifest.yml";
+        $schema = $system->schema_dir . DIRECTORY_SEPARATOR. "booter.yml";
         if (file_exists($schema)) {
             $schema = Yaml::parseFile($schema, Yaml::PARSE_OBJECT_FOR_MAP);
-            $stream = $schema->filesystem_installed_steps->streams ?? [];
+            $stream = $schema->streams ?? [];
             foreach ($stream as $file) {
                 $file = (array)$file;
                 $stream_name = key($file);

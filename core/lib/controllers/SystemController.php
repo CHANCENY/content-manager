@@ -8,7 +8,9 @@ use Simp\Core\lib\forms\DisplayEditForm;
 use Simp\Core\lib\forms\SearchFormConfiguration;
 use Simp\Core\lib\forms\ViewAddForm;
 use Simp\Core\modules\assets_manager\AssetsManager;
+use Simp\Core\modules\files\entity\File;
 use Simp\Core\modules\integration\rest\JsonRestManager;
+use Simp\Core\modules\logger\DatabaseLogger;
 use Simp\Core\modules\logger\ErrorLogger;
 use Simp\Core\modules\logger\ServerLogger;
 use Simp\Core\modules\search\SearchManager;
@@ -121,8 +123,7 @@ class SystemController
             if(isset($content->settings->type) && $content->settings->type === 'user') {
                 $users = User::filter($content->value);
                 foreach ($users as $key => $user) {
-                    unset($users[$key]['password']);
-                    if ($user['status'] === 0) {
+                    if ($key === 'password') {
                         unset($users[$key]);
                     }
                 }
@@ -133,6 +134,12 @@ class SystemController
                 $nodes = Node::filter($content->value, $content_type);
                 $nodes = array_map(function ($node) { return $node->toArray(); }, $nodes);
                 return new JsonResponse(['result'=> array_values($nodes)], 200);
+            }
+
+            elseif (isset($content->settings->type) && $content->settings->type === 'file') {
+                $files = File::search($content->value);
+                $files = array_map(function ($file) { return $file->toArray(); }, $files);
+                return new JsonResponse(['result'=> array_values($files)], 200);
             }
         }
         return new JsonResponse(['result'=>'ok']);
@@ -681,8 +688,18 @@ class SystemController
         $limit = $request->get('limit', 10);
         $limit = empty($limit) ? 10 : $limit;
         $filters = Node::filters('node_data', $limit);
+        $files_filters = File::filters('file_managed', $limit);
         $nodes = Node::parseFilter(Node::class, 'node_data', $filters, $request, Node::class);
-        return new Response(View::view('default.view.content_content_admin',['nodes' => $nodes, 'filters' => $filters]), 200);
+        $files = File::parseFilter(File::class, 'file_managed', $files_filters, $request, File::class);
+        return new Response(View::view('default.view.content_content_admin',
+            [
+                'nodes' => $nodes,
+                'filters' => $filters,
+                'files_filters' => $files_filters,
+                'files' => $files,
+            ]
+        ),
+            200);
     }
 
     public function content_content_node_add_controller(...$args): RedirectResponse|Response
@@ -859,6 +876,11 @@ class SystemController
     }
 
 
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
     public function admin_report_site_controller(...$args): RedirectResponse|Response
     {
         extract($args);
@@ -866,6 +888,7 @@ class SystemController
         $limit =  $request->get('limit', 124);
         $server = new ServerLogger(limit: $limit, offset: $offset);
         $errors = new ErrorLogger(read: true);
+        $database = new DatabaseLogger();
         return new Response(View::view('default.view.admin_report_site_controller',
             [
                 'server'=>$server->getLogs(),
@@ -873,6 +896,7 @@ class SystemController
                 'offset' => $offset,
                 'limit' => $limit,
                 'errors'=>$errors->getLogs(),
+                'database_logs' => $database->logs()
             ]
         ), 200);
     }

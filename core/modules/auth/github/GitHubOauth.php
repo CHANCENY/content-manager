@@ -10,6 +10,7 @@ use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Token\AccessTokenInterface;
 use Simp\Core\modules\auth\AuthenticationSystem;
 use Symfony\Component\HttpFoundation\Request;
+use Simp\Core\modules\services\Service;
 
 class GitHubOauth
 {
@@ -26,7 +27,7 @@ class GitHubOauth
         $this->client_secret = $credential->client_secret;
         $this->redirect_uri = $credential->redirect;
 
-        $request = Request::createFromGlobals();
+        $request = Service::serviceManager()->request;
         $schema = trim($request->getSchemeAndHttpHost(), '/');
 
         $this->github = new Github([

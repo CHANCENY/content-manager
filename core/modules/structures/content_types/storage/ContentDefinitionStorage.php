@@ -2,6 +2,7 @@
 
 namespace Simp\Core\modules\structures\content_types\storage;
 
+use Throwable;
 use Simp\Core\modules\database\Database;
 use Simp\Core\modules\logger\ErrorLogger;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
@@ -30,7 +31,7 @@ class ContentDefinitionStorage
                     $this->createTable([$key => $field], $created_tables);
                 }
 
-            }catch (\Throwable $e) {
+            }catch (Throwable $e) {
                 ErrorLogger::logger()->logError($e->getMessage().' in '.$e->getFile().' on line '.$e->getLine().'\n'.PHP_EOL.$e->getTraceAsString());
             }
         }
@@ -67,7 +68,7 @@ class ContentDefinitionStorage
                    }
                }
            }
-       }catch (\Throwable $e) {
+       }catch (Throwable $e) {
            ErrorLogger::logger()->logError($e->getMessage().' in '.$e->getFile().' on line '.$e->getLine().'\n'.PHP_EOL.$e->getTraceAsString());
        }
        return true;

@@ -2,6 +2,8 @@
 
 namespace Simp\Core\lib\app;
 
+use ReflectionClass;
+use Exception;
 use Phpfastcache\Drivers\Files\Driver;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverCheckException;
@@ -19,12 +21,14 @@ use Simp\Core\lib\routes\Route;
 use Simp\Core\modules\config\ConfigManager;
 use Simp\Core\modules\event_subscriber\EventSubscriber;
 use Simp\Core\modules\logger\ErrorLogger;
+use Simp\Core\modules\services\Service;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Simp\Router\Route as Router;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Yaml\Yaml;
 use Throwable;
+
 
 class App
 {
@@ -38,7 +42,7 @@ class App
      * @throws PhpfastcacheInvalidTypeException
      * @throws PhpfastcacheDriverException
      * @throws PhpfastcacheInvalidArgumentException
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct()
     {
@@ -56,7 +60,7 @@ class App
         $set_up_wizard->setUpProject();
 
         // Check for database only if we are not on /admin/configure/database
-        $request = Request::createFromGlobals();
+        $request = Service::serviceManager()->request;
         $current_uri = $request->getRequestUri();
         $database_form_route = $GLOBALS['caching']->getItem('route.database.form.route');
         $database_form_route = $database_form_route->isHit() ? $database_form_route->get() : null;
@@ -83,10 +87,10 @@ class App
         $after_response = $set_up_wizard->installer_schema->response_subscriber ?? [];
         if (is_array($after_response)) {
            foreach ($after_response as $subscriber) {
-               $reflection = new \ReflectionClass($subscriber);
+               $reflection = new ReflectionClass($subscriber);
                $object = $reflection->newInstance();
                if ($object instanceof EventSubscriber) {
-                   $object->listeners(Request::createFromGlobals(),$this->currentRoute, $response);
+                   $object->listeners(Service::serviceManager()->request,$this->currentRoute, $response);
                }
            }
         }

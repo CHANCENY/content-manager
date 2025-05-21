@@ -2,6 +2,7 @@
 
 namespace Simp\Core\modules\structures\content_types;
 
+use Throwable;
 use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\modules\database\Database;
 use Simp\Core\modules\logger\ErrorLogger;
@@ -82,7 +83,7 @@ class ContentDefinitionManager extends SystemDirectory
                 $storage = ContentDefinitionStorage::contentDefinitionStorage($entity_name);
                 if (!empty($config['inner_field'])) {
 
-                    foreach ($config['inner_field'] as $inner_field_name => $inner_field_config) {
+                    foreach ($config['inner_field'] as $inner_field_config) {
                         $storage->storageDefinitionsPersistent($inner_field_config);
                     }
                 } else {
@@ -106,7 +107,7 @@ class ContentDefinitionManager extends SystemDirectory
             unset($this->content_types[$name]['fields'][$field_name]);
         }
 
-        $recursively_remove_inner_fields = function($fields) use (&$recursively_remove_inner_fields, $name) {
+        $recursively_remove_inner_fields = function($fields) use (&$recursively_remove_inner_fields, $name): void {
             foreach ($fields as $key => $field) {
                 if (isset($field['inner_field'])) {
                     $recursively_remove_inner_fields($key, $field['inner_field']);
@@ -121,7 +122,7 @@ class ContentDefinitionManager extends SystemDirectory
                            $sta = Database::database()->con()->prepare($delete_query);
                            $sta->execute();
                        }
-                   }catch (\Throwable $e) {
+                   }catch (Throwable $e) {
                        ErrorLogger::logger()->logError($e->getMessage().' in '.$e->getFile().' on line '.$e->getLine().'\n'.PHP_EOL.$e->getTraceAsString());
                    }
                 }
@@ -140,7 +141,7 @@ class ContentDefinitionManager extends SystemDirectory
                $delete_query = ContentDefinitionStorage::contentDefinitionStorage($name)->getStorageDropStatement($field_name);
                $sta = Database::database()->con()->prepare($delete_query);
                $sta->execute();
-           }catch (\Throwable $e) {
+           }catch (Throwable $e) {
                ErrorLogger::logger()->logError($e->getMessage().' in '.$e->getFile().' on line '.$e->getLine().'\n'.PHP_EOL.$e->getTraceAsString());
            }
         }

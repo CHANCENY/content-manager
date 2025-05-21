@@ -6,12 +6,13 @@ use Simp\Core\modules\messager\Messager;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Simp\Core\modules\services\Service;
 
 class ContentTypeEditForm extends ContentTypeForm
 {
     public function submitForm(array &$form): void
     {
-        $request = Request::createFromGlobals();
+        $request = Service::serviceManager()->request;
         $new_data = $request->request->all();
         $name = $request->get('machine_name');
         $content = ContentDefinitionManager::contentDefinitionManager()->getContentType($name);
