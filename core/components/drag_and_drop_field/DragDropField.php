@@ -5,7 +5,6 @@ namespace Simp\Core\components\drag_and_drop_field;
 use Exception;
 use Simp\Core\modules\assets_manager\AssetsManager;
 use Simp\Core\modules\structures\content_types\field\FieldManager;
-use Simp\Default\FileField;
 use Simp\Fields\FieldBase;
 use Simp\Fields\FieldRequiredException;
 use Simp\Fields\FieldTypeSupportException;
@@ -173,20 +172,20 @@ class DragDropField extends FieldBase
                 </div>
                 <p class="file-info">Supports all file of types ($extensions). Maximum file size: ($size).</p>
             </div>
-            
+
             <div class="file-list-container">
                 <h2>Selected Files</h2>
                 <div id="fileList" class="file-list">
                     <p class="empty-message">No files selected</p>
                 </div>
             </div>
-            
+
             <div class="upload-actions">
                 <button id="uploadBtn" class="upload-button" disabled>Upload Files</button>
                 <button id="clearBtn" class="clear-button" disabled>Clear All</button>
             </div>
         </div>
-        
+
         <div class="upload-progress-container" style="display:none;">
             <h3>Upload Progress</h3>
             <div class="progress-bar-container">

@@ -6,6 +6,7 @@ use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
+use Simp\Core\components\drag_and_drop_field\DragDropField;
 use Simp\Core\modules\files\entity\File;
 use Simp\Core\modules\files\uploads\FormUpload;
 use Simp\Core\modules\files\uploads\UrlUpload;
@@ -27,17 +28,17 @@ class FileAddForm extends FormBase
     public function buildForm(array &$form): array
     {
         $form['files'] = [
-            'type' => 'file',
+            'type' => 'drag_and_drop',
             'label' => 'Upload Files',
             'name' => 'files',
             'id' => 'files',
-            'class' => ['form-control'],
+            'class' => ['form-control', 'dropzone-hidden'],
             'options' => [
                 'multiple' => 'multiple',
             ],
             'limit' => 10,
             'description' => 'Upload multiple files at once max 10 files.',
-            'handler'=> FileField::class,
+            'handler'=> DragDropField::class,
         ];
         $form['files_urls'] = [
             'type' => 'textarea',

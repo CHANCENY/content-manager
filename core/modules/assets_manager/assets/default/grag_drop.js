@@ -216,7 +216,13 @@
             let progress = 0;
             const totalFiles = selectedFiles.length;
 
-            console.log(selectedFiles);
+            // Now let's create a DataTransfer to get a FileList
+            const dataTransfer = new DataTransfer();
+            for (let i = 0; i < selectedFiles.length; i++) {
+                dataTransfer.items.add(selectedFiles[i]);
+            }
+           dropZoneContainer.find("input[type='file']").get(0).files = dataTransfer.files;
+             console.log(selectedFiles, dropZoneContainer.find("input[type='file'].dropzone-hidden"),dataTransfer);
 
             // Simulate progress updates
             const interval = setInterval(() => {
