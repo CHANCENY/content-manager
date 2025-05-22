@@ -3,6 +3,7 @@
 namespace Simp\Core\modules\structures\content_types\field;
 
 use Simp\Core\lib\installation\SystemDirectory;
+use Simp\Core\modules\structures\content_types\field\fields\DragDropFieldBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\FieldSetBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\FileFieldBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\InputFieldBuilder;
@@ -39,6 +40,7 @@ class FieldManager
             'reset' => InputFieldBuilder::class,
             'button' => InputFieldBuilder::class,
             'file' => FileFieldBuilder::class,
+            'drag_and_drop' => DragDropFieldBuilder::class,
             'select' => SelectFieldBuilder::class,
             'simple_textarea' => TextAreaFieldBuilder::class,
             'ck_editor' => TextAreaFieldBuilder::class,
