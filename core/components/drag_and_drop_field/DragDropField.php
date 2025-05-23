@@ -146,8 +146,6 @@ class DragDropField extends FieldBase
 
         $id = $this->getId();
         $settings = json_encode($this->field['settings'] ?? [], JSON_PRETTY_PRINT);
-        $field_file_html = "<input type='file' name='{$name}' id='{$id}' class='{$class}' $options/>";
-
         $uuid = uniqid();
 
         $script = AssetsManager::assetManager()->getAssetsFile('grag_drop.js', true);
@@ -202,7 +200,6 @@ DROP;
 {$drop_html}
 <span class="field-description">{$this->getDescription()}</span>
 <span class="field-message message-{$this->getName()}">{$this->validation_message}</span>
-{$field_file_html}
 <noscript>$settings</noscript>
 </div>
 <script>

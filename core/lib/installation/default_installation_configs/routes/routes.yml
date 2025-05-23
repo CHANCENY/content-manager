@@ -765,3 +765,33 @@ system.files.add:
   controller:
     class: Simp\Core\lib\controllers\FileController
     method: add_file
+system.files.upload.ajax:
+  title: "Ajax Add File"
+  path: '/file/upload/ajax'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+    - authenticated
+    - anonymous
+    - manager
+    - content_creator
+  controller:
+    class: Simp\Core\lib\controllers\FileController
+    method: file_upload
+system.files.upload.delete.ajax:
+  title: "Ajax Delete File"
+  path: '/file/delete/ajax'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+    - authenticated
+    - anonymous
+    - manager
+    - content_creator
+  controller:
+    class: Simp\Core\lib\controllers\FileController
+    method: file_delete_ajx

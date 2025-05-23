@@ -5,6 +5,7 @@ namespace Simp\Core\modules\tokens\resolver;
 use Random\RandomException;
 use Simp\Core\components\site\SiteManager;
 use Simp\Core\modules\files\entity\File;
+use Simp\Core\modules\structures\content_types\entity\Node;
 use Simp\Core\modules\user\entity\User;
 use Simp\Core\modules\user\profiles\Profile;
 use Simp\Core\modules\user\roles\Role;
@@ -26,6 +27,7 @@ class DefaultTokenResolver implements ResolverInterface
     public function resolver(string $type, array $tokens, array $options): array
     {
         $replacements = [];
+
         if ($type === 'user') {
 
             foreach ($tokens as $token) {
@@ -146,12 +148,14 @@ class DefaultTokenResolver implements ResolverInterface
                        $replacements["{$type}:get_value:{$k}"] = is_array($value) ? json_encode($value) : $value;
                    }
                 }
+
                 elseif (str_contains($token,'post_value?')) {
                    $payload = $this->request->request->all();
                    foreach ($payload as $k => $value) {
                        $replacements["{$type}:post_value:{$k}"] = is_array($value) ? json_encode($value) : $value;
                    }
                 }
+
                 else {
                     $replacements[$token] = match ($token) {
                         'uri', 'current_uri' => $this->request->getRequestUri(),
@@ -175,6 +179,42 @@ class DefaultTokenResolver implements ResolverInterface
                 }
 
             }
+        }
+
+        elseif ($type === 'node') {
+
+            foreach ($tokens as $token) {
+
+
+                $node = $options['node'] ?? null;
+                if ($node instanceof Node) {
+
+                    if (str_contains($token,'field?')) {
+                        $list = explode(':', $token);
+                        $field = end($list);
+                        $values = $node->get($field);
+                        $value = "";
+                        if (is_array($values)) {
+                            $value = json_encode($values, JSON_PRETTY_PRINT);
+                        }
+                        else {
+                            $value = $values;
+                        }
+                        $replacements[$token] = $value;
+                    }
+
+                    $replacements[$token] = match ($token) {
+                        'nid' => $node->getNid(),
+                        'title' => $node->getTitle(),
+                        'created' => $node->getCreated(),
+                        'updated' => $node->getUpdated(),
+                        'status' => $node->getStatus(),
+                        'language' => $node->getLang(),
+                        default => null,
+                    };
+                }
+            }
+
         }
 
         return $replacements;

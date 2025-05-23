@@ -66,9 +66,8 @@ class FileAddForm extends FormBase
 
     public function validateForm(array $form): void
     {
-       $files = $form['files']->getValue();
        $urls = $form['files_urls']->getValue();
-       if (empty($files['name'][0]) && empty($urls)) {
+       if (empty($urls)) {
            $form['files']->setError('Please select a file or enter the URLs of the files you want to upload');
            $this->validated = false;
        }
@@ -83,48 +82,10 @@ class FileAddForm extends FormBase
     public function submitForm(array &$form): void
     {
        if ($this->validated) {
-           $files = $form['files']->getValue();
+
            $urls = $form['files_urls']->getValue();
 
            $uploaded_files = [];
-
-           if (!empty($files['name'][0])) {
-               foreach ($files['name'] as $key => $file) {
-
-                   // file upload object.
-                   $file_object = [
-                       'name' => $file,
-                       'type' => $files['type'][$key],
-                       'tmp_name' => $files['tmp_name'][$key],
-                       'error' => $files['error'][$key],
-                       'size' => $files['size'][$key],
-                       'full_path' => $files['full_path'][$key],
-                   ];
-
-                   $form_uploader = new FormUpload();
-                   $form_uploader->addAllowedExtension("image/*");
-                   $form_uploader->addAllowedExtension("application/*");
-                   $form_uploader->addAllowedExtension("video/*");
-                   $form_uploader->addAllowedExtension("audio/*");
-                   $form_uploader->addAllowedExtension("text/*");
-
-                   // max allowed is 10 mb
-                   $form_uploader->addAllowedMaxSize(1024 * 1024 * 10);
-                   $form_uploader->addFileObject($file_object);
-                   $form_uploader->validate();
-
-                   // make sure the directory exists
-                   if (!is_dir('public://files')) {
-                       @mkdir('public://files', 0777, true);
-                   }
-
-                   if ($form_uploader->isValidated()) {
-                       $form_uploader->moveFileUpload('public://files/'.$form_uploader->getParseFilename());
-                       $uploaded_files[] = $form_uploader->getFileObject();
-                   }
-               }
-
-           }
 
            if (!empty($urls)) {
                $urls = explode("\n", $urls);
@@ -162,7 +123,7 @@ class FileAddForm extends FormBase
 
                $file['uid'] = CurrentUser::currentUser()?->getUser()->getUid();
                $file['uri'] = $file['file_path'];
-               $file_o = File::create($file);
+               File::create($file);
 
 
            }

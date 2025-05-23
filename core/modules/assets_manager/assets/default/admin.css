@@ -463,15 +463,11 @@ fieldset input[type="radio"] {
     cursor: pointer;
 }
 
-
+/**
+  Drag and drop file upload
+ */
 .drag-drop-container {
     margin: 0 auto;
-}
-
-h1 {
-    text-align: center;
-    color: #2c3e50;
-    margin-bottom: 30px;
 }
 
 .upload-container {
@@ -665,6 +661,7 @@ h1 {
 .upload-progress-container {
     background-color: #fff;
     border-radius: 10px;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
     padding: 20px;
 }
 
@@ -702,10 +699,6 @@ h1 {
     display: none;
 }
 
-.dropzone-hidden {
-    display: none;
-}
-
 @media (max-width: 768px) {
     .upload-area {
         padding: 20px 10px;
@@ -721,21 +714,35 @@ h1 {
     }
 }
 
+.success-message {
+    color: #2ecc71;
+    background-color: rgba(46, 204, 113, 0.1);
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    text-align: center;
+    font-weight: 500;
+    display: none;
+}
 
-/* Responsive Enhancements */
-@media (max-width: 768px) {
-    details, fieldset {
-        padding: 10px;
-    }
+.file-item.uploaded .file-path {
+    font-size: 0.7em;
+    color: #7f8c8d;
+    margin-top: 3px;
+    word-break: break-all;
+}
 
-    details summary,
-    fieldset legend {
-        font-size: 14px;
-    }
+.file-item.deleting {
+    opacity: 0.5;
+    pointer-events: none;
+}
 
-    fieldset input,
-    fieldset select,
-    fieldset textarea {
-        font-size: 13px;
-    }
+.file-item.uploaded {
+    background-color: #f0f9ff;
+    border-left: 3px solid #3498db;
+}
+
+.image-icon {
+    background-color: #e1f5fe;
+    color: #0288d1;
 }

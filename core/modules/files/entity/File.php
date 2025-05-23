@@ -176,6 +176,11 @@ class File
         $query = "DELETE FROM `file_managed` WHERE `fid` = :id";
         $query = $con->prepare($query);
         $query->bindParam(':id', $this->fid);
+
+        try{
+            @unlink($this->uri);
+        }catch (\Throwable){}
+
         return $query->execute();
     }
 

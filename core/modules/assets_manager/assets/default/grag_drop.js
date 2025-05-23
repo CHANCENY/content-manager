@@ -7,8 +7,9 @@
             return;
         }
 
-        // Variables to store selected files
-        let selectedFiles = [];
+        // Variables to store files
+        let selectedFiles = []; // Local files selected for upload
+        let uploadedFiles = []; // Server-side files after upload
 
         // Cache DOM elements
         const $dropZone = dropZoneContainer.find('#dropZone');
@@ -96,11 +97,11 @@
             updateButtons();
         }
 
-        // Show an error message
+        // Show error message
         function showError(message) {
             // Create error message if it doesn't exist
             if (dropZoneContainer.find('.error-message').length === 0) {
-                dropZoneContainer.find('<div class="error-message"></div>').insertAfter($dropZone);
+                $('<div class="error-message"></div>').insertAfter($dropZone);
             }
 
             const $errorMessage = dropZoneContainer.find('.error-message');
@@ -117,6 +118,55 @@
         function updateFileList() {
             $fileList.empty();
 
+            // Show uploaded files if any (these come from server response)
+            if (uploadedFiles.length > 0) {
+                uploadedFiles.forEach((file, index) => {
+                    const $fileItem = $('<div class="file-item uploaded"></div>');
+
+                    // Check if file is an image
+                    const isImage = file.mime_type && file.mime_type.startsWith('image/');
+
+                    if (isImage) {
+                        // For uploaded images, we could show a thumbnail from the server
+                        // This would typically be a URL to the image on the server
+                        if (file.uri) {
+                            // Create a URL to the image (adjust this based on your server setup)
+                            // This assumes the file_path can be used to construct a URL
+                            const $preview = $('<img class="file-preview" alt="Preview">');
+                            $preview.attr('src', file.uri);
+                            $fileItem.prepend($preview);
+                        } else {
+                            // Fallback to icon if no path available
+                            const $fileIcon = $('<div class="file-icon image-icon"></div>').text(file.extension.toUpperCase());
+                            $fileItem.prepend($fileIcon);
+                        }
+                    } else {
+                        // Create file icon with extension
+                        const extension = file.extension ? file.extension.toUpperCase() : 'FILE';
+                        const $fileIcon = $('<div class="file-icon"></div>').text(extension);
+                        $fileItem.prepend($fileIcon);
+                    }
+
+                    // File details
+                    const $fileDetails = $('<div class="file-details"></div>');
+                    $fileDetails.append(`<div class="file-name">${file.name}</div>`);
+                    $fileDetails.append(`<div class="file-size">${formatFileSize(file.size)}</div>`);
+                    $fileDetails.append(`<div class="file-path">${file.uri}</div>`);
+                    $fileItem.append($fileDetails);
+
+                    // Remove button for uploaded files
+                    const $removeBtn = $('<div class="file-remove">&times;</div>');
+                    $removeBtn.on('click', function() {
+                        deleteUploadedFile(index);
+                    });
+                    $fileItem.append($removeBtn);
+
+                    $fileList.append($fileItem);
+                });
+                return;
+            }
+
+            // Show selected files if no uploaded files
             if (selectedFiles.length === 0) {
                 $fileList.append('<p class="empty-message">No files selected</p>');
                 return;
@@ -172,15 +222,68 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // Remove a file from the selection
+        // Remove a file from the selection (local files)
         function removeFile(index) {
             selectedFiles.splice(index, 1);
             updateFileList();
             updateButtons();
         }
 
+        // Delete an uploaded file from the server
+        function deleteUploadedFile(index) {
+            const fileToDelete = uploadedFiles[index];
+
+            // Show deletion in progress
+            const $fileItem = $($fileList.find('.file-item')[index]);
+            $fileItem.addClass('deleting');
+
+            // Send delete request to server
+            fetch('/file/delete/ajax', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(fileToDelete)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Remove file from array on success
+                    uploadedFiles.splice(index, 1);
+                    updateFileList();
+
+                    // Show success message
+                    if (dropZoneContainer.find('.success-message').length === 0) {
+                        $('<div class="success-message"></div>').insertAfter($progressContainer);
+                    }
+                    dropZoneContainer.find('.success-message').text('File deleted successfully!').show();
+
+                    // Hide success message after 3 seconds
+                    setTimeout(() => {
+                        dropZoneContainer.find('.success-message').hide();
+                    }, 3000);
+                })
+                .catch(error => {
+                    console.error('Delete error:', error);
+                    $fileItem.removeClass('deleting');
+                    showError('Delete failed: ' + error.message);
+                });
+        }
+
         // Update button states
         function updateButtons() {
+            // If we have uploaded files, disable upload button and enable clear
+            if (uploadedFiles.length > 0) {
+                $uploadBtn.prop('disabled', true);
+                $clearBtn.prop('disabled', false);
+                return;
+            }
+
+            // Otherwise, base on selected files
             if (selectedFiles.length > 0) {
                 $uploadBtn.prop('disabled', false);
                 $clearBtn.prop('disabled', false);
@@ -192,46 +295,94 @@
 
         // Clear all selected files
         $clearBtn.on('click', function() {
-            selectedFiles = [];
-            updateFileList();
-            updateButtons();
-            $fileInput.val('');
+            // If we have uploaded files, confirm before clearing
+            if (uploadedFiles.length > 0) {
+                if (confirm('This will only clear the display. Files will remain on the server. Continue?')) {
+                    uploadedFiles = [];
+                    updateFileList();
+                    updateButtons();
+                }
+            } else {
+                selectedFiles = [];
+                updateFileList();
+                updateButtons();
+                $fileInput.val('');
+            }
         });
 
         // Handle file upload
         $uploadBtn.on('click', function() {
             if (selectedFiles.length === 0) return;
 
-            // In a real application, you would use FormData and AJAX to upload files
-            // This is a simulation for demonstration purposes
-            simulateUpload();
+            // Use FormData and Fetch API to upload files
+            uploadFiles();
         });
 
-        // Simulate file upload with progress
-        function simulateUpload() {
+        // Upload files using Fetch API
+        function uploadFiles() {
             $progressContainer.show();
             $uploadBtn.prop('disabled', true);
             $clearBtn.prop('disabled', true);
 
+            // Create FormData object
+            const formData = new FormData();
+
+            // Add each file to FormData
+            selectedFiles.forEach((file, index) => {
+                formData.append('files[]', file);
+            });
+
+            // Add any additional data if needed
+            formData.append('fileCount', selectedFiles.length);
+
+            // Use Fetch API to send files to server
+            fetch('/file/upload/ajax', {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => {
+                    // Check if the request was successful
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Handle successful upload
+                    updateProgress(100);
+
+                    // Process server response
+                    if (data.results && Array.isArray(data.results)) {
+                        // Store uploaded files from server response
+                        uploadedFiles = data.results;
+
+                        // Update UI with uploaded files
+                        updateFileList();
+                        updateButtons();
+
+                        // Show success message
+                        setTimeout(() => {
+                            uploadComplete(true, 'Files uploaded successfully!');
+                        }, 500);
+                    } else {
+                        throw new Error('Invalid server response format');
+                    }
+                })
+                .catch(error => {
+                    // Handle upload error
+                    console.error('Upload error:', error);
+                    uploadComplete(false, 'Upload failed: ' + error.message);
+                });
+
+            // For demonstration purposes, show progress
+            // In a real implementation, you might use an upload progress event
             let progress = 0;
-            const totalFiles = selectedFiles.length;
-
-            // Now let's create a DataTransfer to get a FileList
-            const dataTransfer = new DataTransfer();
-            for (let i = 0; i < selectedFiles.length; i++) {
-                dataTransfer.items.add(selectedFiles[i]);
-            }
-           dropZoneContainer.find("input[type='file']").get(0).files = dataTransfer.files;
-             console.log(selectedFiles, dropZoneContainer.find("input[type='file'].dropzone-hidden"),dataTransfer);
-
-            // Simulate progress updates
-            const interval = setInterval(() => {
+            const progressInterval = setInterval(() => {
                 progress += 5;
-                updateProgress(progress);
-
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    uploadComplete();
+                if (progress <= 90) { // Only go to 90% until we get server confirmation
+                    updateProgress(progress);
+                } else {
+                    clearInterval(progressInterval);
                 }
             }, 200);
         }
@@ -243,18 +394,38 @@
         }
 
         // Handle upload completion
-        function uploadComplete() {
-            setTimeout(() => {
-                alert('Upload completed successfully!');
+        function uploadComplete(success, message) {
+            if (success) {
+                // Show success message
+                if (dropZoneContainer.find('.success-message').length === 0) {
+                    $('<div class="success-message"></div>').insertAfter($progressContainer);
+                }
+                dropZoneContainer.find('.success-message').text(message).show();
 
-                // Reset everything
+                // Reset selected files since they're now uploaded
                 selectedFiles = [];
-                updateFileList();
-                updateButtons();
                 $fileInput.val('');
-                $progressContainer.hide();
-                updateProgress(0);
-            }, 500);
+
+                // Hide success message after 5 seconds
+                setTimeout(() => {
+                    dropZoneContainer.find('.success-message').hide();
+                    $progressContainer.hide();
+                    updateProgress(0);
+                }, 5000);
+            } else {
+                // Show error message
+                showError(message);
+
+                // Re-enable buttons
+                $uploadBtn.prop('disabled', false);
+                $clearBtn.prop('disabled', false);
+
+                // Hide progress after 2 seconds
+                setTimeout(() => {
+                    $progressContainer.hide();
+                    updateProgress(0);
+                }, 2000);
+            }
         }
 
         // Click on drop zone to trigger file input
