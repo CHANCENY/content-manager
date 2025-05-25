@@ -1,0 +1,4 @@
+default_cron:
+  title: "Default Cron"
+  description: "Built-in cron for cleaning up unused files"
+  timing: "every:day"

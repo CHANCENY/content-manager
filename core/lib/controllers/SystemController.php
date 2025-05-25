@@ -2,6 +2,7 @@
 
 namespace Simp\Core\lib\controllers;
 
+use AddCronForm;
 use Simp\Core\components\rest_data_source\DefaultDataSource;
 use Simp\Core\lib\forms\ContentTypeInnerFieldEditForm;
 use Simp\Core\lib\forms\DisplayEditForm;
@@ -55,6 +56,8 @@ use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Simp\Core\modules\structures\content_types\entity\Node;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use Simp\Core\lib\forms\AddCronForm as FormsAddCronForm;
+use Simp\Core\modules\cron\Cron;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
 use Simp\Core\modules\structures\content_types\form\ContentTypeDefinitionForm;
 
@@ -1413,4 +1416,21 @@ class SystemController
         return new RedirectResponse('/admin/integration/rest');
     }
 
+    public function cron_manage(...$args): Response|RedirectResponse
+    {
+        \extract($args);
+
+        $cron_manager = Cron::factory();
+
+        return new Response(View::view('default.view.cron_manage',['jobs'=> $cron_manager->getCrons()]));
+    }
+
+    public function cron_add(...$args): Response|RedirectResponse {
+
+        \extract($args);
+        $formBase = new FormBuilder(new FormsAddCronForm);
+        $formBase->getFormBase()->setFormMethod('POST');
+        $formBase->getFormBase()->setFormEnctype('multipart/form-data');
+        return new Response(View::view("default.view.cron.add",['_form'=> $formBase]));
+    }
 }

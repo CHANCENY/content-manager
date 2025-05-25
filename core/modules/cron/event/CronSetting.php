@@ -7,14 +7,14 @@ class CronSetting
     /**
      * Defines the frequency setting for a specific operation or task.
      *
-     * every:minute
-     * every:hour
-     * every:day
-     * every:week
-     * every:month
-     * every:year
-     * ontime:06:00:00
-     * once:2021-01-01
+     * every|minute
+     * every|hour
+     * every|day
+     * every|week
+     * every|month
+     * every|year
+     * ontime|06:00:00
+     * once|2021-01-01
      *
      * Define the frequency setting for a specific operation or task.
      */

@@ -1,0 +1,45 @@
+{% extends 'default.view.admin_base' %}
+
+{% block body %}
+    <h3>{{ "Cron Manage"|t }}</h3>
+    <div>
+       <a href="/cron/add">+ Create cron</a>
+    </div>
+    <div>
+
+       <table>
+          <thead>
+             <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Action</th>
+             </tr>
+          </thead>
+
+          <tbody>
+
+             {%  for key, job in jobs  %}
+
+             <tr>
+
+               <td>{{ job.title  }}</td>
+               <td>{{ job.description  }}</td>
+               <td>
+                 {% if key != 'default_cron' %}
+                  <a href="/cron/{{ key }}/edit">Edit</a>
+                  <a href="/cron/{{ key }}/delete">Delete</a>
+                {% else %}
+                   <a href="/cron/{{ key }}/edit">Reset</a>
+                {% endif %}
+               </td>
+
+             </tr>
+
+             {% endfor %}
+
+          </tbody>
+
+       </table>
+
+    </div>
+{% endblock %}

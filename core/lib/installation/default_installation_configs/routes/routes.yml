@@ -18,8 +18,8 @@ home.page.route:
     - anonymous
     - authenticated
     - administrator
-    - content_creator 
-    - manager 
+    - content_creator
+    - manager
   controller:
     class: Simp\Core\lib\controllers\HomeController
     method: home_controller
@@ -122,7 +122,7 @@ user.account.logout.route:
   access:
     - authenticated
     - administrator
-    - content_creator 
+    - content_creator
     - manager
   controller:
     class: Simp\Core\lib\controllers\SystemController
@@ -136,7 +136,7 @@ user.account.form.page.route:
   access:
     - anonymous
     - administrator
-    - content_creator 
+    - content_creator
     - manager
   controller:
     class: Simp\Core\lib\controllers\UserAccountFormController
@@ -194,7 +194,7 @@ system.messager.toastify:
   access:
     - authenticated
     - administrator
-    - content_creator 
+    - content_creator
     - manager
   controller:
     class: Simp\Core\lib\controllers\SystemController
@@ -209,7 +209,7 @@ system.assets.loader:
     - anonymous
     - authenticated
     - administrator
-    - content_creator 
+    - content_creator
     - manager
 
   controller:
@@ -225,7 +225,7 @@ system.people:
     - POST
   access:
     - administrator
-    - content_creator 
+    - content_creator
     - manager
   controller:
     class: Simp\Core\lib\controllers\SystemController
@@ -252,7 +252,7 @@ system.account.edit:
   access:
     - authenticated
     - administrator
-    - content_creator 
+    - content_creator
     - manager
   controller:
     class: Simp\Core\lib\controllers\SystemController
@@ -265,7 +265,7 @@ system.account.view:
   access:
     - authenticated
     - administrator
-    - content_creator 
+    - content_creator
     - manager
   controller:
     class: Simp\Core\lib\controllers\SystemController
@@ -279,7 +279,7 @@ system.account.profile.edit:
   access:
     - authenticated
     - administrator
-    - content_creator 
+    - content_creator
     - manager
   controller:
     class: Simp\Core\lib\controllers\SystemController
@@ -795,3 +795,27 @@ system.files.upload.delete.ajax:
   controller:
     class: Simp\Core\lib\controllers\FileController
     method: file_delete_ajx
+
+system.cron.manage:
+  title: "Cron"
+  path: '/cron/manage'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: cron_manage
+
+system.cron.add:
+  title: "New Cron"
+  path: '/cron/add'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\SystemController
+    method: cron_add
