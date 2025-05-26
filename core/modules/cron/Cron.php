@@ -109,6 +109,29 @@ class Cron
         return $query->fetchAll();
     }
 
+    public function getCronScriptFile(): array
+    {
+        $system = new SystemDirectory;
+        $root = getcwd();
+        $script = $system->root_dir . DIRECTORY_SEPARATOR .'vendor' . DIRECTORY_SEPARATOR .
+            'bin' . DIRECTORY_SEPARATOR . 'cron.php';
+
+        $script2 = $system->root_dir . DIRECTORY_SEPARATOR .'vendor' . DIRECTORY_SEPARATOR .
+            'bin' . DIRECTORY_SEPARATOR . 'cron';
+
+        $runnable = [];
+
+        if (\file_exists($script)) {
+            $runnable[] = $script;
+        }
+        if (\file_exists($script2)) {
+            $runnable[] = $script2;
+        }
+
+
+        return $runnable;
+    }
+
     public static function factory(): Cron {
         return new self();
     }

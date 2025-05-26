@@ -29,7 +29,7 @@ try{
     $response = $cron_object->run();
 
     $query = \Simp\Core\modules\database\Database::database()->con()
-        ->prepare("INSERT INTO simp_cron_logs (name, execute_time, start_time, end_time, status) VALUES (:name, :execute_time, :start_time, :end_time, :status)");
+        ->prepare("INSERT INTO simp_cron_logs (name, execute_time, start_time, end_time, status, message) VALUES (:name, :execute_time, :start_time, :end_time, :status, :message)");
     $query->execute([
         'name' => $response->name,
         'execute_time' => $response->execution_time,

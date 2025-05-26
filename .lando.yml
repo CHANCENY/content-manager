@@ -25,4 +25,4 @@ services:
 
     run:
       # Ensure cron job is set for Moodle (non-root user)
-      - (crontab -l 2>/dev/null | grep -q "admin/cli/cron.php" || (crontab -l 2>/dev/null; echo "* * * * * /usr/local/bin/php /app/moodle/admin/cli/cron.php >> /app/moodle/cron.log 2>&1") | crontab -)
+      - (crontab -l 2>/dev/null | grep -q "/app/vendor/bin/cron" || (crontab -l 2>/dev/null; echo "* * * * * /usr/local/bin/php /app/vendor/bin/cron >> /dev/null 2>&1") | crontab -)

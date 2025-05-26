@@ -1430,11 +1430,14 @@ class SystemController
         $logs = $cron_manager->getCronLogs();
         $schedules = $cron_manager->getScheduledCrons();
 
+        $scripts = $cron_manager->getCronScriptFile();
+
         return new Response(View::view('default.view.cron_manage',
             [
                 'jobs'=> $cron_manager->getCrons(),
                 'logs'=>$logs,
-                'schedules'=>$schedules
+                'schedules'=>$schedules,
+                'scripts'=>$scripts
             ]
         )
         );
