@@ -93,6 +93,7 @@ table:
     `start_time` INT DEFAULT NULL,
     `end_time` INT DEFAULT NULL,
     `status` INT DEFAULT NULL,
+    `message` VARCHAR(355) NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
 

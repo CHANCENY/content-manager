@@ -36,6 +36,7 @@ try{
         'start_time' => $response->start_timestamp,
         'end_time' => $response->end_timestamp,
         'status' => $response->status,
+        'message' => $response->message,
     ]);
 
 }catch (Throwable $e){

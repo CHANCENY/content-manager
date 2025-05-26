@@ -1416,21 +1416,44 @@ class SystemController
         return new RedirectResponse('/admin/integration/rest');
     }
 
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
     public function cron_manage(...$args): Response|RedirectResponse
     {
         \extract($args);
 
         $cron_manager = Cron::factory();
 
-        return new Response(View::view('default.view.cron_manage',['jobs'=> $cron_manager->getCrons()]));
+        $logs = $cron_manager->getCronLogs();
+        $schedules = $cron_manager->getScheduledCrons();
+
+        return new Response(View::view('default.view.cron_manage',
+            [
+                'jobs'=> $cron_manager->getCrons(),
+                'logs'=>$logs,
+                'schedules'=>$schedules
+            ]
+        )
+        );
     }
 
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
     public function cron_add(...$args): Response|RedirectResponse {
 
         \extract($args);
         $formBase = new FormBuilder(new FormsAddCronForm);
         $formBase->getFormBase()->setFormMethod('POST');
         $formBase->getFormBase()->setFormEnctype('multipart/form-data');
+
+
+
         return new Response(View::view("default.view.cron.add",['_form'=> $formBase]));
     }
 }

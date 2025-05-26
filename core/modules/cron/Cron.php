@@ -9,6 +9,7 @@ use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\lib\memory\cache\Caching;
+use Simp\Core\modules\database\Database;
 use Symfony\Component\Yaml\Yaml;
 
 class Cron
@@ -89,6 +90,23 @@ class Cron
             return new CronHandler(...$cron);
         }
         return null;
+    }
+
+    public function getScheduledCrons(): array
+    {
+        $keys = array_keys($this->jobs);
+        $query = "SELECT * FROM cron_jobs WHERE name IN ('" . implode("','", $keys) . "')";
+        $query = Database::database()->con()->prepare($query);
+        $query->execute();
+        return $query->fetchAll();
+    }
+
+    public function getCronLogs(): array
+    {
+        $query = "SELECT * FROM simp_cron_logs ORDER BY created_at DESC LIMIT 100";
+        $query = Database::database()->con()->prepare($query);
+        $query->execute();
+        return $query->fetchAll();
     }
 
     public static function factory(): Cron {
