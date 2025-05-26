@@ -16,6 +16,7 @@ use Simp\Core\lib\memory\cache\Caching;
 
 /**
  * @property mixed $anyProperty
+ * @property object|null $request
  */
 class Service
 {

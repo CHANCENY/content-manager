@@ -12,13 +12,6 @@ interface CronSubscriber
      *
      * @return CronExecutionResponse The response object containing details about the cron execution.
      */
-    public function run(): CronExecutionResponse;
-
-    /**
-     * Loads and returns the cron settings configuration.
-     *
-     * @return CronSetting The configuration settings for the cron process.
-     */
-    public function loadSettings(): CronSetting;
+    public function run(string $name): CronExecutionResponse;
 
 }

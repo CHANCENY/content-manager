@@ -19,6 +19,7 @@ use Simp\Core\lib\memory\cache\Caching;
 use Simp\Core\lib\routes\Route;
 use Simp\Core\lib\themes\TwigResolver;
 use Simp\Core\modules\database\Database;
+use Simp\Core\modules\logger\ErrorLogger;
 use Simp\Core\modules\theme\ThemeManager;
 use Simp\StreamWrapper\WrapperRegister\WrapperRegister;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -160,7 +161,7 @@ class InstallerValidator extends SystemDirectory {
                     }
 
                 }catch(Throwable $e){
-
+                    ErrorLogger::logger()->logError($e->getMessage()."\n".$e->getTraceAsString());
                 }
             }
             }

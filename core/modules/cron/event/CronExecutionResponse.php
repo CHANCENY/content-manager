@@ -10,5 +10,7 @@ class CronExecutionResponse
 
     public int $status;
 
+    public string $name;
+
     public string $message;
 }

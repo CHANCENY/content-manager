@@ -2,6 +2,7 @@
 
 namespace Simp\Core\lib\themes;
 
+use Simp\Core\components\request\Request;
 use Twig\Loader\ArrayLoader;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
@@ -10,10 +11,7 @@ use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\lib\memory\cache\Caching;
 use Simp\Core\modules\assets_manager\AssetsManager;
-use Simp\Core\modules\config\ConfigManager;
 use Simp\Core\modules\user\current_user\CurrentUser;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Yaml\Yaml;
 use Twig\Environment;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -50,8 +48,6 @@ class Theme extends SystemDirectory
             $this->twig_functions = [...$this->twig_functions, ... $custom_functions];
         }
 
-        $site = ConfigManager::config()->getConfigFile('basic.site.setting');
-
         // Loading default filters.
         $default_filters_function = Caching::init()->get('default.admin.filters');
         $default_filters_function_array = [];
@@ -68,15 +64,17 @@ class Theme extends SystemDirectory
             $this->twig_filters = [...$this->twig_filters, ... $custom_filters];
         }
 
+        /**@var Request $request**/
+        $request = Service::serviceManager()->request;
+
         $this->options = [
-            'page_title' => $site?->get('site_name'),
-            'page_description' => $site?->get('site_slogan'),
+            'page_title' => $request->server->get('ROUTE_ATTRIBUTES')['route']->route_title ?? 'Simp CMS',
+            'page_description' => "",
             'page_keywords' => 'Content, Management, System',
             'request' => [
                 'user' => CurrentUser::currentUser(),
-                'http' => Service::serviceManager()->request
+                'http' => $request,
             ],
-            'site' => $site,
             'assets' => new AssetsManager(),
         ];
         $twig_views = [];
