@@ -1,8 +1,73 @@
 {% extends 'default.view.admin_base' %}
 
 {% block body %}
-    <h3>{{ "Extensions Manage"|t }}</h3>
-    <div>
-        <a href="/admin/extend/add">+ install extension</a>
-    </div>
+	<h3>{{ "Extensions Manage"|t }}</h3>
+	<div>
+		<a href="/admin/extend/add">+ install extension</a>
+	</div>
+	<div>
+		<div style="margin-top: 10px;">
+			<form action="" class="row">
+				<div class="column">
+					<input type="text" name="filter"/>
+				</div>
+				<div class="column">
+					<button type="submit">Search</button>
+				</div>
+			</form>
+		</div>
+	</div>
+	<div>
+		<p>manage your module below. you can enable and disable these modules</p>
+	</div>
+	<form method="post">
+		<table>
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Description</th>
+					<th>Version</th>
+					<th><input type="checkbox" id="all"/></th>
+				</tr>
+			</thead>
+			<tbody>
+				{% if lists %}
+					{% for key,item in lists %}
+						<tr>
+							<td>{{ item.name }}</td>
+							<td>{{ item.description }}</td>
+							<td>{{ item.core_version_requirement}}</td>
+							<td><input {{ item.enabled ? 'checked' : '' }} type="checkbox" name="module[]" value="{{ key }}"/></td>
+						</tr>
+					{% endfor %}
+				{% else %}
+					<tr>
+						<td colspan="4">
+							<p>No module found</p>
+						</td>
+					</tr>
+				{% endif %}
+			</tbody>
+		</table>
+		<div>
+			<button type="submit" name="enabled_module" value="enabled_module" class="button">Save</button>
+		</div>
+	</div>
+	<script>
+		(function ($) {
+let allCheckbox = $("#all");
+if (allCheckbox.length > 0) {
+allCheckbox.on('change', function () {
+const table = $("table");
+if (table.length > 0) {
+let checkboxes = table.find("input[type='checkbox']");
+
+// Check or uncheck all based on #all checkbox
+checkboxes.prop('checked', $(this).is(':checked'));
+}
+});
+}
+})(jQuery);
+	</script>
 {% endblock %}
+

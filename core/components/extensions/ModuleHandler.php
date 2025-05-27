@@ -172,6 +172,34 @@ class ModuleHandler extends SystemDirectory
 
     }
 
+    public function getModulesRoutes(): array {
+
+        $routes = array();
+        foreach($this->modules as $name=>$module) {
+             $module_installer = $module['path'] . DIRECTORY_SEPARATOR . $name. '.install.php';
+            if (file_exists($module_installer)) {
+                 require_once $module_installer;
+                  $route_install = $name . '_route_install';
+                  if (\function_exists($route_install)) {
+                    $routes = \array_merge($routes, $route_install());
+                  }
+            }
+        }
+        return \array_unique($routes);
+    }
+
+    public function moduleEnable(string $name): bool {
+        $module = $this->modules[$name] ?? [];
+        if (!empty($module)) {
+            $module['enabled'] = true;
+            $path = $module['path']. \DIRECTORY_SEPARATOR . $name . '.info.yml';
+            if (\file_exists($path)) {
+                return !empty(\file_put_contents($path, Yaml::dump($module, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK)));
+            }
+        }
+        return false;
+    }
+
     public static function factory(): ModuleHandler
     {
         return new ModuleHandler();

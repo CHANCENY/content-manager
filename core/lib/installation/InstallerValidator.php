@@ -14,6 +14,7 @@ use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidConfigurationException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidTypeException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
+use Simp\Core\components\extensions\ModuleHandler;
 use Simp\Core\lib\file\file_system\stream_wrapper\SettingStreamWrapper;
 use Simp\Core\lib\memory\cache\Caching;
 use Simp\Core\lib\routes\Route;
@@ -200,6 +201,11 @@ class InstallerValidator extends SystemDirectory {
         if (file_exists($general_routes)) {
             $routes = array_merge($routes, Yaml::parseFile($general_routes) ?? []);
         }
+
+        // Modules routes
+        $module = ModuleHandler::factory();
+        $modules_routes = $module->getModulesRoutes();
+        $routes = \array_merge($routes, $modules_routes);
         return $routes;
     }
 

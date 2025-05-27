@@ -1,4 +1,6 @@
-name: "Announcements"
-description: "This module is built-in for announcements and chats"
+path: 'D:\projects\content-manager\core\extends\announcement'
+name: Announcements
+description: 'This module is built-in for announcements and chats'
 type: module
 core_version_requirement: ^1
+enabled: true

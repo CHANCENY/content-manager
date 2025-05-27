@@ -2,9 +2,10 @@
 
 namespace Simp\Core\lib\controllers;
 
-
+use Simp\Core\components\extensions\ModuleHandler;
 use Simp\Core\lib\forms\ExtendAddFrom;
 use Simp\Core\lib\themes\View;
+use Simp\Core\modules\messager\Messager;
 use Simp\FormBuilder\FormBuilder;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,9 +21,22 @@ class ExtendController
      * @throws SyntaxError
      * @throws LoaderError
      */
-    public function extend_manage(...$args): Response
+    public function extend_manage(...$args): Response|RedirectResponse
     {
-        return new Response(View::view('default.view.extend_manage'), Response::HTTP_OK);
+        \extract($args);
+        if ($request->getMethod() === 'POST' && $request->request->has('enabled_module')) {
+            $modules = $request->request->all();
+        
+            foreach($modules['module'] as $module) {
+                ModuleHandler::factory()->moduleEnable($module);
+            }
+            Messager::toast()->addMessage("Updates save successfully.");
+            return new RedirectResponse('/admin/extends');
+        }
+        $modules = ModuleHandler::factory()->getModules();
+        return new Response(View::view('default.view.extend_manage',[
+            'lists' => $modules
+        ]), Response::HTTP_OK);
     }
 
     /**
