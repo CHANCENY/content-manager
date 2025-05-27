@@ -819,3 +819,28 @@ system.cron.add:
   controller:
     class: Simp\Core\lib\controllers\SystemController
     method: cron_add
+
+# Extends
+system.extends.manage:
+  title: "Extend"
+  path: '/admin/extends'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\ExtendController
+    method: extend_manage
+
+system.extends.manage.add:
+  title: "Extend"
+  path: '/admin/extend/add'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\ExtendController
+    method: extend_manage_add

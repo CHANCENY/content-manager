@@ -130,6 +130,7 @@ class ViewsManager extends SystemDirectory
             $old = array_filter($old);
             $view['displays'] = array_values($old);
             $view['displays'][] = $display_name;
+            $view['displays'] = array_unique($view['displays']);
             $view['view'] = $view_name;
             return $this->addView($view_name, $view);
         }

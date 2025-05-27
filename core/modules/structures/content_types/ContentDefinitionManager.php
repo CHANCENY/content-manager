@@ -51,6 +51,12 @@ class ContentDefinitionManager extends SystemDirectory
         $this->content_types[$name] = $config;
         file_put_contents($this->content_file .DIRECTORY_SEPARATOR.$name.'.yml'  , Yaml::dump(
             $this->savable($name, $this->content_types),Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
+
+        if (!empty($config['fields'])) {
+            foreach ($config['fields'] as $key => $field) {
+                $this->addField($name, $key, $field);
+            }
+        }
     }
 
     public function removeContentType(string $name): bool

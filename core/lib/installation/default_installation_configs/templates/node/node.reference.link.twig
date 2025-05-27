@@ -12,8 +12,10 @@
                 {% endif %}
 
                 {%  for link in content.data %}
+                    <div class="reference-link">
+                        <a href="{{ link.url }}">{{ link.name }}</a>
+                    </div>
 
-                    <a href="{{ link.url }}">{{ link.name }}</a>
 
                 {% endfor %}
             </div>

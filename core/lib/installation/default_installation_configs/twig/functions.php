@@ -143,32 +143,34 @@ function buildReferenceLink(int|string|array $value, array $field_definition): a
 {
     $html = [];
 
-    if (is_array($value) && array_key_exists(0,$value) && empty(reset($value))) {
-        return [];
-    }
-
-
-    if (is_string($value)) {
-       $value = [$value];
-    }
-    elseif (is_int($value)) {
+    if (!is_array($value)) {
         $value = [$value];
     }
 
     foreach ($value as $v) {
 
         if (!empty($field_definition['type']) && $field_definition['type'] === 'reference') {
+
             if (!empty($field_definition['reference']['type'])) {
 
                 if ($field_definition['reference']['type'] === 'node') {
-                    $link = url('system.structure.content.node',['nid'=>$v]);
-                    $node = Node::load($v);
-                    if ($node instanceof Node) {
-                        $html[] = [
-                            'url' => $link,
-                            'name' => $node->getTitle(),
-                        ];
+                    if (is_numeric($v)) {
+                        $link = url('system.structure.content.node',['nid'=>$v]);
+                        $node = Node::load($v);
+                        if ($node instanceof Node) {
+                            $html[] = [
+                                'url' => $link,
+                                'name' => $node->getTitle(),
+                            ];
+                        }
                     }
+                    else {
+                       $html[] =[
+                           'url' => '#',
+                           'name' => "reference not found"
+                       ];
+                    }
+
                 }
                 elseif ($field_definition['reference']['type'] === 'users') {
                     $link = url('system.account.view:',['uid'=>$v]);
@@ -184,12 +186,20 @@ function buildReferenceLink(int|string|array $value, array $field_definition): a
                     $file = File::load($v);
                     if ($file instanceof File) {
                         $html[] = [
-                            'url' => $file->getUri(),
+                            'url' => FileFunction::reserve_uri($file->getUri()),
                             'name' => $file->getName()
                         ];
                     }
                 }
-
+            }
+        }
+        elseif (!empty($field_definition['type']) && $field_definition['type'] === 'drag_and_drop') {
+            $file = File::load($v);
+            if ($file instanceof File) {
+                $html[] = [
+                    'url' => FileFunction::reserve_uri($file->getUri()),
+                    'name' => $file->getName()
+                ];
             }
         }
 
@@ -215,7 +225,7 @@ function author(int $uid): ?User {
  */
 function t(string $text, ?string $from = null, ?string $to = null): string {
 
-     // Check if current user has timezone translation enabled.
+     // Check if the current user has timezone translation enabled.
      $current_user = CurrentUser::currentUser();
 
     if ($current_user instanceof AuthUser) {

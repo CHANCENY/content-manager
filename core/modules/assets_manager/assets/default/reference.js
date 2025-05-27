@@ -26,8 +26,7 @@
                                  e.preventDefault();
                                  const id = e.target.dataset.id;
                                  const input = document.querySelector(`#${field_id}`);
-                                 const text = `${div.textContent} (${id})`;
-                                 input.value = text;
+                                 input.value = `${id}`;
                                  input.dispatchEvent(new Event('change'));
                                  appender_element.innerHTML = '';
                              });

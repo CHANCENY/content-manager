@@ -26,7 +26,7 @@ class DragDropField extends FieldBase
 
         $this->validation_message = '';
 
-        $supported_field_type = ['drag_and_drop'];
+        $supported_field_type = ['drag_and_drop', 'hidden'];
 
         if (!in_array($field['type'], $supported_field_type)) {
             throw new FieldTypeSupportException("Field type '{$field['type']}' is not supported with this class ".static::class);
@@ -48,10 +48,10 @@ class DragDropField extends FieldBase
             if (str_ends_with($field_name, '[]')) {
                 $field_name = substr($field_name, 0, -2);
             }
-
-            $value = $files[$field_name] ?? null;
+            $value = $post[$field_name] ?? null;
             if (!is_null($value)) {
-                $this->submission['value'] = $value;
+                $value = is_array($value) ? reset($value) : $value;
+                $this->submission['value'] = is_array($value)? $value : json_decode($value, true);
             }
         }
 
@@ -113,10 +113,18 @@ class DragDropField extends FieldBase
     public function getValue(): string|int|float|null|array|bool
     {
         $data = !empty($this->submission['value']) ? $this->submission['value'] : $this->field['default_value'] ?? '';
-        if (str_ends_with($data, ')')) {
-            $value = explode('(', $data);
-            $value = end($value);
-            return substr($value, 0, -1);
+        if (is_string($data) || is_scalar($data) || is_null($data)  || is_bool($data)) {
+            return $data;
+        }
+
+        if (is_array($data)) {
+            $fids = [];
+            foreach ($data as $file) {
+                if (isset($file['fid'])) {
+                    $fids[] = $file['fid'];
+                }
+            }
+            return $fids;
         }
         return $data;
     }
@@ -131,6 +139,7 @@ class DragDropField extends FieldBase
         $class = implode(' ', $this->getClassList());
         $name = $this->getName();
         $label = $this->getLabel();
+        $values = json_encode($this->getValue());
 
         if (!empty($this->field['limit']) && $this->field['limit'] > 1) {
             $name .= '[]';
@@ -150,6 +159,8 @@ class DragDropField extends FieldBase
 
         $script = AssetsManager::assetManager()->getAssetsFile('grag_drop.js', true);
         $script = str_replace('__UUID__', "#$uuid", $script);
+
+        $hidden_field = "<input type='hidden' name='{$name}' value='{$values}'/>";
 
         $drop_html = <<<DROP
  <div class="drag-drop-container">
@@ -191,6 +202,7 @@ class DragDropField extends FieldBase
             </div>
             <p class="progress-text">0%</p>
         </div>
+        {$hidden_field}
     </div>
 DROP;
 

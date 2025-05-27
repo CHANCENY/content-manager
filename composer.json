@@ -20,7 +20,8 @@
       "ext-fileinfo": "*",
       "ext-readline": "*",
         "fakerphp/faker": "^1.24",
-        "simp/translate": "^1.0"
+        "simp/translate": "^1.0",
+      "ext-zip": "*"
     },
     "autoload": {
         "psr-4": {

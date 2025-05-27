@@ -243,8 +243,6 @@ class ContentTypeDefinitionForm extends FormBase
                 return $value->getValue();
             }, $form);
 
-
-
             $user = User::loadByName($data_all['owner'] ?? '') ?? User::load(
                 \is_numeric($data_all['owner']) ? $data_all['owner'] : 1);
             if ($user instanceof User) {

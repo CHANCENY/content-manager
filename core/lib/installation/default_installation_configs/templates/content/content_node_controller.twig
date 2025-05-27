@@ -39,7 +39,7 @@
                 }} %}
                 {% include 'default.view.node.field.textarea' with content %}
 
-            {% elseif definition.type == 'reference' %}
+            {% elseif definition.type == 'reference' or definition.type == 'drag_and_drop' %}
 
                 {% set url_value = {'content': {
                     'data': reference_link(node.get(definition.name), definition),

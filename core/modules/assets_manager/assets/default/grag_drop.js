@@ -356,6 +356,8 @@
                         // Store uploaded files from server response
                         uploadedFiles = data.results;
 
+                        dropZoneContainer.find("input[type='hidden']").val(JSON.stringify(uploadedFiles));
+
                         // Update UI with uploaded files
                         updateFileList();
                         updateButtons();
