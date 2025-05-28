@@ -96,27 +96,6 @@ class ModuleHandler extends SystemDirectory
         }
 
         // function that needs for installation are, route_install, database_install, content_type_install, views_install
-
-        // process one by one
-        $route_install = $name . '_route_install';
-        if (function_exists($route_install)) {
-            $routes = $route_install();
-            if (is_array($routes) && count($routes) > 0) {
-                $path_route = $this->setting_dir .DIRECTORY_SEPARATOR .'routes' . DIRECTORY_SEPARATOR . 'general' .
-                    DIRECTORY_SEPARATOR. 'general-routes.yml';
-                if (file_exists($path_route)) {
-                    $routes_data = Yaml::parseFile($path_route) ?? [];
-                    foreach ($routes as $key=>$route) {
-                       if (!isset($routes_data[$key])) {
-                           $routes_data[$key] = $route;
-                       }
-                    }
-                    file_put_contents($path_route, Yaml::dump($routes_data,Yaml::DUMP_OBJECT_AS_MAP));
-                    Messager::toast()->addMessage("Routes added successfully");
-                }
-            }
-        }
-
         $database_install = $name . '_database_install';
         if (function_exists($database_install)) {
             if ($database_install()) {
@@ -177,7 +156,7 @@ class ModuleHandler extends SystemDirectory
         $routes = array();
         foreach($this->modules as $name=>$module) {
              $module_installer = $module['path'] . DIRECTORY_SEPARATOR . $name. '.install.php';
-            if (file_exists($module_installer)) {
+            if (file_exists($module_installer) && $module['enabled'] === true) {
                  require_once $module_installer;
                   $route_install = $name . '_route_install';
                   if (\function_exists($route_install)) {
@@ -185,7 +164,23 @@ class ModuleHandler extends SystemDirectory
                   }
             }
         }
-        return \array_unique($routes);
+        return $routes;
+    }
+
+    public function getModuleTemplates(): array
+    {
+        $templates = array();
+        foreach($this->modules as $name=>$module) {
+            $module_installer = $module['path'] . DIRECTORY_SEPARATOR . $name. '.install.php';
+            if (file_exists($module_installer) && $module['enabled'] === true) {
+                 require_once $module_installer;
+                  $templates_install = $name . '_template_install';
+                  if (\function_exists($templates_install)) {
+                    $templates = \array_merge($templates, $templates_install());
+                  }
+            }
+        }
+        return \array_unique($templates);
     }
 
     public function moduleEnable(string $name): bool {
@@ -193,6 +188,7 @@ class ModuleHandler extends SystemDirectory
         if (!empty($module)) {
             $module['enabled'] = true;
             $path = $module['path']. \DIRECTORY_SEPARATOR . $name . '.info.yml';
+            unset($module['path']);
             if (\file_exists($path)) {
                 return !empty(\file_put_contents($path, Yaml::dump($module, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK)));
             }
@@ -203,5 +199,27 @@ class ModuleHandler extends SystemDirectory
     public static function factory(): ModuleHandler
     {
         return new ModuleHandler();
+    }
+
+    public function isModuleEnabled(string $name): bool {
+        $module = $this->modules[$name] ?? [];
+        if (!empty($module)) {
+            return $module['enabled'] ?? false;
+        }
+        return false;
+    }
+
+    public function moduleDisable(mixed $name): bool
+    {
+        $module = $this->modules[$name] ?? [];
+        if (!empty($module)) {
+            unset($module['enabled']);
+            $path = $module['path']. \DIRECTORY_SEPARATOR . $name . '.info.yml';
+            unset($module['path']);
+            if (\file_exists($path)) {
+                return !empty(\file_put_contents($path, Yaml::dump($module, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK)));
+            }
+        }
+        return false;
     }
 }

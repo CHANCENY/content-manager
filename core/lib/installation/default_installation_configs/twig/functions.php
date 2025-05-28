@@ -1,5 +1,6 @@
 <?php
 
+use Simp\Core\components\extensions\ModuleHandler;
 use Simp\Core\lib\routes\Route;
 use Simp\Core\modules\structures\content_types\entity\Node;
 use Simp\Core\modules\files\entity\File;
@@ -375,6 +376,9 @@ function get_functions(): array
         }),
         new TwigFunction('size_format',function(int|float $size){
             return file_size_format($size);
+        }),
+        new TwigFunction('is_module_enabled',function(string $module_name){
+            return ModuleHandler::factory()->isModuleEnabled($module_name);
         })
     );
 }

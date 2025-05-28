@@ -2,6 +2,7 @@
 
 namespace Simp\Core\lib\themes;
 
+use Simp\Core\components\extensions\ModuleHandler;
 use Simp\Core\components\request\Request;
 use Twig\Loader\ArrayLoader;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
@@ -67,6 +68,7 @@ class Theme extends SystemDirectory
         /**@var Request $request**/
         $request = Service::serviceManager()->request;
 
+        $assets_manager = new AssetsManager();
         $this->options = [
             'page_title' => $request->server->get('ROUTE_ATTRIBUTES')['route']->route_title ?? 'Simp CMS',
             'page_description' => "",
@@ -75,7 +77,18 @@ class Theme extends SystemDirectory
                 'user' => CurrentUser::currentUser(),
                 'http' => $request,
             ],
-            'assets' => new AssetsManager(),
+            'assets' => $assets_manager,
+            'theme' => [
+                'admin' => [
+                    'admin_assets_head' => $assets_manager->adminHeadAssets(),
+                    'admin_assets_footer' => $assets_manager->adminFooterAssets(),
+                    'navigation'=> $assets_manager->adminNavigation(),
+                ],
+                'assets' => [
+                    'head' => &$GLOBALS['assets.head'],
+                    'footer' => &$GLOBALS['assets.footer'],
+                ]
+            ]
         ];
         $twig_views = [];
         $theme_keys = Caching::init()->get("system.theme.keys") ?? [];
@@ -106,6 +119,25 @@ class Theme extends SystemDirectory
         $this->twig_functions[] = new TwigFunction('dd', function ($asset): void {
             dd($asset);
         });
+
+        $module_handler = ModuleHandler::factory();
+        $modules = $module_handler->getModules();
+        foreach ($modules as $key=>$module) {
+            if (!empty($module['enabled'])) {
+                $install_module = $module['path']. DIRECTORY_SEPARATOR . $key. '.install.php';
+                if (file_exists($install_module)) {
+                    require_once $install_module;
+                    $twig_function = $key. '_twig_function_install';
+                    $twig_filter = $key. '_twig_filter_install';
+                    if (function_exists($twig_function)) {
+                        $this->twig_functions = array_merge($this->twig_functions, $twig_function());
+                    }
+                    if (function_exists($twig_filter)) {
+                        $this->twig_filters = array_merge($this->twig_filters, $twig_filter());
+                    }
+                }
+            }
+        }
 
         $this->twig = new Environment($loader, [
             ...$twig_options,

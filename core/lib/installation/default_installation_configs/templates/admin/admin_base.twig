@@ -7,147 +7,52 @@
     <meta name="description" content="{{ page_description }}">
     <meta name="robots" content="noindex, nofollow">
     <meta name="keywords" content="{{ page_keywords }}">
-    <style>
-        {{ assets.getAssetsFile('milligram.min.css')|raw }}
-    </style>
-    <style>
-        {{ assets.getAssetsFile('ckeditor5.css')|raw }}
-    </style>
-    <script>
-        {{ assets.getAssetsFile('jquery.js')|raw }}
-    </script>
-    <script>
-        {{ assets.getAssetsFile('reference.js')|raw }}
-    </script>
-    <script>
-        {{ assets.getAssetsFile('interactive.js')|raw }}
-    </script>
-    {#  TODO: settings for toastify  #}
-    <style>
-        {{ assets.getAssetsFile('admin.css')|raw }}
-    </style>
+    {% if theme.admin.admin_assets_head is defined %}
+        {% include (theme.admin.admin_assets_head) %}
+    {% endif %}
 
-    <script>
-        {{ assets.getAssetsFile('modal.js')|raw }}
-    </script>
-    <script>
-        {{ assets.getAssetsFile('Sortable.min.js')|raw }}
-    </script>
+    {% if theme.assets.head is defined %}
 
-    <script>
-        {{ assets.getAssetsFile('search_api.js')|raw }}
-    </script>
-    <script>
-        {{ assets.getAssetsFile('add-option.js')|raw }}
-    </script>
+        {% if theme.assets.head is iterable %}
+
+            {% for attachment in theme.assets.head %}
+
+                {{ attachment }}
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endif %}
+
 </head>
 <body>
 
-{% if request.user.getUser.uid %}
-    <!-- Top Black Admin Bar -->
-    <div class="admin-bar">
-        <div>
-            {% if request.user is not null and request.user.isIsAdmin %}
-                <a href="#"><i class="fa fa-bars"></i> {{ "Manage"|t }}</a>
-                <a href="#"><i class="fa fa-star"></i> {{ "Shortcuts"|t }}</a>
-            {% endif %}
-
-            {% if request.user %}
-                <a href="/user/{{ request.user.getUser.uid }}"><i class="fa fa-user"></i> {{ request.user.getUser.name }}</a>
-            {% endif %}
-        </div>
-        {{ search_form('admin-content')|raw }}
-        <div>
-            {% if request.user is not null %}
-                <a href="#"><i class="fa fa-bell"></i> {{ "Announcements"|t }}</a>
-                {% if request.user.isIsAdmin %}
-                    <a href="#"><i class="fa fa-pencil"></i> {{ "Edit"|t }}</a>
-                {% endif %}
-            {% endif %}
-        </div>
-    </div>
+{% if theme.admin.navigation is defined and theme.admin.navigation %}
+    {% include (theme.admin.navigation) %}
 {% endif %}
-
-{% if request.user is not null and request.user.isIsAdmin %}
-    <!-- Main Navigation Menu -->
-    <div class="main-menu">
-        <a href="/admin/content"><i class="fa fa-file"></i> {{ "Content"|t }} </a>
-        <a href="/admin/structure"><i class="fa fa-sitemap"></i> {{ "Structure"|t }}</a>
-        {# <a href="#"><i class="fa fa-paint-brush"></i> {{ "Appearance"|t }}</a> #}
-         <a href="/admin/extends"><i class="fa fa-wrench"></i> {{ "Extend"|t }}</a>
-        <a href="/admin/config"><i class="fa fa-cogs"></i> {{ "Configuration"|t }}</a>
-        <a href="/admin/people"><i class="fa fa-users"></i> {{ "People"|t }}</a>
-        <a href="/admin/reports"><i class="fa fa-chart-bar"></i> {{ "Reports"|t }}</a>
-        <a href="/user/logout"><i class="fa fa-sign-out"></i> {{ "Logout"|t }}</a>
-    </div>
-{% elseif request.user is not null and request.user.isIsManager %}
-
-    <div class="main-menu">
-        <a href="/admin/content"><i class="fa fa-file"></i> {{ "Content"|t }}</a>
-        <a href="/admin/people"><i class="fa fa-users"></i> {{ "People"|t }}</a>
-        <a href="/user/logout"><i class="fa fa-sign-out"></i> {{ "Logout"|t }}</a>
-    </div>
-
-{% elseif request.user is not null and request.user.isIsAuthenticated %}
-
-    <div class="main-menu">
-        <a href="#"><i class="fa fa-home"></i> {{ "Home"|t }}</a>
-        <a href="/admin/people"><i class="fa fa-info"></i> {{ "About"|t }}</a>
-        <a href="#"><i class="fa fa-contact-card"></i> {{ "Contact"|t }}</a>
-        <a href="/user/logout"><i class="fa fa-sign-out"></i> {{ "Logout"|t }}</a>
-    </div>
-
-{% else %}
-
-    <div class="main-menu justify-content-end">
-        <a href="/user/register"><i class="fa fa-user"></i> {{ "Register"|t }}</a>
-        <a href="/user/login"><i class="fa fa-sign-in"></i> {{ "Login"|t }}</a>
-    </div>
-
-{% endif %}
-
 
 <div class="container main-content">
     {% block body %}{% endblock %}
 </div>
 
-{% if request.user is not null and request.user.isIsAdmin %}
-
-<div class="floating-window-token">
-    {{ tokens_floating_window()|raw }}
-</div>
-
+{% if theme.admin.admin_assets_footer is defined and theme.admin.admin_assets_footer %}
+    {% include (theme.admin.admin_assets_footer) %}
 {% endif %}
 
-<script>
-    {{ assets.getAssetsFile('bootstrap.js')|raw }}
-</script>
+{% if theme.assets.footer is defined %}
 
-{# TODO: add setting to enable message. #}
-<script>
-    {{ assets.getAssetsFile('toastfy.js')|raw }}
-</script>
+    {% if theme.assets.footer is iterable %}
 
-<script>
-    {{ assets.getAssetsFile('toast-messager.js')|raw }}
-</script>
+        {% for attachment in theme.assets.footer %}
 
-<script>
-    {{ assets.getAssetsFile('tabs.js')|raw }}
-</script>
+            {{ attachment }}
 
-<script type="importmap">
-    {
-        "imports": {
-            "ckeditor5": "/system/assets/file?name=ckeditor5.js",
-            "ckeditor5/": "./ckeditor5/"
-        }
-    }
-</script>
+        {% endfor %}
 
-<script type="module">
-    {{ assets.getAssetsFile('ck-editor.js')|raw }}
-</script>
+    {% endif %}
+
+{% endif %}
 
 </body>
 </html>

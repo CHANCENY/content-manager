@@ -1,4 +1,3 @@
-path: 'D:\projects\content-manager\core\extends\announcement'
 name: Announcements
 description: 'This module is built-in for announcements and chats'
 type: module

@@ -2,6 +2,11 @@
 
 namespace Simp\Core\lib\controllers;
 
+use Phpfastcache\Exceptions\PhpfastcacheCoreException;
+use Phpfastcache\Exceptions\PhpfastcacheDriverException;
+use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
+use Phpfastcache\Exceptions\PhpfastcacheIOException;
+use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\components\extensions\ModuleHandler;
 use Simp\Core\lib\forms\ExtendAddFrom;
 use Simp\Core\lib\themes\View;
@@ -17,9 +22,16 @@ class ExtendController
 {
 
     /**
+     * @param mixed ...$args
+     * @return Response|RedirectResponse
+     * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
-     * @throws LoaderError
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheIOException
+     * @throws PhpfastcacheInvalidArgumentException
+     * @throws PhpfastcacheLogicException
      */
     public function extend_manage(...$args): Response|RedirectResponse
     {
@@ -33,9 +45,29 @@ class ExtendController
             Messager::toast()->addMessage("Updates save successfully.");
             return new RedirectResponse('/admin/extends');
         }
+        if ($request->getMethod() === 'POST' && $request->request->has('unabled_module')) {
+            $modules = $request->request->all();
+
+            foreach($modules['module'] as $module) {
+                ModuleHandler::factory()->moduleDisable($module);
+            }
+            Messager::toast()->addMessage("Updates save successfully.");
+            return new RedirectResponse('/admin/extends');
+        }
         $modules = ModuleHandler::factory()->getModules();
+        $enabled_modules = [];
+        $un_enabled_modules = [];
+        foreach ($modules as $key=>$module) {
+            if (!empty($module['enabled'])) {
+                $enabled_modules[$key] = $module;
+            }
+            else {
+                $un_enabled_modules[$key] = $module;
+            }
+        }
         return new Response(View::view('default.view.extend_manage',[
-            'lists' => $modules
+            'lists' => $un_enabled_modules,
+            'enabled_modules' => $enabled_modules,
         ]), Response::HTTP_OK);
     }
 
