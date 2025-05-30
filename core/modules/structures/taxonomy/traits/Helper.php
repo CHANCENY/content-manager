@@ -25,11 +25,12 @@ class Helper
                     $term = $this->terms[$i];
                     $this->database->prepare($query)->execute($term);
                 }
-
+                return true;
             }
 
             elseif ($this->table === 'taxonomy_vocabulary') {
                 VocabularyManager::factory()->addVocabulary($this->vid);
+                return true;
             }
 
         }
@@ -38,11 +39,32 @@ class Helper
 
     public function update(): bool
     {
+        if (isset($this->table) && isset($this->vid)) {
+            if ($this->table === 'term_data') {
+                $query = "UPDATE term_data SET name = :name, label = :label WHERE id = :id";
+                $this->database->prepare($query)->execute($this->terms);
+                return true;
+            }
+            elseif ($this->table === 'taxonomy_vocabulary') {
+                VocabularyManager::factory()->addVocabulary($this->vid);
+                return true;
+            }
+        }
         return false;
     }
 
     public function delete(): bool
     {
+        if (isset($this->table) && isset($this->vid)) {
+            if ($this->table === 'term_data') {
+                $query = "DELETE FROM term_data WHERE id = :id";
+                $this->database->prepare($query)->execute($this->terms);
+                return true;
+            }
+            elseif ($this->table === 'taxonomy_vocabulary') {
+                return VocabularyManager::factory()->removeVocabulary($this->vid);
+            }
+        }
         return false;
     }
 }
