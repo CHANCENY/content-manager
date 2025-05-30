@@ -7,95 +7,223 @@ use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\lib\installation\SystemDirectory;
-use Simp\Core\lib\memory\cache\Caching;
-use stdClass;
+use Simp\Core\lib\memory\cache\Caching; // Assuming this is the Phpfastcache wrapper
 use Symfony\Component\Yaml\Yaml;
+use Throwable;
+use RuntimeException;
 
-class DatabaseCacheManager extends SystemDirectory
+/**
+ * Class DatabaseCacheManager
+ * Manages database query caching using Phpfastcache.
+ * Implements Singleton pattern.
+ */
+class DatabaseCacheManager
 {
-    private object $database_settings;
-    private Caching $caching;
-    public function __construct()
-    {
-        parent::__construct();
-        $this->database_settings = new StdClass();
-        $setting_file = $this->setting_dir . DIRECTORY_SEPARATOR . 'database' .DIRECTORY_SEPARATOR .'database.yml';
-        if (file_exists($setting_file)) {
-            $this->database_settings = Yaml::parse(file_get_contents($setting_file), Yaml::PARSE_OBJECT_FOR_MAP);
-        }
-        $this->caching = Caching::init();
-    }
+    private static ?DatabaseCacheManager $instance = null;
+    private ?Caching $caching = null;
+    private bool $cacheActive = false;
+    private int $cacheTtl = 3600; // Default TTL (1 hour), make configurable
 
-    public function cacheTagCreate(string $query_string, array $params = []): string
+    // Private constructor for Singleton
+    private function __construct()
     {
-        $binding_keys = array_keys($params);
-        if (!empty($binding_keys)) {
-            foreach ($binding_keys as $key) {
-                $sanitized_value = $params[$key];
-                if (is_bool($params[$key])) {
-                    $sanitized_value = $params[$key] ? 'true' : 'false';
+        try {
+            $system = new SystemDirectory();
+            $setting_file = $system->setting_dir . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'database.yml';
+
+            $cacheSettings = [];
+            if (file_exists($setting_file)) {
+                $settings = Yaml::parse(file_get_contents($setting_file));
+                // Check if parsing succeeded and cache settings exist
+                if (is_array($settings) && isset($settings["cache"]) && is_array($settings["cache"])) {
+                    $cacheSettings = $settings["cache"];
+                    $this->cacheActive = !empty($cacheSettings["active"]) && $cacheSettings["active"] === true;
+                    // Allow overriding default TTL from config
+                    if (isset($cacheSettings["ttl"]) && is_int($cacheSettings["ttl"]) && $cacheSettings["ttl"] > 0) {
+                        $this->cacheTtl = $cacheSettings["ttl"];
+                    }
+                } else {
+                    Database::staticLogger("DatabaseCacheManager Warning: Invalid or missing 'cache' section in database.yml");
+                    $this->cacheActive = false;
                 }
-                $query_string = str_replace($key, $sanitized_value, $query_string);
+            } else {
+                Database::staticLogger("DatabaseCacheManager Warning: database.yml not found at " . $setting_file);
+                $this->cacheActive = false;
             }
-        }
 
-        // TODO: append current user to cache tag if exist.
-        return strtolower(self::clear($query_string));
+            // Initialize caching library only if cache is active
+            if ($this->cacheActive) {
+                // Assuming Caching::init() returns the configured Phpfastcache instance
+                $this->caching = Caching::init();
+                if (!$this->caching) { // Check if init failed
+                    throw new RuntimeException("Caching::init() failed to return a cache instance.");
+                }
+            }
+
+        } catch (Throwable $e) {
+            Database::staticLogger("DatabaseCacheManager Error: Failed to initialize - " . $e->getMessage());
+            $this->cacheActive = false;
+            $this->caching = null;
+            // Optionally re-throw if initialization failure is critical
+            // throw new RuntimeException("Database Cache Manager initialization failed.", 0, $e);
+        }
     }
 
-    private function clear($string): array|string
-    {
-        // Remove all special characters and replace with a space
-        $string = preg_replace('/[^a-zA-Z0-9]/', ' ', $string);
-
-        // Remove multiple spaces and replace spaces with dots
-        return str_replace(' ', '.', trim(preg_replace('/\s+/', ' ', $string)));
+    // Prevent cloning and unserialization
+    private function __clone() {}
+    public function __wakeup() {
+        throw new RuntimeException("Cannot unserialize a singleton.");
     }
 
     /**
-     * @throws PhpfastcacheCoreException
-     * @throws PhpfastcacheLogicException
-     * @throws PhpfastcacheDriverException
-     * @throws PhpfastcacheInvalidArgumentException
+     * Gets the singleton instance of the DatabaseCacheManager.
+     *
+     * @return DatabaseCacheManager
      */
-    public function resultCache(string $cache_tag, $results): bool
-    {
-        if ($this->database_settings?->cache?->active) {
-            return $this->caching->set($cache_tag, $results);
-        }
-        return false;
-    }
-
-    /**
-     * @throws PhpfastcacheCoreException
-     * @throws PhpfastcacheLogicException
-     * @throws PhpfastcacheDriverException
-     * @throws PhpfastcacheInvalidArgumentException
-     */
-    public function getCache(string $cache_tag)
-    {
-        if ($this->database_settings?->cache?->active) {
-            return $this->caching->get($cache_tag);
-        }
-        return null;
-    }
-
-    /**
-     * @throws PhpfastcacheCoreException
-     * @throws PhpfastcacheLogicException
-     * @throws PhpfastcacheDriverException
-     * @throws PhpfastcacheInvalidArgumentException
-     */
-    public function isTagCached(string $cache_tag): bool
-    {
-        if ($this->database_settings?->cache?->active) {
-            return $this->caching->has($cache_tag);
-        }
-        return false;
-    }
-
     public static function manager(): DatabaseCacheManager
     {
-        return new DatabaseCacheManager();
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    /**
+     * Checks if database caching is globally active based on configuration.
+     *
+     * @return bool
+     */
+    public function isCacheActive(): bool
+    {
+        return $this->cacheActive && ($this->caching !== null);
+    }
+
+    /**
+     * Creates a unique and safe cache tag (key) from a query string and parameters.
+     * Uses hashing to ensure key safety and fixed length.
+     *
+     * @param string $queryString The SQL query string.
+     * @param array $params Query parameters.
+     * @return string The generated cache tag.
+     */
+    public function cacheTagCreate(string $queryString, array $params = []): string
+    {
+        // Sort parameters by key to ensure consistency
+        ksort($params);
+        // Serialize parameters for hashing
+        $serializedParams = serialize($params);
+
+        // Combine query and serialized params, then hash
+        // Using sha1 for a good balance of speed and collision resistance for cache keys
+        $rawTag = $queryString . "|" . $serializedParams;
+        return "db_query_" . sha1($rawTag); // Prefix to avoid collisions with other cache types
+    }
+
+    /**
+     * Stores query results in the cache.
+     *
+     * @param string $cacheTag The unique cache tag generated by cacheTagCreate().
+     * @param mixed $results The query results to cache.
+     * @param int|null $ttl Time-to-live in seconds (optional, defaults to config value).
+     * @return bool True on success, false on failure or if caching is inactive.
+     */
+    public function resultCache(string $cacheTag, mixed $results, ?int $ttl = null): bool
+    {
+        if (!$this->isCacheActive()) {
+            return false;
+        }
+
+        try {
+            $effectiveTtl = $ttl ?? $this->cacheTtl;
+            // Assuming the Caching wrapper has a 'set' method similar to Phpfastcache
+            // Adjust if your Caching class uses different method names or parameters
+            return $this->caching->set($cacheTag, $results, $effectiveTtl);
+        } catch (Throwable $e) {
+            Database::staticLogger("DatabaseCacheManager Error (resultCache): Failed to set cache for tag [{$cacheTag}] - " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Retrieves cached results for a given tag.
+     *
+     * @param string $cacheTag The unique cache tag.
+     * @return mixed The cached data, or null if not found, expired, or caching is inactive.
+     */
+    public function getCache(string $cacheTag): mixed
+    {
+        if (!$this->isCacheActive()) {
+            return null;
+        }
+
+        try {
+            // Assuming the Caching wrapper has a 'get' method
+            return $this->caching->get($cacheTag);
+        } catch (Throwable $e) {
+            Database::staticLogger("DatabaseCacheManager Error (getCache): Failed to get cache for tag [{$cacheTag}] - " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Checks if a cache tag exists and is valid.
+     *
+     * @param string $cacheTag The unique cache tag.
+     * @return bool True if the tag exists and is valid, false otherwise or if caching is inactive.
+     */
+    public function isTagCached(string $cacheTag): bool
+    {
+        if (!$this->isCacheActive()) {
+            return false;
+        }
+
+        try {
+            // Assuming the Caching wrapper has a 'has' or 'isHit' method
+            return $this->caching->has($cacheTag);
+        } catch (Throwable $e) {
+            Database::staticLogger("DatabaseCacheManager Error (isTagCached): Failed to check cache for tag [{$cacheTag}] - " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Deletes a specific cache item by tag.
+     *
+     * @param string $cacheTag The cache tag to delete.
+     * @return bool True on success, false on failure or if caching is inactive.
+     */
+    public function deleteCache(string $cacheTag): bool
+    {
+        if (!$this->isCacheActive()) {
+            return false;
+        }
+
+        try {
+            // Assuming the Caching wrapper has a 'delete' or similar method
+            return $this->caching->delete($cacheTag);
+        } catch (Throwable $e) {
+            Database::staticLogger("DatabaseCacheManager Error (deleteCache): Failed to delete cache for tag [{$cacheTag}] - " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Clears the entire database query cache (use with caution).
+     *
+     * @return bool True on success, false on failure or if caching is inactive.
+     */
+    public function clearAllCache(): bool
+    {
+        if (!$this->isCacheActive()) {
+            return false;
+        }
+
+        try {
+            // Assuming the Caching wrapper has a 'clear' or similar method
+            return $this->caching->clear();
+        } catch (Throwable $e) {
+            Database::staticLogger("DatabaseCacheManager Error (clearAllCache): Failed to clear cache - " . $e->getMessage());
+            return false;
+        }
     }
 }

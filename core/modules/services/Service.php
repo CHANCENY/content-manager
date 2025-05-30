@@ -8,6 +8,7 @@ use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use ReflectionException;
+use Simp\Core\components\request\Request;
 use Simp\Core\lib\memory\cache\Caching;
 
 /**
@@ -16,7 +17,7 @@ use Simp\Core\lib\memory\cache\Caching;
 
 /**
  * @property mixed $anyProperty
- * @property object|null $request
+ * @property Request|null $request
  */
 class Service
 {
@@ -52,6 +53,7 @@ class Service
             if (!$reflection->getConstructor()) {
                 return $reflection->newInstance();
             }
+
             $create_function = $service.'::create';
             if (function_exists($create_function)) {
                 $parameters = $create_function();

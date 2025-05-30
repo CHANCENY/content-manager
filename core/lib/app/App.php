@@ -90,7 +90,7 @@ class App
                $reflection = new ReflectionClass($subscriber);
                $object = $reflection->newInstance();
                if ($object instanceof EventSubscriber) {
-                   $object->listeners(Service::serviceManager()->request,$this->currentRoute, $response);
+                   $object->listeners(Request::createFromGlobals(),$this->currentRoute, $response);
                }
            }
         }

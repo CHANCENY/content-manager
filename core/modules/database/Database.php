@@ -119,7 +119,7 @@ class Database
     }
 
     // Static logger method for use when an instance might not exist
-    private static function staticLogger(string $logMessage): void
+    public static function staticLogger(string $logMessage): void
     {
         try {
             $system = new SystemDirectory();
