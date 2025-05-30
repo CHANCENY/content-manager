@@ -5,24 +5,5 @@ config:
   php: 8.4
 
 services:
-  database:
-    type: mariadb:10.6
-    portforward: true
-
   phpmyadmin:
     type: phpmyadmin
-    hosts:
-      - database
-    portforward: true
-
-  appserver:
-    run_as_root:
-      # Install cron and nano as root
-      - apt-get update && apt-get install -y cron nano
-
-      # Start cron service
-      - service cron start
-
-    run:
-      # Ensure cron job is set for Moodle (non-root user)
-      - (crontab -l 2>/dev/null | grep -q "/app/vendor/bin/cron" || (crontab -l 2>/dev/null; echo "* * * * * /usr/local/bin/php /app/vendor/bin/cron >> /dev/null 2>&1") | crontab -)

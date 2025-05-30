@@ -20,7 +20,7 @@ class ContentDefinitionStorage
         $fields = $this->content_type['fields'] ?? [];
         $created_tables = $this->content_type['storage'] ?? [];
 
-        // create a table and map it to content type;
+        // create a table and map it to the content type;
         foreach ($fields as $key => $field) {
             try{
 
@@ -45,6 +45,7 @@ class ContentDefinitionStorage
 
     protected function createTable(array $field_config, array &$created_tables): bool {
        try{
+
            foreach ($field_config as $key => $field) {
                $type = $field['type'] ?? null;
                if ($type === 'number') {

@@ -59,7 +59,7 @@ class App
         $set_up_wizard->setUpCaching();
         $set_up_wizard->setUpProject();
 
-        // Check for database only if we are not on /admin/configure/database
+        // Check for a database only if we are not on /admin/configure/database
         $request = Service::serviceManager()->request;
         $current_uri = $request->getRequestUri();
         $database_form_route = $GLOBALS['caching']->getItem('route.database.form.route');
