@@ -624,6 +624,18 @@ class SystemController
             return new RedirectResponse($request->headers->get('referrer') ?? '/');
         }
 
+        $type = '';
+        if ($field['type'] === 'textarea' && !empty($field['class']) && in_array('editor',$field['class'])) {
+            $type = 'ck_editor';
+        }
+        elseif ($field['type'] === 'textarea' && !empty($field['class']) && !in_array('editor',$field['class'])) {
+            $type = 'simple_textarea';
+        }
+        else {
+            $type = $field['type'];
+        }
+
+        $field['type'] = $type;
         $handler = FieldManager::fieldManager()->getFieldBuilderHandler($field['type']);
         $entity_type =  $request->get('machine_name');
         $field_name =  $request->get('field_name');
