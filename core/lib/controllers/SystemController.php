@@ -17,6 +17,7 @@ use Simp\Core\modules\logger\ServerLogger;
 use Simp\Core\modules\search\SearchManager;
 use Simp\Core\modules\structures\content_types\field\FieldManager;
 use Simp\Core\modules\structures\content_types\form\ContentTypeDefinitionEditForm;
+use Simp\Core\modules\structures\taxonomy\Term;
 use Simp\Core\modules\structures\views\ViewsManager;
 use Throwable;
 use Twig\Error\LoaderError;
@@ -82,6 +83,12 @@ class SystemController
         return new Response("Access denied. sorry you can acess this page", 403);
     }
 
+    /**
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
     public function system_user_filter_auto_page(...$args): JsonResponse
     {
         extract($args);
@@ -143,6 +150,12 @@ class SystemController
                 $files = File::search($content->value);
                 $files = array_map(function ($file) { return $file->toArray(); }, $files);
                 return new JsonResponse(['result'=> array_values($files)], 200);
+            }
+
+            elseif (isset($content->settings->type) && $content->settings->type === 'term') {
+                $terms = Term::search($content->value);
+                $list = array_map(function ($term) { return ['id'=>$term['id'], 'title'=>$term['label']]; }, $terms);
+                return new JsonResponse(['result'=> $list], 200);
             }
         }
         return new JsonResponse(['result'=>'ok']);

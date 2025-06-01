@@ -5,6 +5,7 @@ use Simp\Core\lib\routes\Route;
 use Simp\Core\modules\structures\content_types\entity\Node;
 use Simp\Core\modules\files\entity\File;
 use Simp\Core\modules\auth\normal_auth\AuthUser;
+use Simp\Core\modules\structures\taxonomy\Term;
 use Simp\Translate\lang\LanguageManager;
 use Simp\Core\modules\tokens\TokenManager;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
@@ -107,37 +108,54 @@ function breakLineToHtml(string $text,int $at = 100): string
     return nl2br($text_line);
 }
 
+/**
+ * @throws PhpfastcacheCoreException
+ * @throws PhpfastcacheLogicException
+ * @throws PhpfastcacheDriverException
+ * @throws PhpfastcacheInvalidArgumentException
+ */
 function url(string $id, array $options, array $params = []): string
 {
     if (!empty($id)) {
         $route = Caching::init()->get($id);
         if ($route instanceof Route) {
             $pattern = $route->getRoutePath();
-            function generatePath(string $pattern, array $values): string {
-                $segments = explode('/', $pattern);
+            $generatePath = function (string $pattern, array $values): string {
+                return getStr($pattern, $values);
+            };
+            $with_value_pattern = $generatePath($pattern, $options);
 
-                foreach ($segments as &$segment) {
-                    if (str_starts_with($segment, '[') && str_ends_with($segment, ']')) {
-                        // Trim the square brackets
-                        $placeholder = trim($segment, '[]');
-
-                        // Handle possible type e.g., id:int
-                        $parts = explode(':', $placeholder);
-                        $key = $parts[0];
-
-                        if (isset($values[$key])) {
-                            $segment = $values[$key];
-                        }
-                    }
-                }
-                return implode('/', $segments);
-            }
-            $with_value_pattern = generatePath($pattern, $options);
 
             return empty($params) ? $with_value_pattern : $with_value_pattern . '?'. http_build_query($params);
         }
     }
     return '';
+}
+
+/**
+ * @param string $pattern
+ * @param array $values
+ * @return string
+ */
+function getStr(string $pattern, array $values): string
+{
+    $segments = explode('/', $pattern);
+
+    foreach ($segments as &$segment) {
+        if (str_starts_with($segment, '[') && str_ends_with($segment, ']')) {
+            // Trim the square brackets
+            $placeholder = trim($segment, '[]');
+
+            // Handle possible type e.g., id:int
+            $parts = explode(':', $placeholder);
+            $key = $parts[0];
+
+            if (isset($values[$key])) {
+                $segment = $values[$key];
+            }
+        }
+    }
+    return implode('/', $segments);
 }
 
 function buildReferenceLink(int|string|array $value, array $field_definition): array
@@ -189,6 +207,23 @@ function buildReferenceLink(int|string|array $value, array $field_definition): a
                         $html[] = [
                             'url' => FileFunction::reserve_uri($file->getUri()),
                             'name' => $file->getName()
+                        ];
+                    }
+                }
+
+                elseif ($field_definition['reference']['type'] === 'term') {
+                    if (!empty($v)) {
+                        $term = Term::load($v);
+                        $uri = url('system.vocabulary.term.view',['name'=>$term['name']]);
+                        $html[] = [
+                            'url' => $uri,
+                            'name' => $term['label']
+                        ];
+                    }
+                    else {
+                        $html[] = [
+                            'url' => '#',
+                            'name' => ''
                         ];
                     }
                 }

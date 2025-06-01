@@ -7,6 +7,7 @@ use Simp\Core\lib\themes\View;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
 use Simp\Core\modules\structures\content_types\field\FieldBuilderInterface;
 use Simp\Core\modules\structures\content_types\field\FieldManager;
+use Simp\Core\modules\structures\taxonomy\VocabularyManager;
 use Symfony\Component\HttpFoundation\Request;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -26,10 +27,11 @@ class ReferenceFieldBuilder implements FieldBuilderInterface
         $this->field_type = $field_type;
         $field = self::extensionInfo($field_type);
         $contentTypes = ContentDefinitionManager::contentDefinitionManager()->getContentTypes();
+        $vocabularies = VocabularyManager::factory()->getVocabularies();
         $template = match ($field_type) {
             'reference' => 'default.view.basic.reference',
         };
-        return View::view($template,['field'=>$field,'definition'=>$options, 'content_types'=>$contentTypes]);
+        return View::view($template,['field'=>$field,'definition'=>$options, 'content_types'=>$contentTypes, 'vocabularies'=>$vocabularies]);
     }
 
     public function fieldArray(Request $request, string $field_type, string $entity_type): array
@@ -65,9 +67,24 @@ class ReferenceFieldBuilder implements FieldBuilderInterface
             $field_data['required'] = !empty($data['required']) && $data['required'] == 'on';
             $field_data['handler'] = $this->getFieldHandler();
             $field_data['limit'] = (int)($data['limit'] ?? 1);
+
+            $reference_entity = null;
+            if (!empty($data['reference_type']) && $data['reference_type'] === 'node') {
+                $reference_entity = $data['reference_content_type'];
+            }
+            elseif (!empty($data['reference_type']) && $data['reference_type'] === 'user') {
+                $reference_entity = $data['reference_type_user'];
+            }
+            elseif (!empty($data['reference_type']) && $data['reference_type'] === 'file') {
+                $reference_entity = $data['reference_type_file'];
+            }
+            elseif (!empty($data['reference_type']) && $data['reference_type'] === 'term') {
+                $reference_entity = $data['reference_type_term'];
+            }
+
             $field_data['reference'] = [
                 'type' => $data['reference_type'] ?? '',
-                'reference_entity' => ($data['reference_type'] === 'node' ? $data['reference_content_type'] : $data['reference_type_user'] ?? ''),
+                'reference_entity' => $reference_entity,
             ];
         }
 

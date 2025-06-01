@@ -522,7 +522,7 @@ system.structure.content.add:
     class: Simp\Core\lib\controllers\SystemController
     method: content_content_node_add_controller
 system.structure.content.form:
-  title: "Content Type Field"
+  title: "Add Content"
   path: '/node/add/[content_name:string]'
   method:
     - GET
@@ -844,3 +844,111 @@ system.extends.manage.add:
   controller:
     class: Simp\Core\lib\controllers\ExtendController
     method: extend_manage_add
+
+# Vocabulary and texonomy
+system.vocabulary.list:
+  title: "Taxonomy"
+  path: '/admin/structure/taxonomy'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\VocabularyController
+    method: manage
+
+system.vocabulary.add:
+  title: "Taxonomy"
+  path: '/admin/structure/taxonomy/create'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\VocabularyController
+    method: add
+system.vocabulary.edit:
+  title: "Taxonomy"
+  path: '/admin/structure/taxonomy/[name:string]/edit'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\VocabularyController
+    method: edit
+system.vocabulary.delete:
+  title: "Taxonomy"
+  path: '/admin/structure/taxonomy/[name:string]/delete'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\VocabularyController
+    method: delete
+
+system.vocabulary.terms:
+  title: "Taxonomy"
+  path: '/admin/structure/taxonomy/[name:string]/terms'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\VocabularyController
+    method: term_list
+
+system.vocabulary.term.add:
+  title: "Add Term"
+  path: '/admin/structure/taxonomy/[name:string]/term/add'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\VocabularyController
+    method: term_add
+
+system.vocabulary.term.edit:
+  title: "Edit Term"
+  path: '/admin/structure/taxonomy/[name:string]/[tid:int]/edit'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\VocabularyController
+    method: term_edit
+system.vocabulary.term.delete:
+  title: "Delete Term"
+  path: '/admin/structure/taxonomy/[name:string]/[tid:int]/delete'
+  method:
+    - GET
+    - POST
+  access:
+    - administrator
+  controller:
+    class: Simp\Core\lib\controllers\VocabularyController
+    method: term_delete
+system.vocabulary.term.view:
+  title: "Term"
+  path: '/term/[name:string]'
+  method:
+    - GET
+  access:
+    - administrator
+    - authenticated
+    - anonymous
+    - content_creator
+    - manager
+  controller:
+    class: Simp\Core\lib\controllers\VocabularyController
+    method: term_view

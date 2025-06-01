@@ -51,7 +51,7 @@ class DatabaseCacheManager
                 $this->cacheActive = false;
             }
 
-            // Initialize caching library only if cache is active
+            // Initialize a caching library only if cache is active
             if ($this->cacheActive) {
                 // Assuming Caching::init() returns the configured Phpfastcache instance
                 $this->caching = Caching::init();
@@ -134,6 +134,9 @@ class DatabaseCacheManager
         }
 
         try {
+            $database_list = Caching::init()->get('database_cache_tags');
+            $database_list[] = $cacheTag;
+            Caching::init()->set('database_cache_tags', $database_list);
             $effectiveTtl = $ttl ?? $this->cacheTtl;
             // Assuming the Caching wrapper has a 'set' method similar to Phpfastcache
             // Adjust if your Caching class uses different method names or parameters
@@ -219,8 +222,14 @@ class DatabaseCacheManager
         }
 
         try {
+            $tags = Caching::init()->get('database_cache_tags');
+            if ($tags) {
+                foreach ($tags as $tag) {
+                    $this->caching->delete($tag);
+                }
+            }
             // Assuming the Caching wrapper has a 'clear' or similar method
-            return $this->caching->clear();
+            return $this->caching->delete('database_cache_tags');
         } catch (Throwable $e) {
             Database::staticLogger("DatabaseCacheManager Error (clearAllCache): Failed to clear cache - " . $e->getMessage());
             return false;

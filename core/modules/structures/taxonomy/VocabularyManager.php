@@ -23,28 +23,26 @@ class VocabularyManager
         $this->vocabularies = Yaml::parseFile($this->location) ?? [];
     }
 
-    public function addVocabulary(string $name): true
+    public function addVocabulary(string $name): bool
     {
-        if (!isset($this->vocabularies[$name])) {
-            $this->vocabularies[$name] = [
-                'name' => strtolower($this->createName($name)),
+        $name_neural = strtolower($this->createName($name));
+        if (!isset($this->vocabularies[$name_neural])) {
+            $this->vocabularies[$name_neural] = [
+                'name' => $name_neural,
                 'label' => $name
             ];
             $d = Yaml::dump($this->vocabularies, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
-            return !file_put_contents($this->location, $d);
+            return !empty(file_put_contents($this->location, $d));
         }
 
-        $this->vocabularies[$name]['label'] = $name;
+        $this->vocabularies[$name_neural]['label'] = $name;
         $d = Yaml::dump($this->vocabularies, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
-        return !file_put_contents($this->location, $d);
+        return !empty(file_put_contents($this->location, $d));
     }
 
     protected function createName(string $name): string
     {
-        // remove all special characters and replace with underscore
-        // remove all spaces and replace with underscore
-        // remove consecutive underscores and replace with single underscore
-        $name = preg_replace('/[^a-zA-Z0-9_]/', '', $name);
+        $name = preg_replace('/[^a-zA-Z0-9_]/', '_', $name);
         $name = preg_replace('/\s+/', '_', $name);
         return preg_replace('/_+/', '_', $name);
     }
@@ -63,4 +61,25 @@ class VocabularyManager
         }
         return false;
     }
+
+    public function getVocabularies(): array
+    {
+        return $this->vocabularies;
+    }
+
+    public function getVocabulary(mixed $name)
+    {
+        return $this->vocabularies[$name] ?? [];
+    }
+
+    public function updateVocabulary(mixed $name, mixed $label): bool
+    {
+        $name_neural = strtolower($this->createName($name));
+        if (!isset($this->vocabularies[$name_neural])) {
+            $this->vocabularies[$name_neural]['label'] = $label;
+        }
+        $d = Yaml::dump($this->vocabularies);
+        return !empty(file_put_contents($this->location, $d));
+    }
+
 }

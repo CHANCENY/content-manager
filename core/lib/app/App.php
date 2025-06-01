@@ -166,14 +166,13 @@ class App
             $response = reset($response);
             $response = $response ? $response : new Response("Page not found", 404);
             $response?->send(true);
-            return $response;
         }
         else {
 
             $response = new Response("Page not found", 404);
             $response->send(true);
-            return $response;
         }
+        return $response;
 
     }
 

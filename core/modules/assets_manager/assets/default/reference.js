@@ -19,7 +19,7 @@
                              }
                              else {
                                  div.innerHTML = item.title;
-                                 div.dataset.id = item.nid;
+                                 div.dataset.id = item.nid || item.id || item.fid;
                              }
 
                              div.addEventListener('click', (e) => {
