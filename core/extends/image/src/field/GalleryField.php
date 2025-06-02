@@ -3,7 +3,10 @@
 namespace Simp\Core\extends\image\src\field;
 
 use Exception;
+use Simp\Core\components\extensions\ModuleHandler;
+use Simp\Core\extends\image\src\Loader\Gallery;
 use Simp\Core\lib\themes\View;
+use Simp\Core\modules\services\Service;
 use Simp\Core\modules\structures\content_types\field\FieldManager;
 use Simp\Fields\FieldBase;
 use Simp\Fields\FieldRequiredException;
@@ -143,13 +146,25 @@ class GalleryField extends FieldBase
         }
 
         $id = $this->getId();
+        $gallery = Gallery::factory();
+        $images = $gallery->getImagesByPage(Service::serviceManager()->request->get('page', 1), 5);
+
+        $module_handler = ModuleHandler::factory();
+        $module_handler->attachLibrary('image', 'image.gallery.library');
 
         return View::view('default.view.field.image.field_gallery', [
             'field' => $this->field,
             'object' => $this,
+            'images' => $images,
+            'pager' => $gallery->getImagesCount()
         ]);
     }
 
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
     public function __toString(): string
     {
         return $this->getBuildField();

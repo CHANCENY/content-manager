@@ -14,7 +14,12 @@ use Simp\Core\modules\database\Database;
  */
 function image_database_install(): bool
 {
-    $query = "CREATE TABLE IF NOT EXISTS `image_gallery` (`id` INT AUTO_INCREMENT PRIMARY KEY, `fid` INT NOT NULL, FOREIGN KEY fid (fid) REFERENCES file_managed (fid) ON DELETE CASCADE)";
+    $query = "CREATE TABLE IF NOT EXISTS `image_gallery` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `fid` INT NOT NULL,
+  FOREIGN KEY (`fid`) REFERENCES `file_managed` (`fid`) ON DELETE CASCADE
+);
+";
     $query = Database::database()->con()->prepare($query);
     return $query->execute();
 }
@@ -38,4 +43,20 @@ function image_field_install(): array
     return [
         'image_gallery' => FieldImageGalleryBuilder::class,
     ];
+}
+
+function image_library_install(string $library_name): array
+{
+    $library = [
+        'image.gallery.library' => [
+            'head' => [
+                '/core/extends/image/assets/css/style.css'
+            ],
+            'footer' => [
+                '/core/extends/image/assets/js/placeholder.js',
+                '/core/extends/image/assets/js/gallery.js'
+            ]
+        ]
+    ];
+    return $library[$library_name] ?? [];
 }

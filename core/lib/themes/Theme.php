@@ -85,8 +85,8 @@ class Theme extends SystemDirectory
                     'navigation'=> $assets_manager->adminNavigation(),
                 ],
                 'assets' => [
-                    'head' => &$GLOBALS['assets.head'],
-                    'footer' => &$GLOBALS['assets.footer'],
+                    'head' => $GLOBALS['theme']['head'] ?? [],
+                    'footer' => $GLOBALS['theme']['footer'] ?? [],
                 ]
             ]
         ];

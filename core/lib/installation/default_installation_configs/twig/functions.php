@@ -414,6 +414,13 @@ function get_functions(): array
         }),
         new TwigFunction('is_module_enabled',function(string $module_name){
             return ModuleHandler::factory()->isModuleEnabled($module_name);
+        }),
+
+        new TwigFunction('attached_library',function(string $section){
+
+            $sections = $GLOBALS['theme'][$section] ?? [];
+            return implode('',$sections);
+
         })
     );
 }
