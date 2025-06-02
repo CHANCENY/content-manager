@@ -822,6 +822,7 @@ class SystemController
         try{
             $node = Node::load($nid);
             $entity = $node->getEntityArray();
+            $options['route']->route_title = $node->getTitle();
             $definitions = [];
             foreach ($entity['storage'] as $field) {
                 $name = substr($field,6,strlen($field));
@@ -834,7 +835,6 @@ class SystemController
                 'display' => $content_definitions['display_setting'] ?? []
             ]));
         }catch (Throwable $exception){
-            dd($exception->getMessage());
             return new RedirectResponse('/');
         }
     }

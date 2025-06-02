@@ -1,0 +1,5 @@
+name: Image
+description: 'This is extension allow the image processing'
+type: module
+core_version_requirement: ^1
+enabled: true

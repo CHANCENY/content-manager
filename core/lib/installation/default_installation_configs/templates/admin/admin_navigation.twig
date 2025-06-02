@@ -3,7 +3,7 @@
     <div class="admin-bar">
         <div>
             {% if request.user is not null and request.user.isIsAdmin %}
-                <a href="#"><i class="fa fa-bars"></i> {{ "Manage"|t }}</a>
+                <a href="#" class="menu-toggle"><i class="fa fa-bars"></i> {{ "Manage"|t }}</a>
                 <a href="#"><i class="fa fa-star"></i> {{ "Shortcuts"|t }}</a>
             {% endif %}
 

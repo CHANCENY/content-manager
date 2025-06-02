@@ -222,4 +222,20 @@ class ModuleHandler extends SystemDirectory
         }
         return false;
     }
+
+    public function getFieldExtension(): array
+    {
+        $fields = array();
+        foreach($this->modules as $name=>$module) {
+            $module_installer = $module['path'] . DIRECTORY_SEPARATOR . $name. '.install.php';
+            if (file_exists($module_installer) && $module['enabled'] === true) {
+                require_once $module_installer;
+                $field_install = $name . '_field_install';
+                if (\function_exists($field_install)) {
+                    $fields = \array_merge($fields, $field_install());
+                }
+            }
+        }
+        return \array_unique($fields);
+    }
 }

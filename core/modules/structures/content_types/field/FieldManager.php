@@ -2,6 +2,7 @@
 
 namespace Simp\Core\modules\structures\content_types\field;
 
+use Simp\Core\components\extensions\ModuleHandler;
 use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\modules\structures\content_types\field\fields\DragDropFieldBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\FieldSetBuilder;
@@ -49,6 +50,12 @@ class FieldManager
             'conditional' => FieldSetBuilder::class,
             'reference' => ReferenceFieldBuilder::class,
         ];
+        $module_handler = ModuleHandler::factory();
+        $extension_fields = $module_handler->getFieldExtension();
+        if (!empty($extension_fields)) {
+            $this->supported_fields = array_merge($this->supported_fields, $extension_fields);
+        }
+        ksort($this->supported_fields);
         $system = new SystemDirectory();
         $extension_file = $system->setting_dir . DIRECTORY_SEPARATOR . 'fields' . DIRECTORY_SEPARATOR . 'fields.php';
         if (file_exists($extension_file)) {
