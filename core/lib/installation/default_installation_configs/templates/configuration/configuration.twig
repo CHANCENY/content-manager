@@ -68,4 +68,22 @@
         </tbody>
     </table>
 
+    {% if is_module_enabled('auto_path') %}
+
+        <table>
+            <thead>
+            <tr>
+                <th>{{ "Auto path alias"|t }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><a href="{{ url('auto_path.create') }}">{{ "create"|t }}</a></td>
+            </tr>
+            {# <tr><td><a href="#">Image Styles</a></td></tr> #}
+            </tbody>
+        </table>
+
+    {% endif %}
+
 {% endblock %}

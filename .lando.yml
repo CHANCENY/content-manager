@@ -7,3 +7,6 @@ config:
 services:
   phpmyadmin:
     type: phpmyadmin
+    hosts:
+      - database
+    port: 8081

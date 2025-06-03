@@ -15,7 +15,7 @@ class ContentDefinitionStorage
         $this->content_type = ContentDefinitionManager::contentDefinitionManager()->getContentType($content_name);
     }
 
-    public function storageDefinitionsPersistent(array $persist_override_field = []): void
+    public function storageDefinitionsPersistent(): void
     {
         $fields = $this->content_type['fields'] ?? [];
         $created_tables = $this->content_type['storage'] ?? [];

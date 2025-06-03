@@ -80,14 +80,7 @@ class ContentDefinitionManager extends SystemDirectory
             if (file_put_contents($this->content_file . DIRECTORY_SEPARATOR . $entity_name . '.yml',
                 Yaml::dump($this->savable($entity_name, $this->content_types), Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK))) {
                 $storage = ContentDefinitionStorage::contentDefinitionStorage($entity_name);
-                if (!empty($config['inner_field'])) {
-
-                    foreach ($config['inner_field'] as $inner_field_config) {
-                        $storage->storageDefinitionsPersistent($inner_field_config);
-                    }
-                } else {
-                    $storage->storageDefinitionsPersistent($config);
-                }
+                $storage->storageDefinitionsPersistent();
             }
 
         }
