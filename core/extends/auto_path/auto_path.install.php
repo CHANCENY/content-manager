@@ -8,7 +8,9 @@ use Simp\Core\modules\database\Database;
 
 function auto_path_database_install(): bool
 {
-    $query = "CREATE TABLE IF NOT EXISTS `auto_path` (id INT AUTO_INCREMENT PRIMARY KEY, path VARCHAR(255) NOT NULL UNIQUE, nid INT NOT NULL UNIQUE, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, CONSTRAINT fk_nid FOREIGN KEY (nid) REFERENCES node_data(nid) ON DELETE CASCADE)";
+    $query = "CREATE TABLE IF NOT EXISTS `auto_path` (id INT AUTO_INCREMENT PRIMARY KEY, path VARCHAR(400) NOT NULL UNIQUE, nid INT NOT NULL UNIQUE, pattern_id INT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, CONSTRAINT fk_nid FOREIGN KEY (nid) REFERENCES node_data(nid) ON DELETE CASCADE, CONSTRAINT fk_id FOREIGN KEY (pattern_id) REFERENCES auto_path_patterns(id) ON DELETE CASCADE)";
+    $query1 = "CREATE TABLE IF NOT EXISTS `auto_path_patterns` (id INT AUTO_INCREMENT PRIMARY KEY, pattern_path VARCHAR(255) NOT NULL UNIQUE, entity_type VARCHAR(255) NOT NULL UNIQUE)";
+    Database::database()->con()->prepare($query1)->execute();
     return Database::database()->con()->prepare($query)->execute();
 }
 
@@ -24,7 +26,7 @@ function auto_path_route_install(): array
 {
     return [
         'auto_path.create' => [
-            'title' => 'Auto Path',
+            'title' => 'Auto Path Create',
             'path' => '/admin/auto-path/create',
             'method' => [
                 'GET',
@@ -33,6 +35,34 @@ function auto_path_route_install(): array
             'controller' => [
                 'class' => AutoPathController::class,
                 'method' => 'auto_path_create'
+            ],
+            'access' => [
+                'administrator',
+            ]
+        ],
+        'auto_path.list' => [
+            'title' => 'Auto Path List',
+            'path' => '/admin/auto-path/list',
+            'method' => [
+                'GET'
+            ],
+            'controller' => [
+                'class' => AutoPathController::class,
+                'method' => 'auto_path_list'
+            ],
+            'access' => [
+                'administrator',
+            ]
+        ],
+        'auto_path.delete' => [
+            'title' => 'Auto Path Delete ',
+            'path' => '/admin/auto-path/[id:int]/delete',
+            'method' => [
+                'GET'
+            ],
+            'controller' => [
+                'class' => AutoPathController::class,
+                'method' => 'auto_path_delete'
             ],
             'access' => [
                 'administrator',

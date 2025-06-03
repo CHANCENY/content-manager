@@ -8,6 +8,7 @@ use Simp\Core\modules\structures\content_types\field\fields\DragDropFieldBuilder
 use Simp\Core\modules\structures\content_types\field\fields\FieldSetBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\FileFieldBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\InputFieldBuilder;
+use Simp\Core\modules\structures\content_types\field\fields\MarkUpFieldBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\ReferenceFieldBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\SelectFieldBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\TextAreaFieldBuilder;
@@ -49,6 +50,7 @@ class FieldManager
             'fieldset' => FieldSetBuilder::class,
             'conditional' => FieldSetBuilder::class,
             'reference' => ReferenceFieldBuilder::class,
+            'markup' => MarkupFieldBuilder::class,
         ];
         $module_handler = ModuleHandler::factory();
         $extension_fields = $module_handler->getFieldExtension();

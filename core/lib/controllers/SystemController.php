@@ -882,12 +882,21 @@ class SystemController
     public function content_node_add_delete_controller(...$args): RedirectResponse|Response
     {
         extract($args);
+
+        $redirect_path = '/';
+        if (CurrentUser::currentUser()->isIsAdmin()) {
+            $redirect_path = '/admin/content';
+        }
         $nid = $request->get('nid');
         if (empty($nid)) {
             Messager::toast()->addWarning("Node id not found.");
             return new RedirectResponse('/');
         }
         $node = Node::load($nid);
+        if (is_null($node)) {
+            Messager::toast()->addWarning("Node not found");
+            return new RedirectResponse($redirect_path);
+        }
         if (empty($request->get('action'))) {
             return new Response(View::view('default.view.confirm.content_node_delete',['node'=>$node]));
         }
@@ -897,7 +906,7 @@ class SystemController
         }
         if ($node->delete((int) $request->get('action'))) {
             Messager::toast()->addMessage("Node \"$title\" successfully deleted.");
-            return $request->get('action') == 1 ? new RedirectResponse('/') : new RedirectResponse('/node/'.$node->getNid());
+            return $request->get('action') == 1 ? new RedirectResponse($redirect_path) : new RedirectResponse('/node/'.$node->getNid());
         }
         Messager::toast()->addWarning("Node \"$title\" was not deleted.");
         return new RedirectResponse('/node/'.$node->getNid());

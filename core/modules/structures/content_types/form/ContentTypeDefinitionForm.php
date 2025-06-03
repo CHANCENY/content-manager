@@ -7,7 +7,9 @@ use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheIOException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
+use Simp\Core\components\extensions\ModuleHandler;
 use Simp\Core\components\reference_field\ReferenceField;
+use Simp\Core\extends\auto_path\src\path\AutoPathAlias;
 use Simp\Core\modules\files\entity\File;
 use Simp\Core\modules\files\uploads\FormUpload;
 use Simp\Core\modules\messager\Messager;
@@ -234,6 +236,7 @@ class ContentTypeDefinitionForm extends FormBase
      * @throws PhpfastcacheLogicException
      * @throws PhpfastcacheDriverException
      * @throws PhpfastcacheInvalidArgumentException
+     * @throws \Exception
      */
     public function submitForm(array &$form): void
     {
@@ -331,6 +334,12 @@ class ContentTypeDefinitionForm extends FormBase
 
                 // now insert in other tables.
                 $node = Node::create($node_data);
+                //Auto path creation if enabled
+                if (ModuleHandler::factory()->isModuleEnabled('auto_path')) {
+                    if (AutoPathAlias::factory()->isEntityTypeAutoPathEnabled($this->content_type['machine_name'])) {
+                        AutoPathAlias::factory()->create($node);
+                    }
+                }
                 Messager::toast()->addMessage("Content of type {$this->content_type['name']} created");
                 $redirect = new RedirectResponse('/admin/content');
                 $redirect->setStatusCode(302);
