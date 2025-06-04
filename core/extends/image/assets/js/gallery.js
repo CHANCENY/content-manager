@@ -101,13 +101,28 @@ $(document).ready(function() {
                 const imageSrc = e.target.result;
                 // Generate a unique ID for the uploaded image
                 const imageId = 'upload_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                
-                // Add to uploaded images array
-                uploadedImages.push({
+
+                const object = {
                     id: imageId,
                     src: imageSrc,
                     file: file
-                });
+                };
+
+                const send_file = async (file) => {
+                    const requestOptions = {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(file)
+                    }
+
+                    const response = await fetch("/gallery/upload", requestOptions);
+                    if (response.ok) {
+                        const image = await response.json();
+                        uploadedImages.push(image);
+                    }
+                }
                 
                 updatePreviewArea();
             };
@@ -241,12 +256,41 @@ $(document).ready(function() {
         */
     });
     
-    // Initialize with placeholder images for demo
-    function initPlaceholderImages() {
-        // In a real application, you would fetch these from a server
-        // For now, we'll just use the placeholders already in the HTML
+
+    // Pagination
+    function pager() {
+
+        const next = $(".next");
+        if (next) {
+
+            const load_more = async (index) => {
+                index = index + 1;
+                let data = await fetch('/gallery/loader/' + index);
+                data = await data.json();
+                try {
+                    if (data.success) {
+                        data.results.forEach((item) => {
+                            const image = `<div class="gallery-item" data-id="${item.fid}">
+                                <img src="${item.uri}" alt="${item.name}">
+                                <div class="overlay">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </div>`;
+                            $("#image-gallery").append(image);
+                        })
+                        $("#image-gallery").attr("data-index", index);
+                    }
+
+                } catch (err) {
+                }
+            }
+
+            next.on("click", async function () {
+                let index = parseInt($("#image-gallery").attr('data-index') || 1)
+                await load_more(index);
+            })
+        }
     }
-    
-    // Initialize the component
-    initPlaceholderImages();
+
+    pager();
 });

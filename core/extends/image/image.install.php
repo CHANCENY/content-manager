@@ -1,6 +1,7 @@
 <?php
 
 use Simp\Core\components\extensions\ModuleHandler;
+use Simp\Core\extends\image\src\controller\ImageController;
 use Simp\Core\extends\image\src\field\FieldImageGalleryBuilder;
 use Simp\Core\modules\database\Database;
 
@@ -59,4 +60,48 @@ function image_library_install(string $library_name): array
         ]
     ];
     return $library[$library_name] ?? [];
+}
+
+function image_route_install(): array
+{
+    return [
+        'image.gallery.loader' => [
+            'title' => 'Galleries',
+            'path' => '/gallery/loader/[page:int]',
+            'method' => [
+                'GET',
+                'POST'
+            ],
+            'controller' => [
+                'class' => ImageController::class,
+                'method' => 'loader'
+            ],
+            'access' => [
+                'administrator',
+                'authenticated',
+                'anonymous',
+                'content_creator',
+                'manager'
+            ]
+        ],
+        'image.gallery.upload' => [
+            'title' => 'Gallery Image Upload',
+            'path' => '/gallery/upload',
+            'method' => [
+                'GET',
+                'POST'
+            ],
+            'controller' => [
+                'class' => ImageController::class,
+                'method' => 'upload'
+            ],
+            'access' => [
+                'administrator',
+                'authenticated',
+                'anonymous',
+                'content_creator',
+                'manager'
+            ]
+        ]
+    ];
 }
