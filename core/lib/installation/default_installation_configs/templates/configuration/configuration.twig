@@ -14,7 +14,7 @@
             <td><a href="/admin/config/system/site-information">{{ "Basic Site Settings"|t }}</a></td>
         </tr>
         <tr>
-            <td><a href="#">{{ "Cron Settings"|t }}</a></td>
+            <td><a href="/cron/manage">{{ "Cron Settings"|t }}</a></td>
         </tr>
         <tr>
             <td><a href="/admin/config/smtp">{{ "SMTP Settings"|t }}</a></td>
@@ -67,5 +67,26 @@
         {# <tr><td><a href="#">Image Styles</a></td></tr> #}
         </tbody>
     </table>
+
+    {% if is_module_enabled('auto_path') %}
+
+        <table>
+            <thead>
+            <tr>
+                <th>{{ "Auto path alias"|t }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><a href="{{ url('auto_path.create') }}">{{ "create"|t }}</a></td>
+            </tr>
+            <tr>
+                <td><a href="{{ url('auto_path.list') }}">{{ "aliases"|t }}</a></td>
+            </tr>
+            {# <tr><td><a href="#">Image Styles</a></td></tr> #}
+            </tbody>
+        </table>
+
+    {% endif %}
 
 {% endblock %}

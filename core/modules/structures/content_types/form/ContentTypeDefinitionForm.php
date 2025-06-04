@@ -2,12 +2,15 @@
 
 namespace Simp\Core\modules\structures\content_types\form;
 
+use Exception;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheIOException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
+use Simp\Core\components\extensions\ModuleHandler;
 use Simp\Core\components\reference_field\ReferenceField;
+use Simp\Core\extends\auto_path\src\path\AutoPathAlias;
 use Simp\Core\modules\files\entity\File;
 use Simp\Core\modules\files\uploads\FormUpload;
 use Simp\Core\modules\messager\Messager;
@@ -234,6 +237,7 @@ class ContentTypeDefinitionForm extends FormBase
      * @throws PhpfastcacheLogicException
      * @throws PhpfastcacheDriverException
      * @throws PhpfastcacheInvalidArgumentException
+     * @throws Exception
      */
     public function submitForm(array &$form): void
     {
@@ -242,8 +246,6 @@ class ContentTypeDefinitionForm extends FormBase
             $data_all = array_map(function ($value) {
                 return $value->getValue();
             }, $form);
-
-
 
             $user = User::loadByName($data_all['owner'] ?? '') ?? User::load(
                 \is_numeric($data_all['owner']) ? $data_all['owner'] : 1);
@@ -333,6 +335,7 @@ class ContentTypeDefinitionForm extends FormBase
 
                 // now insert in other tables.
                 $node = Node::create($node_data);
+
                 Messager::toast()->addMessage("Content of type {$this->content_type['name']} created");
                 $redirect = new RedirectResponse('/admin/content');
                 $redirect->setStatusCode(302);

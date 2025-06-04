@@ -2,11 +2,14 @@
 
 namespace Simp\Core\lib\controllers;
 
+use AddCronForm;
 use Simp\Core\components\rest_data_source\DefaultDataSource;
 use Simp\Core\lib\forms\ContentTypeInnerFieldEditForm;
 use Simp\Core\lib\forms\DisplayEditForm;
 use Simp\Core\lib\forms\SearchFormConfiguration;
 use Simp\Core\lib\forms\ViewAddForm;
+use Simp\Core\lib\memory\cache\Caching;
+use Simp\Core\lib\routes\Route;
 use Simp\Core\modules\assets_manager\AssetsManager;
 use Simp\Core\modules\files\entity\File;
 use Simp\Core\modules\integration\rest\JsonRestManager;
@@ -16,6 +19,7 @@ use Simp\Core\modules\logger\ServerLogger;
 use Simp\Core\modules\search\SearchManager;
 use Simp\Core\modules\structures\content_types\field\FieldManager;
 use Simp\Core\modules\structures\content_types\form\ContentTypeDefinitionEditForm;
+use Simp\Core\modules\structures\taxonomy\Term;
 use Simp\Core\modules\structures\views\ViewsManager;
 use Throwable;
 use Twig\Error\LoaderError;
@@ -55,6 +59,8 @@ use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Simp\Core\modules\structures\content_types\entity\Node;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use Simp\Core\lib\forms\AddCronForm as FormsAddCronForm;
+use Simp\Core\modules\cron\Cron;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
 use Simp\Core\modules\structures\content_types\form\ContentTypeDefinitionForm;
 
@@ -79,6 +85,12 @@ class SystemController
         return new Response("Access denied. sorry you can acess this page", 403);
     }
 
+    /**
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
     public function system_user_filter_auto_page(...$args): JsonResponse
     {
         extract($args);
@@ -140,6 +152,12 @@ class SystemController
                 $files = File::search($content->value);
                 $files = array_map(function ($file) { return $file->toArray(); }, $files);
                 return new JsonResponse(['result'=> array_values($files)], 200);
+            }
+
+            elseif (isset($content->settings->type) && $content->settings->type === 'term') {
+                $terms = Term::search($content->value);
+                $list = array_map(function ($term) { return ['id'=>$term['id'], 'title'=>$term['label']]; }, $terms);
+                return new JsonResponse(['result'=> $list], 200);
             }
         }
         return new JsonResponse(['result'=>'ok']);
@@ -608,6 +626,18 @@ class SystemController
             return new RedirectResponse($request->headers->get('referrer') ?? '/');
         }
 
+        $type = '';
+        if ($field['type'] === 'textarea' && !empty($field['class']) && in_array('editor',$field['class'])) {
+            $type = 'ck_editor';
+        }
+        elseif ($field['type'] === 'textarea' && !empty($field['class']) && !in_array('editor',$field['class'])) {
+            $type = 'simple_textarea';
+        }
+        else {
+            $type = $field['type'];
+        }
+
+        $field['type'] = $type;
         $handler = FieldManager::fieldManager()->getFieldBuilderHandler($field['type']);
         $entity_type =  $request->get('machine_name');
         $field_name =  $request->get('field_name');
@@ -786,7 +816,19 @@ class SystemController
     public function content_node_controller(...$args): RedirectResponse|Response
     {
         extract($args);
+
         $nid = $request->get('nid');
+        if (empty($nid)) {
+            /**@var Route|null $route**/
+            $route = $options['route'] ?? null;
+            if (!empty($route)) {
+                $route_option = $route->options['node'] ?? null;
+                if (!empty($route_option)) {
+                    $nid = $route_option;
+                }
+            }
+        }
+
         if (empty($nid)) {
             Messager::toast()->addWarning("Node id not found.");
             return new RedirectResponse('/');
@@ -794,6 +836,7 @@ class SystemController
         try{
             $node = Node::load($nid);
             $entity = $node->getEntityArray();
+            $options['route']->route_title = $node->getTitle();
             $definitions = [];
             foreach ($entity['storage'] as $field) {
                 $name = substr($field,6,strlen($field));
@@ -806,7 +849,6 @@ class SystemController
                 'display' => $content_definitions['display_setting'] ?? []
             ]));
         }catch (Throwable $exception){
-            dd($exception->getMessage());
             return new RedirectResponse('/');
         }
     }
@@ -854,12 +896,21 @@ class SystemController
     public function content_node_add_delete_controller(...$args): RedirectResponse|Response
     {
         extract($args);
+
+        $redirect_path = '/';
+        if (CurrentUser::currentUser()->isIsAdmin()) {
+            $redirect_path = '/admin/content';
+        }
         $nid = $request->get('nid');
         if (empty($nid)) {
             Messager::toast()->addWarning("Node id not found.");
             return new RedirectResponse('/');
         }
         $node = Node::load($nid);
+        if (is_null($node)) {
+            Messager::toast()->addWarning("Node not found");
+            return new RedirectResponse($redirect_path);
+        }
         if (empty($request->get('action'))) {
             return new Response(View::view('default.view.confirm.content_node_delete',['node'=>$node]));
         }
@@ -869,7 +920,7 @@ class SystemController
         }
         if ($node->delete((int) $request->get('action'))) {
             Messager::toast()->addMessage("Node \"$title\" successfully deleted.");
-            return $request->get('action') == 1 ? new RedirectResponse('/') : new RedirectResponse('/node/'.$node->getNid());
+            return $request->get('action') == 1 ? new RedirectResponse($redirect_path) : new RedirectResponse('/node/'.$node->getNid());
         }
         Messager::toast()->addWarning("Node \"$title\" was not deleted.");
         return new RedirectResponse('/node/'.$node->getNid());
@@ -1413,4 +1464,47 @@ class SystemController
         return new RedirectResponse('/admin/integration/rest');
     }
 
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    public function cron_manage(...$args): Response|RedirectResponse
+    {
+        \extract($args);
+
+        $cron_manager = Cron::factory();
+
+        $logs = $cron_manager->getCronLogs();
+        $schedules = $cron_manager->getScheduledCrons();
+
+        $scripts = $cron_manager->getCronScriptFile();
+
+        return new Response(View::view('default.view.cron_manage',
+            [
+                'jobs'=> $cron_manager->getCrons(),
+                'logs'=>$logs,
+                'schedules'=>$schedules,
+                'scripts'=>$scripts
+            ]
+        )
+        );
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    public function cron_add(...$args): Response|RedirectResponse {
+
+        \extract($args);
+        $formBase = new FormBuilder(new FormsAddCronForm);
+        $formBase->getFormBase()->setFormMethod('POST');
+        $formBase->getFormBase()->setFormEnctype('multipart/form-data');
+
+
+
+        return new Response(View::view("default.view.cron.add",['_form'=> $formBase]));
+    }
 }

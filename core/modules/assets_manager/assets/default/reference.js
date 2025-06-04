@@ -2,7 +2,6 @@
 
 
     function reference_caller(field_id, settings, appender_element) {
-        console.log(field_id, settings, appender_element);
         if (field_id && settings && appender_element) {
              $(`#${field_id}`).on('input',async (e) => {
                  const value = e.target.value;
@@ -20,15 +19,14 @@
                              }
                              else {
                                  div.innerHTML = item.title;
-                                 div.dataset.id = item.nid;
+                                 div.dataset.id = item.nid || item.id || item.fid;
                              }
 
                              div.addEventListener('click', (e) => {
                                  e.preventDefault();
                                  const id = e.target.dataset.id;
                                  const input = document.querySelector(`#${field_id}`);
-                                 const text = `${div.textContent} (${id})`;
-                                 input.value = text;
+                                 input.value = `${id}`;
                                  input.dispatchEvent(new Event('change'));
                                  appender_element.innerHTML = '';
                              });

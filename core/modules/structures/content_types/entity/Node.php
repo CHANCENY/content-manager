@@ -2,7 +2,10 @@
 
 namespace Simp\Core\modules\structures\content_types\entity;
 
+use Exception;
 use PDO;
+use Simp\Core\components\extensions\ModuleHandler;
+use Simp\Core\extends\auto_path\src\path\AutoPathAlias;
 use Simp\Core\modules\database\Database;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
 use Simp\Core\modules\structures\content_types\helper\NodeFunction;
@@ -166,6 +169,9 @@ class Node
         $this->nid = $nid;
     }
 
+    /**
+     * @throws Exception
+     */
     public static function create(array $data): ?Node
     {
         if (!empty($data['title']) && !empty($data['bundle']) && !empty($data['uid'])) {
@@ -185,6 +191,13 @@ class Node
                 // Add more field data.
                 foreach ($data as $key => $value) {
                     $node->addFieldData($key, $value);
+                }
+
+                //Auto path creation if enabled
+                if (ModuleHandler::factory()->isModuleEnabled('auto_path')) {
+                    if (AutoPathAlias::factory()->isEntityTypeAutoPathEnabled($node->entity_types['machine_name'])) {
+                        AutoPathAlias::factory()->create($node);
+                    }
                 }
                 return Node::load($nid);
             }

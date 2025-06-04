@@ -42,7 +42,7 @@ class ReferenceField extends FieldBase
             }
         }
 
-        if ($field['reference']['type'] !== 'user' && $field['reference']['type'] !== 'node') {
+        if ($field['reference']['type'] !== 'user' && $field['reference']['type'] !== 'node' && $field['reference']['type'] !== 'file' && $field['reference']['type'] !== 'term') {
             throw new Exception("Reference type must be 'user' or 'node' but given " . $field['reference']['type']);
         }
 

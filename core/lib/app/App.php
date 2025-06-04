@@ -14,6 +14,8 @@ use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidConfigurationException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidTypeException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
+use Simp\Core\components\extensions\ModuleHandler;
+use Simp\Core\extends\auto_path\src\path\AutoPathAlias;
 use Simp\Core\lib\installation\InstallerValidator;
 use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\lib\memory\cache\Caching;
@@ -59,7 +61,7 @@ class App
         $set_up_wizard->setUpCaching();
         $set_up_wizard->setUpProject();
 
-        // Check for database only if we are not on /admin/configure/database
+        // Check for a database only if we are not on /admin/configure/database
         $request = Service::serviceManager()->request;
         $current_uri = $request->getRequestUri();
         $database_form_route = $GLOBALS['caching']->getItem('route.database.form.route');
@@ -129,6 +131,12 @@ class App
             }
         }
 
+        // auto path
+        $auto_path_alias = array();
+        if(ModuleHandler::factory()->isModuleEnabled('auto_path')) {
+            $auto_path_alias = AutoPathAlias::injectAliases();
+        }
+
         $router = new Router($middleware_file);
 
         if ($route_keys->isHit()) {
@@ -160,20 +168,47 @@ class App
                         }
                     }
                 }
+
+            }
+
+            if (!empty($auto_path_alias)) {
+                foreach ($auto_path_alias as $route_key => $route) {
+                    /**@var Route $route**/
+                    $this->currentRoute = $route;
+
+                    // check methods
+                    $methods = $route->method;
+                    $path = $route->route_path;
+                    $name = $route->controller_method;
+                    $controller = $route->controller. "@" . $name;
+
+                    $options = [
+                        'access' => $route->access,
+                        'route' => $route,
+                        'key' => $route_key,
+                    ];
+
+                    if (count($methods) > 0) {
+                        foreach ($methods as $method) {
+                            $method_single = strtolower($method);
+                            /**@var Response $response**/
+                            $response[] = $router->$method_single($path, $name,$controller, $options);
+                        }
+                    }
+                }
             }
 
             $response = array_filter($response);
             $response = reset($response);
             $response = $response ? $response : new Response("Page not found", 404);
             $response?->send(true);
-            return $response;
         }
         else {
 
             $response = new Response("Page not found", 404);
             $response->send(true);
-            return $response;
         }
+        return $response;
 
     }
 

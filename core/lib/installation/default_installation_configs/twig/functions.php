@@ -1,9 +1,12 @@
 <?php
 
+use Simp\Core\components\extensions\ModuleHandler;
+use Simp\Core\extends\auto_path\src\path\AutoPathAlias;
 use Simp\Core\lib\routes\Route;
 use Simp\Core\modules\structures\content_types\entity\Node;
 use Simp\Core\modules\files\entity\File;
 use Simp\Core\modules\auth\normal_auth\AuthUser;
+use Simp\Core\modules\structures\taxonomy\Term;
 use Simp\Translate\lang\LanguageManager;
 use Simp\Core\modules\tokens\TokenManager;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
@@ -106,69 +109,92 @@ function breakLineToHtml(string $text,int $at = 100): string
     return nl2br($text_line);
 }
 
-function url(string $id, array $options, array $params = []): string
+/**
+ * @throws PhpfastcacheCoreException
+ * @throws PhpfastcacheLogicException
+ * @throws PhpfastcacheDriverException
+ * @throws PhpfastcacheInvalidArgumentException
+ */
+function url(string $id, array $options, array $params = []): ?string
 {
     if (!empty($id)) {
         $route = Caching::init()->get($id);
+        if (empty($route) && ModuleHandler::factory()->isModuleEnabled('auto_path')) {
+            $routes = AutoPathAlias::injectAliases();
+            $route = $routes[$id] ?? null;
+        }
         if ($route instanceof Route) {
             $pattern = $route->getRoutePath();
-            function generatePath(string $pattern, array $values): string {
-                $segments = explode('/', $pattern);
+            $generatePath = function (string $pattern, array $values): string {
+                return getStr($pattern, $values);
+            };
+            $with_value_pattern = $generatePath($pattern, $options);
 
-                foreach ($segments as &$segment) {
-                    if (str_starts_with($segment, '[') && str_ends_with($segment, ']')) {
-                        // Trim the square brackets
-                        $placeholder = trim($segment, '[]');
-
-                        // Handle possible type e.g., id:int
-                        $parts = explode(':', $placeholder);
-                        $key = $parts[0];
-
-                        if (isset($values[$key])) {
-                            $segment = $values[$key];
-                        }
-                    }
-                }
-                return implode('/', $segments);
-            }
-            $with_value_pattern = generatePath($pattern, $options);
 
             return empty($params) ? $with_value_pattern : $with_value_pattern . '?'. http_build_query($params);
         }
     }
-    return '';
+    return null;
+}
+
+/**
+ * @param string $pattern
+ * @param array $values
+ * @return string
+ */
+function getStr(string $pattern, array $values): string
+{
+    $segments = explode('/', $pattern);
+
+    foreach ($segments as &$segment) {
+        if (str_starts_with($segment, '[') && str_ends_with($segment, ']')) {
+            // Trim the square brackets
+            $placeholder = trim($segment, '[]');
+
+            // Handle possible type e.g., id:int
+            $parts = explode(':', $placeholder);
+            $key = $parts[0];
+
+            if (isset($values[$key])) {
+                $segment = $values[$key];
+            }
+        }
+    }
+    return implode('/', $segments);
 }
 
 function buildReferenceLink(int|string|array $value, array $field_definition): array
 {
     $html = [];
 
-    if (is_array($value) && array_key_exists(0,$value) && empty(reset($value))) {
-        return [];
-    }
-
-
-    if (is_string($value)) {
-       $value = [$value];
-    }
-    elseif (is_int($value)) {
+    if (!is_array($value)) {
         $value = [$value];
     }
 
     foreach ($value as $v) {
 
         if (!empty($field_definition['type']) && $field_definition['type'] === 'reference') {
+
             if (!empty($field_definition['reference']['type'])) {
 
                 if ($field_definition['reference']['type'] === 'node') {
-                    $link = url('system.structure.content.node',['nid'=>$v]);
-                    $node = Node::load($v);
-                    if ($node instanceof Node) {
-                        $html[] = [
-                            'url' => $link,
-                            'name' => $node->getTitle(),
-                        ];
+                    if (is_numeric($v)) {
+                        $link = url('system.structure.content.node',['nid'=>$v]);
+                        $node = Node::load($v);
+                        if ($node instanceof Node) {
+                            $html[] = [
+                                'url' => $link,
+                                'name' => $node->getTitle(),
+                            ];
+                        }
                     }
+                    else {
+                       $html[] =[
+                           'url' => '#',
+                           'name' => "reference not found"
+                       ];
+                    }
+
                 }
                 elseif ($field_definition['reference']['type'] === 'users') {
                     $link = url('system.account.view:',['uid'=>$v]);
@@ -184,12 +210,37 @@ function buildReferenceLink(int|string|array $value, array $field_definition): a
                     $file = File::load($v);
                     if ($file instanceof File) {
                         $html[] = [
-                            'url' => $file->getUri(),
+                            'url' => FileFunction::reserve_uri($file->getUri()),
                             'name' => $file->getName()
                         ];
                     }
                 }
 
+                elseif ($field_definition['reference']['type'] === 'term') {
+                    if (!empty($v)) {
+                        $term = Term::load($v);
+                        $uri = url('system.vocabulary.term.view',['name'=>$term['name']]);
+                        $html[] = [
+                            'url' => $uri,
+                            'name' => $term['label']
+                        ];
+                    }
+                    else {
+                        $html[] = [
+                            'url' => '#',
+                            'name' => ''
+                        ];
+                    }
+                }
+            }
+        }
+        elseif (!empty($field_definition['type']) && $field_definition['type'] === 'drag_and_drop') {
+            $file = File::load($v);
+            if ($file instanceof File) {
+                $html[] = [
+                    'url' => FileFunction::reserve_uri($file->getUri()),
+                    'name' => $file->getName()
+                ];
             }
         }
 
@@ -215,7 +266,7 @@ function author(int $uid): ?User {
  */
 function t(string $text, ?string $from = null, ?string $to = null): string {
 
-     // Check if current user has timezone translation enabled.
+     // Check if the current user has timezone translation enabled.
      $current_user = CurrentUser::currentUser();
 
     if ($current_user instanceof AuthUser) {
@@ -365,6 +416,20 @@ function get_functions(): array
         }),
         new TwigFunction('size_format',function(int|float $size){
             return file_size_format($size);
+        }),
+        new TwigFunction('is_module_enabled',function(string $module_name){
+            return ModuleHandler::factory()->isModuleEnabled($module_name);
+        }),
+
+        new TwigFunction('attached_library',function(string $section){
+
+            $sections = $GLOBALS['theme'][$section] ?? [];
+            return implode('',$sections);
+
+        }),
+
+        new TwigFunction('auto_path_key',function(int $number){
+            return AutoPathAlias::createRouteId($number);
         })
     );
 }

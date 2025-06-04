@@ -14,11 +14,13 @@ use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidConfigurationException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidTypeException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
+use Simp\Core\components\extensions\ModuleHandler;
 use Simp\Core\lib\file\file_system\stream_wrapper\SettingStreamWrapper;
 use Simp\Core\lib\memory\cache\Caching;
 use Simp\Core\lib\routes\Route;
 use Simp\Core\lib\themes\TwigResolver;
 use Simp\Core\modules\database\Database;
+use Simp\Core\modules\logger\ErrorLogger;
 use Simp\Core\modules\theme\ThemeManager;
 use Simp\StreamWrapper\WrapperRegister\WrapperRegister;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -158,9 +160,23 @@ class InstallerValidator extends SystemDirectory {
                          $statement = $connection->prepare($query);
                          $statement->execute();
                     }
+                    $module_handler = ModuleHandler::factory();
+                    $modules = $module_handler->getModules();
+                    foreach($modules as $key=>$module) {
+                        if ($module_handler->isModuleEnabled($key)) {
+                            $module_install = $module['path'] . DIRECTORY_SEPARATOR . $key. '.install.php';
+                            if (file_exists($module_install)) {
+                                $database_install = $key . '_database_install';
+                                require_once $module_install;
+                                if (function_exists($database_install)) {
+                                    $database_install();
+                                }
+                            }
+                        }
+                    }
 
                 }catch(Throwable $e){
-
+                    ErrorLogger::logger()->logError($e->getMessage()."\n".$e->getTraceAsString());
                 }
             }
             }
@@ -199,6 +215,11 @@ class InstallerValidator extends SystemDirectory {
         if (file_exists($general_routes)) {
             $routes = array_merge($routes, Yaml::parseFile($general_routes) ?? []);
         }
+
+        // Modules routes
+        $module = ModuleHandler::factory();
+        $modules_routes = $module->getModulesRoutes();
+        $routes = \array_merge($routes, $modules_routes);
         return $routes;
     }
 
@@ -237,7 +258,11 @@ class InstallerValidator extends SystemDirectory {
             if (is_dir($full_path)) {
                 $this->recursive_caching_defaults($full_path, $default_keys);
             }
+        }
 
+        $modules_templates = ModuleHandler::factory()->getModuleTemplates();
+        foreach ($modules_templates as $template) {
+            $this->recursive_caching_defaults($template, $default_keys);
         }
 
         Caching::init()->set('system.theme.keys', $default_keys);
@@ -266,6 +291,10 @@ class InstallerValidator extends SystemDirectory {
         $list = array_diff(scandir($directory) ?? [], ['..', '.']);
         foreach ($list as $file) {
             $file_path = $directory . DIRECTORY_SEPARATOR . $file;
+            if (is_dir($file_path)) {
+                $this->recursive_caching_defaults($file_path, $keys);
+            }
+
             $list_name = explode('.', $file);
             $type = end($list_name) === 'twig' ? 'view' : 'admin';
             $list_n = array_slice($list_name, 0, -1);
@@ -280,7 +309,13 @@ class InstallerValidator extends SystemDirectory {
         }
     }
 
-    protected function recursive_theme_caching(string $directory, string $theme ,&$keys): void
+    /**
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
+    protected function recursive_theme_caching(string $directory, string $theme , &$keys): void
     {
         $list = array_diff(scandir($directory) ?? [], ['..', '.']);
         foreach ($list as $file) {

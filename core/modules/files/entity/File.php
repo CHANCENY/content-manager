@@ -2,6 +2,7 @@
 
 namespace Simp\Core\modules\files\entity;
 
+use Throwable;
 use Simp\Core\modules\database\Database;
 use Simp\Core\modules\user\entity\User;
 use Simp\Core\modules\user\trait\StaticHelperTrait;
@@ -176,6 +177,11 @@ class File
         $query = "DELETE FROM `file_managed` WHERE `fid` = :id";
         $query = $con->prepare($query);
         $query->bindParam(':id', $this->fid);
+
+        try{
+            @unlink($this->uri);
+        }catch (Throwable){}
+
         return $query->execute();
     }
 

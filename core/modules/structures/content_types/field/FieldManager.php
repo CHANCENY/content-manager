@@ -2,10 +2,13 @@
 
 namespace Simp\Core\modules\structures\content_types\field;
 
+use Simp\Core\components\extensions\ModuleHandler;
 use Simp\Core\lib\installation\SystemDirectory;
+use Simp\Core\modules\structures\content_types\field\fields\DragDropFieldBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\FieldSetBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\FileFieldBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\InputFieldBuilder;
+use Simp\Core\modules\structures\content_types\field\fields\MarkUpFieldBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\ReferenceFieldBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\SelectFieldBuilder;
 use Simp\Core\modules\structures\content_types\field\fields\TextAreaFieldBuilder;
@@ -39,6 +42,7 @@ class FieldManager
             'reset' => InputFieldBuilder::class,
             'button' => InputFieldBuilder::class,
             'file' => FileFieldBuilder::class,
+            'drag_and_drop' => DragDropFieldBuilder::class,
             'select' => SelectFieldBuilder::class,
             'simple_textarea' => TextAreaFieldBuilder::class,
             'ck_editor' => TextAreaFieldBuilder::class,
@@ -46,7 +50,14 @@ class FieldManager
             'fieldset' => FieldSetBuilder::class,
             'conditional' => FieldSetBuilder::class,
             'reference' => ReferenceFieldBuilder::class,
+            'markup' => MarkupFieldBuilder::class,
         ];
+        $module_handler = ModuleHandler::factory();
+        $extension_fields = $module_handler->getFieldExtension();
+        if (!empty($extension_fields)) {
+            $this->supported_fields = array_merge($this->supported_fields, $extension_fields);
+        }
+        ksort($this->supported_fields);
         $system = new SystemDirectory();
         $extension_file = $system->setting_dir . DIRECTORY_SEPARATOR . 'fields' . DIRECTORY_SEPARATOR . 'fields.php';
         if (file_exists($extension_file)) {
