@@ -334,12 +334,7 @@ class ContentTypeDefinitionForm extends FormBase
 
                 // now insert in other tables.
                 $node = Node::create($node_data);
-                //Auto path creation if enabled
-                if (ModuleHandler::factory()->isModuleEnabled('auto_path')) {
-                    if (AutoPathAlias::factory()->isEntityTypeAutoPathEnabled($this->content_type['machine_name'])) {
-                        AutoPathAlias::factory()->create($node);
-                    }
-                }
+
                 Messager::toast()->addMessage("Content of type {$this->content_type['name']} created");
                 $redirect = new RedirectResponse('/admin/content');
                 $redirect->setStatusCode(302);

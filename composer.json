@@ -21,7 +21,8 @@
       "ext-readline": "*",
         "fakerphp/faker": "^1.24",
         "simp/translate": "^1.0",
-      "ext-zip": "*"
+      "ext-zip": "*",
+      "ext-intl": "*"
     },
     "autoload": {
         "psr-4": {

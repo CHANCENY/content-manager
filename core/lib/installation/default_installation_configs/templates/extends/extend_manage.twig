@@ -31,7 +31,7 @@
 					{% for key,item in lists %}
 						<tr>
 							<td>{{ item.name }}</td>
-							<td>{{ item.description }}</td>
+							<td>{{ item.description|raw }}</td>
 							<td>{{ item.core_version_requirement}}</td>
 							<td><input {{ item.enabled ? 'checked' : '' }} type="checkbox" name="module[]" value="{{ key }}"/></td>
 						</tr>

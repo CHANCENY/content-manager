@@ -11,54 +11,62 @@
     </div>
 
     <div id="contents" class="tab-content active">
-    {% include 'default.view.filter.form' with {filters: filters}  %}
-    <div class="table">
-        <table>
-            <thead>
-            <tr>
-                <th>#</th>
-                <th>{{ "Title"|t }}</th>
-                <th>{{ "Type"|t }}</th>
-                <th>{{ "Author"|t }}</th>
-                <th>{{ "Updated"|t }}</th>
-                <th>{{ "Created"|t }}</th>
-                <th>{{ "Status"|t }}</th>
-                <th>{{ "Actions"|t }}</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% if nodes is not empty %}
-                {% for node in nodes %}
-                    <tr>
-                        <td>{{ node.nid }}</td>
-                        <td><a href="/node/{{ node.nid }}">{{ node.title }}</a></td>
-                        <td>{{ node.bundle }}</td>
-                        <td>{{ node.getOwner.name }}</td>
-                        <td>{{ node.updated }}</td>
-                        <td>{{ node.created }}</td>
-                        <td>
-                            {% if node.status %}
-                                <span>{{ "Active"|t }}</span>
+        {% include 'default.view.filter.form' with {filters: filters}  %}
+        <div class="table">
+            <table>
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>{{ "Title"|t }}</th>
+                    <th>{{ "Type"|t }}</th>
+                    <th>{{ "Author"|t }}</th>
+                    <th>{{ "Updated"|t }}</th>
+                    <th>{{ "Created"|t }}</th>
+                    <th>{{ "Status"|t }}</th>
+                    <th>{{ "Actions"|t }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if nodes is not empty %}
+                    {% for node in nodes %}
+                        <tr>
+                            <td>{{ node.nid }}</td>
+                            {% set alias = auto_path_key(node.nid) %}
+                            {% set uri_alias = url(alias) %}
+
+                            {% if uri_alias is not null %}
+                                <td><a href="{{ uri_alias }}">{{ node.title }}</a></td>
                             {% else %}
-                                <span>{{ "Inactive"|t }}</span>
+                                <td><a href="/node/{{ node.nid }}">{{ node.title }}</a></td>
+
                             {% endif %}
-                        </td>
-                        <td>
-                            <a href="/node/{{ node.nid }}/edit">{{ "Edit"|t }}</a>
-                            <a href="/node/{{ node.nid }}/delete">{{ "Delete"|t }}</a>
+                            <td>{{ node.bundle }}</td>
+                            <td>{{ node.getOwner.name }}</td>
+                            <td>{{ node.updated }}</td>
+                            <td>{{ node.created }}</td>
+                            <td>
+                                {% if node.status %}
+                                    <span>{{ "Active"|t }}</span>
+                                {% else %}
+                                    <span>{{ "Inactive"|t }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="/node/{{ node.nid }}/edit">{{ "Edit"|t }}</a>
+                                <a href="/node/{{ node.nid }}/delete">{{ "Delete"|t }}</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8">
+                            <p style="text-align: center; padding: 2rem;">{{ "No content created yet."|t }}</p>
                         </td>
                     </tr>
-                {% endfor %}
-            {% else %}
-                <tr>
-                    <td colspan="8">
-                        <p style="text-align: center; padding: 2rem;">{{ "No content created yet."|t }}</p>
-                    </td>
-                </tr>
-            {% endif %}
-            </tbody>
-        </table>
-    </div>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
 
     </div>
 

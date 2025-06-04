@@ -14,6 +14,8 @@ use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidConfigurationException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidTypeException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
+use Simp\Core\components\extensions\ModuleHandler;
+use Simp\Core\extends\auto_path\src\path\AutoPathAlias;
 use Simp\Core\lib\installation\InstallerValidator;
 use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\lib\memory\cache\Caching;
@@ -129,6 +131,12 @@ class App
             }
         }
 
+        // auto path
+        $auto_path_alias = array();
+        if(ModuleHandler::factory()->isModuleEnabled('auto_path')) {
+            $auto_path_alias = AutoPathAlias::injectAliases();
+        }
+
         $router = new Router($middleware_file);
 
         if ($route_keys->isHit()) {
@@ -140,6 +148,34 @@ class App
                     $route = $route->get();
                     $this->currentRoute = $route;
                     /**@var Route $route**/
+                    // check methods
+                    $methods = $route->method;
+                    $path = $route->route_path;
+                    $name = $route->controller_method;
+                    $controller = $route->controller. "@" . $name;
+
+                    $options = [
+                        'access' => $route->access,
+                        'route' => $route,
+                        'key' => $route_key,
+                    ];
+
+                    if (count($methods) > 0) {
+                        foreach ($methods as $method) {
+                            $method_single = strtolower($method);
+                            /**@var Response $response**/
+                            $response[] = $router->$method_single($path, $name,$controller, $options);
+                        }
+                    }
+                }
+
+            }
+
+            if (!empty($auto_path_alias)) {
+                foreach ($auto_path_alias as $route_key => $route) {
+                    /**@var Route $route**/
+                    $this->currentRoute = $route;
+
                     // check methods
                     $methods = $route->method;
                     $path = $route->route_path;

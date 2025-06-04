@@ -8,6 +8,8 @@ use Simp\Core\lib\forms\ContentTypeInnerFieldEditForm;
 use Simp\Core\lib\forms\DisplayEditForm;
 use Simp\Core\lib\forms\SearchFormConfiguration;
 use Simp\Core\lib\forms\ViewAddForm;
+use Simp\Core\lib\memory\cache\Caching;
+use Simp\Core\lib\routes\Route;
 use Simp\Core\modules\assets_manager\AssetsManager;
 use Simp\Core\modules\files\entity\File;
 use Simp\Core\modules\integration\rest\JsonRestManager;
@@ -814,7 +816,19 @@ class SystemController
     public function content_node_controller(...$args): RedirectResponse|Response
     {
         extract($args);
+
         $nid = $request->get('nid');
+        if (empty($nid)) {
+            /**@var Route|null $route**/
+            $route = $options['route'] ?? null;
+            if (!empty($route)) {
+                $route_option = $route->options['node'] ?? null;
+                if (!empty($route_option)) {
+                    $nid = $route_option;
+                }
+            }
+        }
+
         if (empty($nid)) {
             Messager::toast()->addWarning("Node id not found.");
             return new RedirectResponse('/');

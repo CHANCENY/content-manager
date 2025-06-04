@@ -1,6 +1,7 @@
 <?php
 
 use Simp\Core\components\extensions\ModuleHandler;
+use Simp\Core\extends\auto_path\src\path\AutoPathAlias;
 use Simp\Core\lib\routes\Route;
 use Simp\Core\modules\structures\content_types\entity\Node;
 use Simp\Core\modules\files\entity\File;
@@ -114,10 +115,14 @@ function breakLineToHtml(string $text,int $at = 100): string
  * @throws PhpfastcacheDriverException
  * @throws PhpfastcacheInvalidArgumentException
  */
-function url(string $id, array $options, array $params = []): string
+function url(string $id, array $options, array $params = []): ?string
 {
     if (!empty($id)) {
         $route = Caching::init()->get($id);
+        if (empty($route) && ModuleHandler::factory()->isModuleEnabled('auto_path')) {
+            $routes = AutoPathAlias::injectAliases();
+            $route = $routes[$id] ?? null;
+        }
         if ($route instanceof Route) {
             $pattern = $route->getRoutePath();
             $generatePath = function (string $pattern, array $values): string {
@@ -129,7 +134,7 @@ function url(string $id, array $options, array $params = []): string
             return empty($params) ? $with_value_pattern : $with_value_pattern . '?'. http_build_query($params);
         }
     }
-    return '';
+    return null;
 }
 
 /**
@@ -421,6 +426,10 @@ function get_functions(): array
             $sections = $GLOBALS['theme'][$section] ?? [];
             return implode('',$sections);
 
+        }),
+
+        new TwigFunction('auto_path_key',function(int $number){
+            return AutoPathAlias::createRouteId($number);
         })
     );
 }
