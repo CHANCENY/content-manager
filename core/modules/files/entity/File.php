@@ -2,6 +2,7 @@
 
 namespace Simp\Core\modules\files\entity;
 
+use Throwable;
 use Simp\Core\modules\database\Database;
 use Simp\Core\modules\user\entity\User;
 use Simp\Core\modules\user\trait\StaticHelperTrait;
@@ -179,7 +180,7 @@ class File
 
         try{
             @unlink($this->uri);
-        }catch (\Throwable){}
+        }catch (Throwable){}
 
         return $query->execute();
     }

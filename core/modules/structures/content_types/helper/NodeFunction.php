@@ -76,7 +76,7 @@ trait NodeFunction
             $fields = array_merge($fields, $content_type['fields']);
         }
 
-        $function = function ($fields, &$reference_entities) use (&$function) {
+        $function = function ($fields, &$reference_entities) use (&$function): void {
             foreach ($fields as $field) {
                 if ($field['type'] === 'reference') {
                     $reference_entities[] = $field['name'];

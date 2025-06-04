@@ -9,7 +9,7 @@ use Simp\Environment\Definition\Helper;
 
 class Term
 {
-    protected \PDO $PDO;
+    protected PDO $PDO;
 
     public function __construct(PDO $PDO) {
         $this->PDO = $PDO;

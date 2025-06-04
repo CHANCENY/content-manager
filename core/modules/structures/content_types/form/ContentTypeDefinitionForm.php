@@ -2,6 +2,7 @@
 
 namespace Simp\Core\modules\structures\content_types\form;
 
+use Exception;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
@@ -236,7 +237,7 @@ class ContentTypeDefinitionForm extends FormBase
      * @throws PhpfastcacheLogicException
      * @throws PhpfastcacheDriverException
      * @throws PhpfastcacheInvalidArgumentException
-     * @throws \Exception
+     * @throws Exception
      */
     public function submitForm(array &$form): void
     {

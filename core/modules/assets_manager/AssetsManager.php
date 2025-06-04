@@ -60,7 +60,7 @@ class AssetsManager
                         if (!empty($libraries) && $libraries[$library_name]) {
                             $file = $libraries[$library_name];
 
-                            foreach ($file as $key=>$file) {
+                            foreach ($file as $file) {
 
                                 if (str_starts_with($file, '/core/extends')) {
                                     $extension = pathinfo($file, PATHINFO_EXTENSION);

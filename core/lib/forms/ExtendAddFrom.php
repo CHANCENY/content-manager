@@ -2,6 +2,7 @@
 
 namespace Simp\Core\lib\forms;
 
+use ZipArchive;
 use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
@@ -89,7 +90,7 @@ class ExtendAddFrom extends FormBase
             $module_handler = ModuleHandler::factory();
             // unzip the file into modules directory
             $location = $module_handler->module_dir;
-            $zip = new \ZipArchive();
+            $zip = new ZipArchive();
             $res = $zip->open($file['tmp_name']);
             if ($res === true) {
                 $zip->extractTo($location );

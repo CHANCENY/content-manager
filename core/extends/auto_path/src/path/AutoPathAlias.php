@@ -2,6 +2,7 @@
 
 namespace Simp\Core\extends\auto_path\src\path;
 
+use NumberFormatter;
 use Exception;
 use Google\Service\Compute\Router;
 use Simp\Core\lib\controllers\SystemController;
@@ -156,7 +157,7 @@ class AutoPathAlias
 
     public static function createRouteId(int $path_id): string
     {
-        $words = \NumberFormatter::create('en_US', \NumberFormatter::SPELLOUT)->format($path_id);
+        $words = NumberFormatter::create('en_US', NumberFormatter::SPELLOUT)->format($path_id);
         $words = "auto.path.route.{$words}";
 
         // Trim whitespace

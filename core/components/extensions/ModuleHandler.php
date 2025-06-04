@@ -251,7 +251,7 @@ class ModuleHandler extends SystemDirectory
 
                 foreach ($assets as $key=>$asset) {
 
-                   foreach ($asset as $type=>$file) {
+                   foreach ($asset as $file) {
 
                        if ($key === 'head') {
 

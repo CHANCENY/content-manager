@@ -1,5 +1,6 @@
 <?php
 
+use Twig\TwigFunction;
 use Simp\Core\components\extensions\ModuleHandler;
 use Simp\Core\extends\announcement\src\controller\AnnouncementController;
 use Simp\Core\extends\announcement\src\plugin\Announcement;
@@ -75,7 +76,7 @@ function announcement_template_install(): array
 function announcement_twig_function_install(): array
 {
     return [
-        new \Twig\TwigFunction('announcement_unread_count', function () {
+        new TwigFunction('announcement_unread_count', function () {
             return Announcement::factory()->getUnreadAnnouncementsCount();
         })
     ];

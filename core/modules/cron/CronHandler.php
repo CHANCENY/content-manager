@@ -3,6 +3,7 @@
 namespace Simp\Core\modules\cron;
 
 
+use DateTime;
 use DateInterval;
 use Exception;
 use PDO;
@@ -171,7 +172,7 @@ class CronHandler
             return $next_run > $now;
         }
 
-        $datetime = new \DateTime();
+        $datetime = new DateTime();
         $datetime->modify("+". $frequency);
         $next_run = $datetime->getTimestamp();
         if ($recorded_cron['next_run'] > $now) {

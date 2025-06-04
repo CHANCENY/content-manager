@@ -2,6 +2,7 @@
 
 namespace Simp\Core\modules\structures\content_types\entity;
 
+use Exception;
 use PDO;
 use Simp\Core\components\extensions\ModuleHandler;
 use Simp\Core\extends\auto_path\src\path\AutoPathAlias;
@@ -169,7 +170,7 @@ class Node
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public static function create(array $data): ?Node
     {

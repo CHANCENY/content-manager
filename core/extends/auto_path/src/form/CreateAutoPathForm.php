@@ -52,7 +52,7 @@ class CreateAutoPathForm extends FormBase
         ];
 
         $field_names = [];
-        $function = function($fields, &$field_names) use (&$function) {
+        $function = function($fields, &$field_names) use (&$function): void {
             foreach ($fields as $field) {
                 if (!empty($field['inner_field'])) {
                     $function($field['inner_field'], $field_names);

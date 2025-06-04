@@ -1,5 +1,6 @@
 <?php
 
+use Simp\Core\modules\database\Database;
 use Simp\Core\lib\app\App;
 use Simp\Core\modules\cron\CronHandler;
 
@@ -28,7 +29,7 @@ try{
     $cron_object = unserialize(base64_decode($encoded));
     $response = $cron_object->run();
 
-    $query = \Simp\Core\modules\database\Database::database()->con()
+    $query = Database::database()->con()
         ->prepare("INSERT INTO simp_cron_logs (name, execute_time, start_time, end_time, status, message) VALUES (:name, :execute_time, :start_time, :end_time, :status, :message)");
     $query->execute([
         'name' => $response->name,
