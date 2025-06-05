@@ -123,18 +123,16 @@ class Theme extends SystemDirectory
         $module_handler = ModuleHandler::factory();
         $modules = $module_handler->getModules();
         foreach ($modules as $key=>$module) {
-            if (!empty($module['enabled'])) {
-                $install_module = $module['path']. DIRECTORY_SEPARATOR . $key. '.install.php';
-                if (file_exists($install_module)) {
-                    require_once $install_module;
-                    $twig_function = $key. '_twig_function_install';
-                    $twig_filter = $key. '_twig_filter_install';
-                    if (function_exists($twig_function)) {
-                        $this->twig_functions = array_merge($this->twig_functions, $twig_function());
-                    }
-                    if (function_exists($twig_filter)) {
-                        $this->twig_filters = array_merge($this->twig_filters, $twig_filter());
-                    }
+            $install_module = $module['path']. DIRECTORY_SEPARATOR . $key. '.install.php';
+            if (file_exists($install_module)) {
+                require_once $install_module;
+                $twig_function = $key. '_twig_function_install';
+                $twig_filter = $key. '_twig_filter_install';
+                if (function_exists($twig_function)) {
+                    $this->twig_functions = array_merge($this->twig_functions, $twig_function());
+                }
+                if (function_exists($twig_filter)) {
+                    $this->twig_filters = array_merge($this->twig_filters, $twig_filter());
                 }
             }
         }

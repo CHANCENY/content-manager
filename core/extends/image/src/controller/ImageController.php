@@ -17,6 +17,6 @@ class ImageController
 
     public function upload(...$args): JsonResponse
     {
-
+        return new JsonResponse(['success' => true, 'message' => 'coming soon']);
     }
 }
