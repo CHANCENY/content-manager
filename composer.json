@@ -39,14 +39,19 @@
         }
     ],
     "scripts": {
-    "post-install-cmd": [
+      "post-install-cmd": [
         "@php core/lib/installation/composer.php",
-        "@php vendor/simp/translate/src/lang/lang.php"
-    ],
-    "post-update-cmd": [
+        "@php vendor/simp/translate/src/lang/lang.php",
+        "@chmod-core-readonly"
+      ],
+      "post-update-cmd": [
         "@php core/lib/installation/composer.php",
-        "@php vendor/simp/translate/src/lang/lang.php"
-    ]
+        "@php vendor/simp/translate/src/lang/lang.php",
+        "@chmod-core-readonly"
+      ],
+      "chmod-core-readonly": [
+        "chmod -R a-w core"
+      ]
 },
     "require-dev": {
         "rector/rector": "^2.0",

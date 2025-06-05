@@ -14,12 +14,15 @@ use Simp\Core\modules\tokens\TokenManager;
 
 class AutoPathAlias
 {
-    public function __construct(protected Database $database)
+    public function __construct(protected ?Database $database = null)
     {
     }
 
     protected function validateAlias(string $alias, string $entity_type): bool
     {
+        if (is_null($this->database)) {
+            return false;
+        }
         $query = "SELECT * FROM auto_path_patterns WHERE pattern_path = :p AND entity_type = :entity_type";
         $query = $this->database->con()->prepare($query);
         $query->bindValue(':p', $alias);
@@ -31,6 +34,9 @@ class AutoPathAlias
 
     public function addAlias(string $pattern, string $entity_type): bool
     {
+        if (is_null($this->database)) {
+            return false;
+        }
         if (!$this->validateAlias($pattern, $entity_type)) {
             $query = "INSERT INTO auto_path_patterns (`pattern_path`, `entity_type`) VALUES (:pattern_path, :entity_type)";
             $query = $this->database->con()->prepare($query);
@@ -43,6 +49,9 @@ class AutoPathAlias
 
     public function getAliasByEntityType(string $entity_type): array|false|null
     {
+        if (is_null($this->database)) {
+            return false;
+        }
         $query = "SELECT * FROM auto_path_patterns WHERE entity_type = :entity_type";
         $query = $this->database->con()->prepare($query);
         $query->bindValue(':entity_type', $entity_type);
@@ -53,6 +62,9 @@ class AutoPathAlias
 
     public function getAliasByPattern(string $pattern): array|false|null
     {
+        if (is_null($this->database)) {
+            return false;
+        }
         $query = "SELECT * FROM auto_path_patterns WHERE pattern_path = :pattern";
         $query = $this->database->con()->prepare($query);
         $query->bindValue(':pattern', $pattern);
@@ -62,6 +74,9 @@ class AutoPathAlias
 
     public function deleteAlias(int $id): bool
     {
+        if (is_null($this->database)) {
+            return false;
+        }
         $query = "DELETE FROM auto_path_patterns WHERE id = :id";
         $query = $this->database->con()->prepare($query);
         $query->bindValue(':id', $id);
@@ -70,6 +85,9 @@ class AutoPathAlias
 
     public function listAliases(): array
     {
+        if (is_null($this->database)) {
+            return [];
+        }
         $query = "SELECT * FROM auto_path_patterns";
         $query = $this->database->con()->prepare($query);
         $query->execute();
@@ -78,6 +96,9 @@ class AutoPathAlias
 
     protected function validatePath(string $path,int $pattern_id): bool
     {
+        if (is_null($this->database)) {
+            return false;
+        }
         $query = "SELECT id FROM auto_path WHERE path = :path AND pattern_id = :pattern_id";
         $query = $this->database->con()->prepare($query);
         $query->bindValue(':path', $path);
@@ -110,6 +131,9 @@ class AutoPathAlias
      */
     public function create(Node $node): bool
     {
+        if (is_null($this->database)) {
+            return false;
+        }
         $token_manager = TokenManager::token();
         $data = $this->getAliasByEntityType($node->getEntityArray()['machine_name']) ?? [];
         if ($data) {
@@ -189,6 +213,9 @@ class AutoPathAlias
 
     public  function getPaths(): array
     {
+        if (is_null($this->database)) {
+            return [];
+        }
         $query = $this->database->con()->prepare("SELECT * FROM auto_path");
         $query->execute();
         $results = $query->fetchAll();
