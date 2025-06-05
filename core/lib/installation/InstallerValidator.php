@@ -264,7 +264,7 @@ class InstallerValidator extends SystemDirectory {
         foreach ($themes_custom as $theme) {
             $full_path = $this->theme_dir . DIRECTORY_SEPARATOR . $theme;
 
-            if (!is_dir($full_path)) {
+            if (is_dir($full_path)) {
                 $this->recursive_theme_caching($full_path, $theme, $default_keys);
             }
 
