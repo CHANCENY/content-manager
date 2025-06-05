@@ -260,16 +260,6 @@ class InstallerValidator extends SystemDirectory {
             }
         }
 
-        $themes_custom = array_diff(scandir($this->theme_dir) ?? [], ['..', '.']);
-        foreach ($themes_custom as $theme) {
-            $full_path = $this->theme_dir . DIRECTORY_SEPARATOR . $theme;
-
-            if (is_dir($full_path)) {
-                $this->recursive_theme_caching($full_path, $theme, $default_keys);
-            }
-
-        }
-
         $modules_templates = ModuleHandler::factory()->getModuleTemplates();
         foreach ($modules_templates as $template) {
             $this->recursive_caching_defaults($template, $default_keys);
