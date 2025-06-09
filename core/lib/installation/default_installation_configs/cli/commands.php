@@ -1,5 +1,6 @@
 <?php
 
+use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
 use Simp\Core\modules\structures\content_types\faker_manager\FakerManager;
 
 $vendor = getcwd() . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
@@ -10,6 +11,7 @@ if (!file_exists($vendor)) {
 require_once $vendor;
 
 use Simp\Core\lib\memory\cache\Caching;
+use Simp\Core\modules\structures\content_types\storage\ContentDefinitionStorage;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Yaml\Yaml;
 use Simp\Core\modules\user\entity\User;
@@ -608,9 +610,26 @@ function set_up_database(array $options)
 
 }
 
+function content_type_persistence(array $options): void
+{
+    global $terminal_colors;
+
+    $content_types = ContentDefinitionManager::contentDefinitionManager()
+        ->getContentTypes();
+    foreach ($content_types as $key=>$content_type) {
+        ContentDefinitionStorage::contentDefinitionStorage($key)
+            ->storageDefinitionsPersistent();
+        echo "\033[" . $terminal_colors['green'] . "m {$content_type['name']} persisted!\033[0m\n";
+
+    }
+    echo "\033[0m";
+    echo "Finished\n";
+}
+
 return [
     'cleaner' => "cache_clear",
     'user' => "user",
     'faker' => "faker",
     'database' => "set_up_database",
+    'rebuild' => 'content_type_persistence'
 ];
