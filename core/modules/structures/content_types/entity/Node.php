@@ -273,20 +273,18 @@ class Node
                 // First check if we have data.
                 $query = Database::database()->con()->prepare($storage_query1);
                 $query->bindParam(':nid', $this->nid);
+                $query->bindParam(':field_value', $value);
                 $query->execute();
                 $data = $query->fetch();
                 if (!empty($data)) {
                     $query = Database::database()->con()->prepare($storage_query);
-                    $query->bindParam(':nid', $this->nid);
-                    $query->bindParam(':field_value', $value);
-                    $flags[]= $query->execute();
                 }
                 else {
                    $query = Database::database()->con()->prepare($storage_query2);
-                   $query->bindParam(':nid', $this->nid);
-                   $query->bindParam(':field_value', $value);
-                   $flags[]= $query->execute();
                 }
+                $query->bindParam(':nid', $this->nid);
+                $query->bindParam(':field_value', $value);
+                $flags[]= $query->execute();
 
             }
             return !in_array(false, $flags);

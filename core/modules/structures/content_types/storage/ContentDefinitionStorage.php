@@ -176,7 +176,7 @@ class ContentDefinitionStorage
         if ($index !== false) {
             $name = substr($this->content_type['storage'][$index], 4, strlen($this->content_type['storage'][$index]));
             $name = trim($name, '_');
-            return "SELECT * FROM `node__{$name}` WHERE `nid` = :nid";
+            return "SELECT * FROM `node__{$name}` WHERE `nid` = :nid AND {$field_name}__value = :field_value";
         }
         return null;
     }
