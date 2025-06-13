@@ -195,28 +195,28 @@ class User
             $statement->execute();
 
             $user = self::load($uid);
-           if ($emails) {
+            if ($emails) {
 
-               if ($emails['verifying']) {
-                  MailQueueManager::factory()->add(Envelope::create(
-                      'Verifying your email address',
-                      TokenManager::token()->resolver($emails['verifying'], ['site'=>SiteManager::factory(), 'user'=>$user]),
-                  )->addToAddresses([$user->getMail()]));
-               }
-               if ($emails['creation']) {
-                   MailQueueManager::factory()->add( Envelope::create(
-                       'Account creation',
-                       TokenManager::token()->resolver($emails['creation'], ['site'=>SiteManager::factory(), 'user'=>$user]),
-                   )->addToAddresses([$user->getName()]));
-               }
-               if ($emails['notifications']) {
-                   MailQueueManager::factory()->add(Envelope::create(
-                       'New user',
-                       TokenManager::token()->resolver($emails['notifications'], ['site'=>SiteManager::factory(), 'user'=>$user, 'settings'=>$account_setting]),
-                   )->addToAddresses([$account_setting?->get('notifications')]));
-               }
-           }
-           return $user;
+                if ($emails['verifying']) {
+                    MailQueueManager::factory()->add(Envelope::create(
+                        'Verifying your email address',
+                        TokenManager::token()->resolver($emails['verifying'], ['site'=>SiteManager::factory(), 'user'=>$user]),
+                    )->addToAddresses([$user->getMail()]));
+                }
+                if ($emails['creation']) {
+                    MailQueueManager::factory()->add( Envelope::create(
+                        'Account creation',
+                        TokenManager::token()->resolver($emails['creation'], ['site'=>SiteManager::factory(), 'user'=>$user]),
+                    )->addToAddresses([$user->getName()]));
+                }
+                if ($emails['notifications']) {
+                    MailQueueManager::factory()->add(Envelope::create(
+                        'New user',
+                        TokenManager::token()->resolver($emails['notifications'], ['site'=>SiteManager::factory(), 'user'=>$user, 'settings'=>$account_setting]),
+                    )->addToAddresses([$account_setting?->get('notifications')]));
+                }
+            }
+            return $user;
         }
         return null;
     }
@@ -369,5 +369,25 @@ class User
         $query->bindParam(':mail', $name);
         $query->execute();
         return $query->fetchAll();
+    }
+
+    public function assignRole(string $role): bool
+    {
+        $query = "INSERT INTO `user_roles` (`uid`, `role_name`,`role_label`, `name`) VALUES (:uid, :role_name, :role_label, :name)";
+        $query = Database::database()->con()->prepare($query);
+        $query->bindParam(':uid', $this->uid, PDO::PARAM_INT);
+        $query->bindParam(':role_name', $role, PDO::PARAM_STR);
+        $query->bindParam(':role_label', $role, PDO::PARAM_STR);
+        $query->bindParam(':name', $this->name, PDO::PARAM_STR);
+        return $query->execute();
+    }
+
+    public function unassignRole(string $role): bool
+    {
+        $query = "DELETE FROM `user_roles` WHERE `uid` = :uid AND `role_name` = :role_name";
+        $query = Database::database()->con()->prepare($query);
+        $query->bindParam(':uid', $this->uid, PDO::PARAM_INT);
+        $query->bindParam(':role_name', $role, PDO::PARAM_STR);
+        return $query->execute();
     }
 }
