@@ -338,6 +338,25 @@ class Node
         return array_map(fn($value) => new Node(...$value), $result);
     }
 
+    public static function loadByOwner(int $uid, ?string $bundle): array
+    {
+        $query = "SELECT * FROM node_data WHERE uid = :uid";
+        if ($bundle) {
+            $query .= " AND bundle = :bundle";
+        }
+        $query = Database::database()->con()->prepare($query);
+        $query->bindValue(':uid', $uid);
+        if ($bundle) {
+            $query->bindValue(':bundle', $bundle);
+        }
+        $query->execute();
+        $result = $query->fetchAll();
+        if (empty($result)) {
+            return [];
+        }
+        return array_map(fn($value) => new Node(...$value), $result);
+    }
+
     public function __toString(): string
     {
         $top_table = [
