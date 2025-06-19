@@ -117,6 +117,15 @@ function breakLineToHtml(string $text,int $at = 100): string
  */
 function url(string $id, array $options, array $params = []): ?string
 {
+    if (!empty($options['nid']) && empty($options['is_alias'])) {
+        $alias = AutoPathAlias::createRouteId($options['nid']);
+        $options['is_alias'] = true;
+        $found = url($alias, $options, $params);
+        if (!empty($found)) {
+            return $found;
+        }
+    }
+
     if (!empty($id)) {
         $route = Caching::init()->get($id);
         if (empty($route) && ModuleHandler::factory()->isModuleEnabled('auto_path')) {
