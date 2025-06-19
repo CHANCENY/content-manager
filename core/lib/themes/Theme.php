@@ -26,6 +26,7 @@ class Theme extends SystemDirectory
     protected string $twig_filter_definition_file;
     protected array $options;
     public readonly Environment $twig;
+    protected array $extra_extensions;
 
     /**
      * @throws PhpfastcacheCoreException
@@ -36,6 +37,7 @@ class Theme extends SystemDirectory
     public function __construct()
     {
         parent::__construct();
+        $this->extra_extensions = [];
         $default_twig_function = Caching::init()->get('default.admin.functions');
         if (file_exists($default_twig_function)) {
             require_once $default_twig_function;
@@ -154,6 +156,25 @@ class Theme extends SystemDirectory
                 if ($filter instanceof TwigFilter) {
                     $this->twig->addFilter($filter);
                 }
+            }
+        }
+
+        // add extra extension for twig
+
+        foreach ($modules as $key=>$module) {
+            $install_module = $module['path']. DIRECTORY_SEPARATOR . $key. '.install.php';
+            if (file_exists($install_module)) {
+                require_once $install_module;
+                $twig_extension = $key. '_twig_extension_install';
+                if (function_exists($twig_extension)) {
+                    $this->extra_extensions = array_merge($this->extra_extensions, $twig_extension());
+                }
+            }
+        }
+
+        if (!empty($this->extra_extensions)) {
+            foreach ($this->extra_extensions as $extension) {
+                $this->twig->addExtension($extension);
             }
         }
     }

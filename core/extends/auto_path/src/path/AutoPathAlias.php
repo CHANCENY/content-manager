@@ -32,16 +32,17 @@ class AutoPathAlias
         return !empty($count);
     }
 
-    public function addAlias(string $pattern, string $entity_type): bool
+    public function addAlias(string $pattern, string $entity_type, string $default_route): bool
     {
         if (is_null($this->database)) {
             return false;
         }
         if (!$this->validateAlias($pattern, $entity_type)) {
-            $query = "INSERT INTO auto_path_patterns (`pattern_path`, `entity_type`) VALUES (:pattern_path, :entity_type)";
+            $query = "INSERT INTO auto_path_patterns (`pattern_path`, `entity_type`,`route_controller`) VALUES (:pattern_path, :entity_type, :route_controller)";
             $query = $this->database->con()->prepare($query);
             $query->bindValue(':pattern_path', $pattern);
             $query->bindValue(':entity_type', $entity_type);
+            $query->bindValue(':route_controller', $default_route);
             return $query->execute();
         }
         return false;
@@ -211,6 +212,15 @@ class AutoPathAlias
         return new self($database);
     }
 
+    public function getPattern(int $id): array|false|null
+    {
+        $query = "SELECT * FROM auto_path_patterns WHERE id = :id";
+        $query = $this->database->con()->prepare($query);
+        $query->bindValue(':id', $id);
+        $query->execute();
+        return $query->fetch();
+    }
+
     public  function getPaths(): array
     {
         if (is_null($this->database)) {
@@ -222,6 +232,7 @@ class AutoPathAlias
         $routes = [];
         foreach ($results as $result) {
             $route_key = self::createRouteId($result['nid']);
+            $pattern = $this->getPattern($result['pattern_id']);
             $route = [
                 'title' => 'Alias',
                 'path' => $result['path'],
@@ -241,6 +252,7 @@ class AutoPathAlias
                 ],
                 'options' => [
                     'node' => $result['nid'],
+                    'default' => $pattern['route_controller'] ?? 'system.structure.content.node',
                 ]
             ];
             $routes[$route_key] = new Route($route_key, $route);
