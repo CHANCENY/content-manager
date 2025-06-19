@@ -103,7 +103,7 @@ trait NodeFunction
 
             foreach ($tables as $index => $table) {
                 $alias = "t{$index}";
-                $join_column = (count($tables) === 1) ? 'nid' : 'entity_id';
+                $join_column = (count($tables) === 1) ? 'nid' : 'nid';
 
                 $join_statements .= "LEFT JOIN {$table} AS {$alias} ON {$alias}.{$join_column} = {$base_table}.nid\n";
 
@@ -125,13 +125,14 @@ trait NodeFunction
             // Build SELECT statement
             $select = "SELECT {$base_table}.nid FROM {$base_table} \n" . $join_statements;
 
+
             if (!empty($where_conditions)) {
                 $select .= "WHERE (" . implode(" OR ", $where_conditions) . ") ";
             } else {
                 $select .= "WHERE 1=1 ";
             }
 
-            $select .= "AND {$base_table}.status = 1 ORDER BY {$base_table}.updated DESC";
+            $select .= "AND {$base_table}.status = 1 GROUP BY node_data.nid ORDER BY {$base_table}.updated DESC";
 
             // Execute query
             $query = Database::database()->con()->prepare($select);

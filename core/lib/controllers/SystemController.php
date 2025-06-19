@@ -812,17 +812,31 @@ class SystemController
      * @throws PhpfastcacheLogicException
      * @throws PhpfastcacheDriverException
      * @throws PhpfastcacheInvalidArgumentException
+     * @throws \ReflectionException
      */
     public function content_node_controller(...$args): RedirectResponse|Response
     {
         extract($args);
 
         $nid = $request->get('nid');
+
+        /**@var Route|null $route**/
+        $route = $options['route'] ?? null;
+
+        $default = $route->options['default'] ?? null;
+
+        if (!empty($default) && $default !== $route->route_id) {
+            $route_object = Caching::init()->get($default);
+            if ($route_object instanceof Route) {
+                return Route::getControllerResponse($route_object, $args);
+            }
+        }
+
+
         if (empty($nid)) {
-            /**@var Route|null $route**/
-            $route = $options['route'] ?? null;
             if (!empty($route)) {
                 $route_option = $route->options['node'] ?? null;
+
                 if (!empty($route_option)) {
                     $nid = $route_option;
                 }

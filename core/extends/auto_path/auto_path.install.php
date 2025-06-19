@@ -9,7 +9,7 @@ use Simp\Core\modules\database\Database;
 function auto_path_database_install(): bool
 {
     $query = "CREATE TABLE IF NOT EXISTS `auto_path` (id INT AUTO_INCREMENT PRIMARY KEY, path VARCHAR(400) NOT NULL UNIQUE, nid INT NOT NULL UNIQUE, pattern_id INT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, CONSTRAINT fk_nid FOREIGN KEY (nid) REFERENCES node_data(nid) ON DELETE CASCADE, CONSTRAINT fk_id FOREIGN KEY (pattern_id) REFERENCES auto_path_patterns(id) ON DELETE CASCADE)";
-    $query1 = "CREATE TABLE IF NOT EXISTS `auto_path_patterns` (id INT AUTO_INCREMENT PRIMARY KEY, pattern_path VARCHAR(255) NOT NULL UNIQUE, entity_type VARCHAR(255) NOT NULL UNIQUE)";
+    $query1 = "CREATE TABLE IF NOT EXISTS `auto_path_patterns` (id INT AUTO_INCREMENT PRIMARY KEY, pattern_path VARCHAR(255) NOT NULL UNIQUE, route_controller VARCHAR(255) NOT NULL, entity_type VARCHAR(255) NOT NULL UNIQUE)";
     Database::database()->con()->prepare($query1)->execute();
     return Database::database()->con()->prepare($query)->execute();
 }

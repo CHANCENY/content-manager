@@ -96,7 +96,20 @@ class Node
 
     public function get(string $field_name)
     {
-        return $this->values[$field_name]['value'] ?? null;
+        $field = self::findField($this->entity_types['fields'], $field_name);
+        if (empty($field)) {
+            return null;
+        }
+        $values = $this->values[$field_name]['value'] ?? null;
+
+        if (empty($values)) {
+            return null;
+        }
+
+        if (!empty($field['limit']) && intval($field['limit']) === 1) {
+            return [end($values)];
+        }
+        return $values;
     }
 
     public function getTitle(): ?string

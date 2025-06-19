@@ -371,14 +371,14 @@ class User
         return $query->fetchAll();
     }
 
-    public function assignRole(string $string): bool
+    public function assignRole(string $role): bool
     {
         $query = "INSERT INTO `user_roles` (`uid`, `role_name`,`role_label`, `name`) VALUES (:uid, :role_name, :role_label, :name)";
         $query = Database::database()->con()->prepare($query);
         $query->bindParam(':uid', $this->uid, PDO::PARAM_INT);
         $query->bindParam(':role_name', $role, PDO::PARAM_STR);
         $query->bindParam(':role_label', $role, PDO::PARAM_STR);
-        $query->bindParam(':name', $this->name, PDO::PARAM_STR);
+        $query->bindParam(':name', $role, PDO::PARAM_STR);
         return $query->execute();
     }
 
@@ -388,6 +388,14 @@ class User
         $query = Database::database()->con()->prepare($query);
         $query->bindParam(':uid', $this->uid, PDO::PARAM_INT);
         $query->bindParam(':role_name', $role, PDO::PARAM_STR);
+        return $query->execute();
+    }
+
+    public function delete(): bool
+    {
+        $query = "DELETE FROM `users` WHERE `uid` = :uid";
+        $query = Database::database()->con()->prepare($query);
+        $query->bindParam(':uid', $this->uid, PDO::PARAM_INT);
         return $query->execute();
     }
 }

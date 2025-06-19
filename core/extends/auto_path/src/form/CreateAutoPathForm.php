@@ -9,6 +9,8 @@ use Phpfastcache\Exceptions\PhpfastcacheIOException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\components\markup_field\MarkUpField;
 use Simp\Core\extends\auto_path\src\path\AutoPathAlias;
+use Simp\Core\lib\memory\cache\Caching;
+use Simp\Core\lib\routes\Route;
 use Simp\Core\modules\messager\Messager;
 use Simp\Core\modules\structures\content_types\ContentDefinitionManager;
 use Simp\Default\DetailWrapperField;
@@ -26,6 +28,12 @@ class CreateAutoPathForm extends FormBase
        return 'create_auto_path';
     }
 
+    /**
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
     public function buildForm(array &$form): array
     {
         $content_types = ContentDefinitionManager::contentDefinitionManager()->getContentTypes();
@@ -101,6 +109,29 @@ class CreateAutoPathForm extends FormBase
             'description' => 'Give the path pattern to the auto path',
             'required' => true,
         ];
+
+        $routes = [];
+        $routes = Caching::init()->get('system.routes.keys');
+        $mapped_routes = array();
+
+        foreach ($routes as $route) {
+            $route = Caching::init()->get($route);
+            $mapped_routes[$route->route_id] = $route->route_title;
+        }
+
+        $form['route'] = [
+          'type' => 'select',
+          'label' => 'Route',
+          'name' => 'route',
+          'id' => 'route',
+          'class' => ['form-control'],
+          'option_values' => $mapped_routes,
+          'handler' => SelectField::class,
+          'required' => true,
+          'default_value' => 'system.structure.content.node',
+          'description' => 'Auto path alias does`t have a route controller so it will be redirected to the default route controller selected here.'
+        ];
+
         $form['submit'] = [
             'type' => 'submit',
             'name' => 'submit',
@@ -121,6 +152,10 @@ class CreateAutoPathForm extends FormBase
             $form['type']->setError('Type is required.');
             $this->validated = false;
         }
+
+        if (empty($form['route']->getValue())) {
+            $form['route']->setError('Route is required.');
+        }
     }
 
     /**
@@ -135,7 +170,8 @@ class CreateAutoPathForm extends FormBase
         if ($this->validated) {
             $pattern = $form['path']->getValue();
             $type = $form['type']->getValue();
-            if (AutoPathAlias::factory()->addAlias($pattern, $type)) {
+            $route = $form['route']->getValue();
+            if (AutoPathAlias::factory()->addAlias($pattern, $type,$route)) {
                 Messager::toast()->addMessage("Auto Path alias '$pattern' has been created");
             }
             $redirect = new RedirectResponse('/admin/auto-path/list');
