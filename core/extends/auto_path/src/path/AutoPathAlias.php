@@ -5,6 +5,10 @@ namespace Simp\Core\extends\auto_path\src\path;
 use NumberFormatter;
 use Exception;
 use Google\Service\Compute\Router;
+use Phpfastcache\Exceptions\PhpfastcacheCoreException;
+use Phpfastcache\Exceptions\PhpfastcacheDriverException;
+use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
+use Phpfastcache\Exceptions\PhpfastcacheLogicException;
 use Simp\Core\lib\controllers\SystemController;
 use Simp\Core\lib\memory\cache\Caching;
 use Simp\Core\lib\routes\Route;
@@ -107,6 +111,50 @@ class AutoPathAlias
         $query->execute();
         $count = $query->fetchColumn();
         return !empty($count);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function __populate(): array
+    {
+        $patterns = $this->listAliases();
+
+        $creation_happened = [];
+
+        // now let loop through and get nodes that have not yet alias
+        foreach ($patterns as $pattern) {
+            $entity_type = $pattern['entity_type'];
+            $pattern_id = (int) $pattern['id'];
+
+            $query = "SELECT nid 
+              FROM `node_data` 
+              WHERE `bundle` = '{$entity_type}' 
+              AND nid NOT IN (
+                  SELECT nid 
+                  FROM `auto_path` 
+                  WHERE `pattern_id` = {$pattern_id}
+              )";
+
+            // Execute $query as needed
+            $query = Database::database()->con()->prepare($query);
+            $query->execute();
+            $results = $query->fetchAll();
+
+            if (count($results) > 0) {
+                foreach ($results as $result) {
+                    $node = Node::load($result['nid']);
+                    $result_created = $this->create($node);
+                    if ($result_created) {
+                        $creation_happened['created'][] = true;
+                    }
+                    else {
+                        $creation_happened['failed'][] = false;
+                    }
+                }
+            }
+        }
+       return $creation_happened;
     }
 
     protected function createAliasUrl(string $token): string
@@ -221,6 +269,12 @@ class AutoPathAlias
         return $query->fetch();
     }
 
+    /**
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
     public  function getPaths(): array
     {
         if (is_null($this->database)) {
@@ -233,10 +287,18 @@ class AutoPathAlias
         foreach ($results as $result) {
             $route_key = self::createRouteId($result['nid']);
             $pattern = $this->getPattern($result['pattern_id']);
+            $route_default = $pattern['route_controller'] ?? 'system.structure.content.node';
+            $default_r = Route::fromRouteName($route_default);
+            $access = [
+                'administrator',
+            ];
+            if ($default_r) {
+                $access = $default_r->getAccess();
+            }
             $route = [
-                'title' => 'Alias',
+                'title' =>  $default_r?->route_title ?? 'Alias',
                 'path' => $result['path'],
-                'method' => [
+                'method' => $default_r?->method ??  [
                     'GET',
                     'POST',
                 ],
@@ -244,15 +306,10 @@ class AutoPathAlias
                     'class' => SystemController::class,
                     'method' => 'content_node_controller'
                 ],
-                'access' => [
-                    'administrator',
-                    'content_creator',
-                    'authenticated',
-                    'manager'
-                ],
+                'access' => $access,
                 'options' => [
                     'node' => $result['nid'],
-                    'default' => $pattern['route_controller'] ?? 'system.structure.content.node',
+                    'default' => $route_default,
                 ]
             ];
             $routes[$route_key] = new Route($route_key, $route);
@@ -260,6 +317,12 @@ class AutoPathAlias
         return $routes;
     }
 
+    /**
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
     public static function injectAliases(): array
     {
         return self::factory()->getPaths();

@@ -720,7 +720,7 @@ class SystemController
         $filters = Node::filters('node_data', $limit);
         $files_filters = File::filters('file_managed', $limit);
         $nodes = Node::parseFilter(Node::class, 'node_data', $filters, $request, Node::class);
-        $files = File::parseFilter(File::class, 'file_managed', $files_filters, $request, File::class);
+        //$files = File::parseFilter(File::class, 'file_managed', $files_filters, $request, File::class);
         return new Response(View::view('default.view.content_content_admin',
             [
                 'nodes' => $nodes,

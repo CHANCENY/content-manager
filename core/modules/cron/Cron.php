@@ -7,6 +7,7 @@ use Phpfastcache\Exceptions\PhpfastcacheCoreException;
 use Phpfastcache\Exceptions\PhpfastcacheDriverException;
 use Phpfastcache\Exceptions\PhpfastcacheInvalidArgumentException;
 use Phpfastcache\Exceptions\PhpfastcacheLogicException;
+use Simp\Core\components\extensions\ModuleHandler;
 use Simp\Core\lib\installation\SystemDirectory;
 use Simp\Core\lib\memory\cache\Caching;
 use Simp\Core\modules\database\Database;
@@ -51,6 +52,24 @@ class Cron
         }
         $custom = Yaml::parseFile($custom_subscribers) ?? [];
         $this->subscribers = [...$this->subscribers, ...$custom];
+
+        // Bring cron defined in modules
+        $module_handler = ModuleHandler::factory();
+        $modules = $module_handler->getModules();
+        foreach ($modules as $key=>$module) {
+            $install_module = $module['path']. DIRECTORY_SEPARATOR . $key. '.install.php';
+            if (file_exists($install_module) && !empty($module['enabled'])) {
+                require_once $install_module;
+                $cron_subscriber = $key. '_cron_subscribers_install';
+                $cron_job = $key. '_cron_jobs_install';
+                if (function_exists($cron_subscriber)) {
+                    $this->subscribers = array_merge($this->subscribers, $cron_subscriber());
+                }
+                if (function_exists($cron_job)) {
+                    $this->jobs = array_merge($this->jobs, $cron_job());
+                }
+            }
+        }
 
     }
 

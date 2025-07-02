@@ -1,11 +1,19 @@
  import {
-        ClassicEditor,
-        Essentials,
-        Paragraph,
-        Bold,
-        Italic,
-        Font,
-        CodeBlock
+     ClassicEditor,
+     Essentials,
+     Paragraph,
+     Heading,
+     Bold,
+     Italic,
+     Font,
+     List,
+     ListProperties,
+     Image,
+     ImageToolbar,
+     ImageUpload,
+     ImageInsert,
+     Base64UploadAdapter,
+     SourceEditing
     } from 'ckeditor5';
 
     if (document.querySelectorAll('textarea')) {
@@ -17,12 +25,34 @@
                 ClassicEditor
                 .create( element, {
                     licenseKey: 'GPL',
-                    plugins: [ Essentials, Paragraph, Bold, Italic, Font,CodeBlock ],
+                        plugins: [
+                            Essentials,
+                            Paragraph,
+                            Heading,
+                            Bold,
+                            Italic,
+                            Font,
+                            List,
+                            ListProperties,
+                            Image,
+                            ImageToolbar,
+                            ImageUpload,
+                            ImageInsert,
+                            Base64UploadAdapter,
+                            SourceEditing
+                        ],
                     toolbar: [
-                        'undo', 'redo', '|', 'bold', 'italic', '|',
-                        'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor',
-                        'codeBlock'
+                        'heading', '|',
+                        'bold', 'italic', '|',
+                        'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
+                        'bulletedList', 'numberedList', '|',
+                        'insertImage', '|',
+                        'sourceEditing', '|',
+                        'undo', 'redo'
                     ],
+                    image: {
+                        toolbar: ['imageTextAlternative', 'imageStyle:full', 'imageStyle:side']
+                    },
                     codeBlock: {
                         languages: [
                             { language: 'plaintext', label: 'Plain text' }, // The default language.

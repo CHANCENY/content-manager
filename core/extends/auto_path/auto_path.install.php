@@ -4,6 +4,7 @@
 
 use Simp\Core\components\extensions\ModuleHandler;
 use Simp\Core\extends\auto_path\src\controller\AutoPathController;
+use Simp\Core\extends\auto_path\src\path\AutoPathCronSubscriber;
 use Simp\Core\modules\database\Database;
 
 function auto_path_database_install(): bool
@@ -70,4 +71,23 @@ function auto_path_route_install(): array
         ]
     ];
 
+}
+
+function auto_path_cron_jobs_install(): array
+{
+    return [
+        'auto_path_populate' => [
+            'title' => 'Auto Path Alias Creation',
+            'description' => 'Auto Path cron that will do the creation of aliases for those node that are not yet have alias',
+            'timing' => 'every|day',
+            'subscribers' => 'auto_path.alias'
+        ]
+    ];
+}
+
+function auto_path_cron_subscribers_install(): array
+{
+    return [
+        'auto_path.alias' => AutoPathCronSubscriber::class,
+    ];
 }

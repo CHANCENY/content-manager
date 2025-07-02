@@ -127,6 +127,21 @@ class Route
         return $controller->$method(...$options);
     }
 
+    /**
+     * @throws PhpfastcacheCoreException
+     * @throws PhpfastcacheLogicException
+     * @throws PhpfastcacheDriverException
+     * @throws PhpfastcacheInvalidArgumentException
+     */
+    public static function fromRouteName(string $route_name): ?Route
+    {
+        $route = Caching::init()?->get($route_name);
+        if ($route) {
+            return $route;
+        }
+        return null;
+    }
+
     public function getRouteType(): string
     {
         return $this->route_type;
