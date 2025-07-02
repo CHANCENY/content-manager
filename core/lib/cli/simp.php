@@ -22,8 +22,6 @@ if (!file_exists($vendor)) {
 
 require_once $vendor;
 
-PHP_OS === 'Windows' ? @system('cls') : @system('clear');
-
 /**
  * @return void
  * @throws PhpfastcacheCoreException
