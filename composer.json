@@ -39,16 +39,6 @@
             "email": "nyasuluchance6@gmail.com"
         }
     ],
-    "scripts": {
-      "post-install-cmd": [
-        "@php core/lib/installation/composer.php",
-        "@php vendor/simp/translate/src/lang/lang.php"
-      ],
-      "post-update-cmd": [
-        "@php core/lib/installation/composer.php",
-        "@php vendor/simp/translate/src/lang/lang.php"
-      ]
-},
     "require-dev": {
         "rector/rector": "^2.0",
         "friendsofphp/php-cs-fixer": "^3.75"
