@@ -29,7 +29,8 @@
         "psr-4": {
             "Simp\\Core\\": "core/",
             "Simp\\Public\\Module\\": "public/module/",
-            "Simp\\Public\\Theme\\": "public/theme/"
+            "Simp\\Public\\Theme\\": "public/theme/",
+            "Simp\\Modal\\": "modal/"
         }
     },
     "license": "MIT",
